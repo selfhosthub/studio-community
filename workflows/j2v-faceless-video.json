@@ -51,7 +51,7 @@
         "_prompt_variable:language": {
           "mappingType": "mapped",
           "stepId": "__instance_form__",
-          "outputField": "subtitles_language"
+          "outputField": "render_video.elements[0].language"
         }
       },
       "timeout": 60,
@@ -102,7 +102,7 @@
         "_prompt_variable:language": {
           "mappingType": "mapped",
           "stepId": "__instance_form__",
-          "outputField": "subtitles_language"
+          "outputField": "render_video.elements[0].language"
         }
       },
       "timeout": 120,
@@ -227,7 +227,7 @@
         "language": {
           "mappingType": "mapped",
           "stepId": "__instance_form__",
-          "outputField": "subtitles_language"
+          "outputField": "render_video.elements[0].language"
         }
       },
       "timeout": 300,
@@ -505,11 +505,11 @@
       "timeout": 600,
       "outputs": {
         "video_id": {
-          "path": "id",
+          "path": "response_body.id",
           "type": "string"
         },
         "upload_status": {
-          "path": "status.uploadStatus",
+          "path": "response_body.status.uploadStatus",
           "type": "string"
         }
       }

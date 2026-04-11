@@ -1,0 +1,40 @@
+{
+  "$schema": "https://raw.githubusercontent.com/selfhosthub/studio-community/main/schemas/provider.schema.json",
+  "name": "Core",
+  "slug": "core",
+  "provider_type": "INTERNAL",
+  "description": "Core workflow utilities for data transformation, control flow, and webhooks",
+  "endpoint_url": null,
+  "status": "ACTIVE",
+  "tier": "basic",
+  "category": "flow",
+  "credential_provider": null,
+  "requires": [],
+  "services_preview": [
+    "Set Fields",
+    "Switch",
+    "Filter",
+    "Webhook"
+  ],
+  "config": {
+    "auth_type": "none",
+    "internal": true
+  },
+  "capabilities": {
+    "set_fields": true,
+    "webhooks": true,
+    "control_flow": [
+      "switch",
+      "if",
+      "filter"
+    ],
+    "data_ops": [
+      "merge",
+      "split",
+      "aggregate"
+    ]
+  },
+  "credential_schema": null,
+  "documentation_url": "",
+  "icon_url": "/providers/core.svg"
+}

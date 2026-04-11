@@ -1,0 +1,104 @@
+{
+  "$schema": "https://raw.githubusercontent.com/selfhosthub/studio-community/main/schemas/provider.schema.json",
+  "name": "YouTube",
+  "slug": "youtube",
+  "description": "YouTube integration for video management, comments, and analytics",
+  "provider_type": "API",
+  "status": "ACTIVE",
+  "endpoint_url": null,
+  "tier": "basic",
+  "category": "social_media",
+  "credential_provider": "google",
+  "requires": [],
+  "services_preview": [
+    "List Videos",
+    "Get Video",
+    "Search",
+    "Upload Video",
+    "Update Video",
+    "Delete Video",
+    "Playlists",
+    "Comments",
+    "Reply"
+  ],
+  "config": {
+    "auth_type": "oauth2",
+    "oauth_provider": "google",
+    "oauth": {
+      "authorization_url": "https://accounts.google.com/o/oauth2/v2/auth",
+      "token_url": "https://oauth2.googleapis.com/token",
+      "scopes": [
+        "https://www.googleapis.com/auth/youtube",
+        "https://www.googleapis.com/auth/youtube.upload",
+        "https://www.googleapis.com/auth/youtube.readonly",
+        "https://www.googleapis.com/auth/youtube.force-ssl"
+      ],
+      "client_id_env": "GOOGLE_CLIENT_ID",
+      "client_secret_env": "GOOGLE_CLIENT_SECRET"
+    }
+  },
+  "capabilities": {
+    "list": true,
+    "get": true,
+    "create": true,
+    "update": true,
+    "delete": true,
+    "search": true,
+    "webhooks": false
+  },
+  "credential_schema": {
+    "type": "object",
+    "required": [
+      "client_id",
+      "client_secret"
+    ],
+    "properties": {
+      "client_id": {
+        "type": "string",
+        "title": "Google OAuth Client ID",
+        "description": "Your Google OAuth 2.0 Client ID with YouTube Data API v3 enabled",
+        "ui": {
+          "order": 1,
+          "placeholder": "123456789-abc.apps.googleusercontent.com",
+          "help_url": "https://console.cloud.google.com/apis/credentials"
+        }
+      },
+      "client_secret": {
+        "type": "string",
+        "title": "Google OAuth Client Secret",
+        "description": "Your Google OAuth 2.0 Client Secret",
+        "format": "password",
+        "ui": {
+          "order": 2
+        }
+      },
+      "access_token": {
+        "type": "string",
+        "title": "Access Token",
+        "description": "OAuth access token (populated automatically after authorization)",
+        "format": "password",
+        "ui": {
+          "order": 3,
+          "readonly": true,
+          "hidden": true
+        }
+      },
+      "refresh_token": {
+        "type": "string",
+        "title": "Refresh Token",
+        "description": "OAuth refresh token (populated automatically after authorization)",
+        "format": "password",
+        "ui": {
+          "order": 4,
+          "readonly": true,
+          "hidden": true
+        }
+      }
+    }
+  },
+  "client_metadata": {
+    "icon": "youtube",
+    "color": "#FF0000",
+    "documentation_url": "https://developers.google.com/youtube/v3"
+  }
+}

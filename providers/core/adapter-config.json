@@ -1,0 +1,1188 @@
+{
+  "$schema": "https://raw.githubusercontent.com/selfhosthub/studio-community/main/schemas/provider-config.schema.json",
+  "name": "Core",
+  "slug": "core",
+  "description": "Built-in workflow utilities for data transformation, control flow, HTTP requests, and webhooks",
+  "default_queue": "step_jobs",
+  "category": "flow",
+  "provider_type": "INTERNAL",
+  "icon_url": "/providers/core.svg",
+  "auth": {
+    "type": "none"
+  },
+  "credential_schema": null,
+  "services": {
+    "set_fields": {
+      "display_name": "Set Fields",
+      "description": "Create or modify fields with static values or expressions. Similar to n8n's Edit Fields (Set) node.",
+      "service_type": "CORE",
+      "requires_credentials": false,
+      "orchestrator_hints": {
+        "inline": true
+      },
+      "parameter_schema": {
+        "type": "object",
+        "required": [
+          "fields"
+        ],
+        "properties": {
+          "mode": {
+            "type": "string",
+            "title": "Mode",
+            "description": "How to define fields",
+            "enum": [
+              "manual",
+              "json"
+            ],
+            "default": "manual",
+            "ui": {
+              "section": "Main",
+              "order": 1
+            }
+          },
+          "fields": {
+            "type": "array",
+            "title": "Fields",
+            "description": "Fields to set in the output",
+            "items": {
+              "type": "object",
+              "required": [
+                "name",
+                "type",
+                "value"
+              ],
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "title": "Field Name",
+                  "description": "Name of the output field"
+                },
+                "type": {
+                  "type": "string",
+                  "title": "Data Type",
+                  "enum": [
+                    "string",
+                    "number",
+                    "boolean",
+                    "array",
+                    "object"
+                  ],
+                  "default": "string"
+                },
+                "value": {
+                  "title": "Value",
+                  "description": "Static value or expression (use {{step.field}} for expressions)"
+                },
+                "is_expression": {
+                  "type": "boolean",
+                  "title": "Is Expression",
+                  "default": false
+                }
+              }
+            },
+            "default": [],
+            "ui": {
+              "section": "Main",
+              "order": 2
+            }
+          },
+          "json_value": {
+            "type": "string",
+            "title": "JSON Value",
+            "description": "Raw JSON object to use as output (only in json mode)",
+            "format": "json",
+            "ui": {
+              "section": "Main",
+              "order": 3
+            }
+          },
+          "include_input_fields": {
+            "type": "boolean",
+            "title": "Include Input Fields",
+            "default": false,
+            "ui": {
+              "section": "Advanced",
+              "order": 1
+            }
+          },
+          "input_fields_mode": {
+            "type": "string",
+            "title": "Input Fields Mode",
+            "enum": [
+              "all",
+              "selected",
+              "none"
+            ],
+            "default": "none",
+            "ui": {
+              "section": "Advanced",
+              "order": 2
+            }
+          },
+          "selected_input_fields": {
+            "type": "array",
+            "title": "Selected Input Fields",
+            "items": {
+              "type": "string"
+            },
+            "default": [],
+            "ui": {
+              "section": "Advanced",
+              "order": 3
+            }
+          }
+        }
+      },
+      "result_schema": {
+        "type": "object",
+        "description": "Dynamic output based on configured fields",
+        "additionalProperties": true
+      },
+      "output_view": {
+        "type": "key_value",
+        "fields": [
+          { "key": "fields", "label": "Output Fields" }
+        ]
+      },
+      "example_parameters": {
+        "mode": "manual",
+        "fields": [
+          {
+            "name": "prompt",
+            "type": "string",
+            "value": "A beautiful sunset over the ocean",
+            "is_expression": false
+          },
+          {
+            "name": "width",
+            "type": "number",
+            "value": 1024,
+            "is_expression": false
+          }
+        ]
+      },
+      "ui_hints": {
+        "categories": ["transform"],
+        "color": "#6366f1",
+        "icon": "edit-3"
+      }
+    },
+    "call_webhook": {
+      "display_name": "Call Webhook",
+      "description": "Send an HTTP request to a webhook URL. Use for outbound integrations with external services.",
+      "service_type": "CORE",
+      "requires_credentials": false,
+      "hooks": [
+        "http_request"
+      ],
+      "parameter_schema": {
+        "type": "object",
+        "required": [
+          "url"
+        ],
+        "properties": {
+          "url": {
+            "type": "string",
+            "title": "Webhook URL",
+            "description": "The URL to call",
+            "format": "uri",
+            "ui": {
+              "section": "Main",
+              "order": 1
+            }
+          },
+          "method": {
+            "type": "string",
+            "title": "HTTP Method",
+            "enum": [
+              "GET",
+              "POST",
+              "PUT",
+              "PATCH",
+              "DELETE"
+            ],
+            "default": "POST",
+            "ui": {
+              "section": "Main",
+              "order": 2
+            }
+          },
+          "body": {
+            "type": "object",
+            "title": "Request Body",
+            "description": "JSON body to send with the request",
+            "default": {},
+            "ui": {
+              "section": "Main",
+              "order": 3
+            }
+          },
+          "headers": {
+            "type": "object",
+            "title": "Headers",
+            "description": "Custom HTTP headers to include in the request",
+            "additionalProperties": {
+              "type": "string",
+              "description": "Header value"
+            },
+            "default": {},
+            "ui": {
+              "section": "Advanced",
+              "order": 1
+            }
+          },
+          "timeout": {
+            "type": "integer",
+            "title": "Timeout (seconds)",
+            "description": "Maximum time to wait for a response",
+            "default": 30,
+            "minimum": 1,
+            "maximum": 300,
+            "ui": {
+              "section": "Advanced",
+              "order": 2
+            }
+          },
+          "retry_on_failure": {
+            "type": "boolean",
+            "title": "Retry on Failure",
+            "description": "Automatically retry the request if it fails",
+            "default": false,
+            "ui": {
+              "section": "Advanced",
+              "order": 3
+            }
+          },
+          "max_retries": {
+            "type": "integer",
+            "title": "Max Retries",
+            "description": "Maximum number of retry attempts",
+            "default": 3,
+            "minimum": 1,
+            "maximum": 10,
+            "ui": {
+              "section": "Advanced",
+              "order": 4
+            }
+          }
+        }
+      },
+      "result_schema": {
+        "type": "object",
+        "properties": {
+          "status_code": {
+            "type": "integer"
+          },
+          "body": {
+            "description": "Response body (if JSON, parsed as object)"
+          },
+          "headers": {
+            "type": "object"
+          },
+          "elapsed_ms": {
+            "type": "number"
+          },
+          "success": {
+            "type": "boolean",
+            "description": "Whether request was successful (2xx)"
+          }
+        }
+      },
+      "output_view": {
+        "type": "key_value",
+        "fields": [
+          { "key": "success", "label": "Success" },
+          { "key": "status_code", "label": "Status Code" },
+          { "key": "body", "label": "Response Body" },
+          { "key": "elapsed_ms", "label": "Elapsed (ms)" }
+        ]
+      },
+      "example_parameters": {
+        "url": "https://hooks.example.com/workflow/abc123",
+        "method": "POST",
+        "body": {
+          "event": "workflow.completed",
+          "data": {
+            "id": "123",
+            "status": "success"
+          }
+        },
+        "headers": {
+          "X-Webhook-Secret": "my-secret-token"
+        }
+      },
+      "ui_hints": {
+        "categories": ["network"],
+        "color": "#10b981",
+        "icon": "webhook"
+      }
+    },
+    "http_request": {
+      "display_name": "HTTP Request",
+      "description": "Send an HTTP request to any URL. Supports GET, POST, PUT, PATCH, DELETE methods.",
+      "service_type": "CORE",
+      "requires_credentials": false,
+      "hooks": [
+        "http_request"
+      ],
+      "parameter_schema": {
+        "type": "object",
+        "required": [
+          "url"
+        ],
+        "properties": {
+          "url": {
+            "type": "string",
+            "title": "URL",
+            "description": "The URL to send the request to",
+            "format": "uri",
+            "ui": {
+              "section": "Main",
+              "order": 1
+            }
+          },
+          "method": {
+            "type": "string",
+            "title": "HTTP Method",
+            "description": "The HTTP method to use",
+            "enum": [
+              "GET",
+              "POST",
+              "PUT",
+              "PATCH",
+              "DELETE"
+            ],
+            "default": "GET",
+            "ui": {
+              "section": "Main",
+              "order": 2
+            }
+          },
+          "body": {
+            "type": "object",
+            "title": "Request Body",
+            "description": "JSON body to send with the request",
+            "default": {},
+            "ui": {
+              "section": "Main",
+              "order": 3
+            }
+          },
+          "headers": {
+            "type": "object",
+            "title": "Headers",
+            "description": "Custom HTTP headers to include in the request",
+            "default": {},
+            "ui": {
+              "section": "Advanced",
+              "order": 1
+            }
+          },
+          "timeout": {
+            "type": "integer",
+            "title": "Timeout (seconds)",
+            "description": "Maximum time to wait for a response",
+            "default": 30,
+            "minimum": 1,
+            "maximum": 300,
+            "ui": {
+              "section": "Advanced",
+              "order": 2
+            }
+          }
+        }
+      },
+      "result_schema": {
+        "type": "object",
+        "properties": {
+          "status_code": {
+            "type": "integer"
+          },
+          "body": {
+            "type": "object"
+          },
+          "headers": {
+            "type": "object"
+          },
+          "elapsed_ms": {
+            "type": "number"
+          }
+        }
+      },
+      "output_view": {
+        "type": "key_value",
+        "fields": [
+          { "key": "status_code", "label": "Status Code" },
+          { "key": "body", "label": "Response Body" },
+          { "key": "headers", "label": "Headers" },
+          { "key": "elapsed_ms", "label": "Elapsed (ms)" }
+        ]
+      },
+      "example_parameters": {
+        "url": "https://api.example.com/data",
+        "method": "POST",
+        "body": {
+          "event": "workflow.completed",
+          "data": {
+            "id": "123"
+          }
+        },
+        "headers": {
+          "Authorization": "Bearer token123"
+        }
+      },
+      "ui_hints": {
+        "categories": ["network"],
+        "color": "#6366f1",
+        "icon": "globe"
+      }
+    },
+    "webhook_wait": {
+      "display_name": "Wait for Webhook",
+      "description": "Pause workflow execution until an external webhook callback is received. Used for async integrations.",
+      "service_type": "CORE",
+      "requires_credentials": false,
+      "orchestrator_hints": {
+        "pauses": true,
+        "wait_for": "webhook_callback"
+      },
+      "parameter_schema": {
+        "type": "object",
+        "properties": {
+          "timeout_seconds": {
+            "type": "integer",
+            "title": "Timeout (seconds)",
+            "description": "Maximum time to wait for callback (0 = no timeout)",
+            "default": 300,
+            "minimum": 0,
+            "maximum": 86400,
+            "ui": {
+              "section": "Main",
+              "order": 1
+            }
+          },
+          "expected_fields": {
+            "type": "array",
+            "title": "Expected Fields",
+            "description": "Field names expected in the callback payload",
+            "items": {
+              "type": "string"
+            },
+            "default": [],
+            "ui": {
+              "section": "Advanced",
+              "order": 1
+            }
+          },
+          "callback_url_field": {
+            "type": "string",
+            "title": "Callback URL Field",
+            "description": "Output field name for the generated callback URL",
+            "default": "callback_url",
+            "ui": {
+              "section": "Advanced",
+              "order": 2
+            }
+          }
+        }
+      },
+      "result_schema": {
+        "type": "object",
+        "properties": {
+          "callback_url": {
+            "type": "string"
+          },
+          "callback_received": {
+            "type": "boolean"
+          },
+          "callback_payload": {
+            "type": "object"
+          },
+          "received_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "output_view": {
+        "type": "key_value",
+        "fields": [
+          { "key": "callback_received", "label": "Callback Received" },
+          { "key": "callback_url", "label": "Callback URL" },
+          { "key": "callback_payload", "label": "Payload" },
+          { "key": "received_at", "label": "Received At" }
+        ]
+      },
+      "example_parameters": {
+        "timeout_seconds": 300,
+        "expected_fields": [
+          "status",
+          "result"
+        ],
+        "callback_url_field": "callback_url"
+      },
+      "ui_hints": {
+        "categories": ["flow"],
+        "color": "#8b5cf6",
+        "icon": "clock"
+      }
+    },
+    "approval": {
+      "display_name": "Wait for Approval",
+      "description": "Pause workflow execution until a human approves or rejects. Used for review gates and manual QA checkpoints.",
+      "service_type": "CORE",
+      "requires_credentials": false,
+      "orchestrator_hints": {
+        "pauses": true,
+        "wait_for": "human_action"
+      },
+      "parameter_schema": {
+        "type": "object",
+        "properties": {
+          "approval_message": {
+            "type": "string",
+            "title": "Approval Message",
+            "description": "Message shown to approvers when requesting approval",
+            "default": "Please review and approve this workflow step",
+            "ui": {
+              "section": "Main",
+              "order": 1
+            }
+          },
+          "timeout_seconds": {
+            "type": "integer",
+            "title": "Timeout (seconds)",
+            "description": "Maximum time to wait for approval (0 = no timeout)",
+            "default": 0,
+            "minimum": 0,
+            "ui": {
+              "section": "Main",
+              "order": 2
+            }
+          },
+          "required_approvers": {
+            "type": "integer",
+            "title": "Required Approvers",
+            "description": "Number of approvals needed before proceeding",
+            "default": 1,
+            "minimum": 1,
+            "ui": {
+              "section": "Advanced",
+              "order": 1
+            }
+          },
+          "allow_reject": {
+            "type": "boolean",
+            "title": "Allow Rejection",
+            "description": "Whether reviewers can reject in addition to approving",
+            "default": true,
+            "ui": {
+              "section": "Advanced",
+              "order": 2
+            }
+          }
+        }
+      },
+      "result_schema": {
+        "type": "object",
+        "properties": {
+          "approved": {
+            "type": "boolean"
+          },
+          "approved_by": {
+            "type": "string"
+          },
+          "approved_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "comments": {
+            "type": "string"
+          }
+        }
+      },
+      "output_view": {
+        "type": "key_value",
+        "fields": [
+          { "key": "approved", "label": "Approved" },
+          { "key": "approved_by", "label": "Approved By" },
+          { "key": "approved_at", "label": "Approved At" },
+          { "key": "comments", "label": "Comments" }
+        ]
+      },
+      "example_parameters": {
+        "approval_message": "Please review the generated content before publishing",
+        "timeout_seconds": 86400,
+        "allow_reject": true
+      },
+      "ui_hints": {
+        "categories": ["human_in_the_loop"],
+        "color": "#f59e0b",
+        "icon": "user-check"
+      }
+    },
+    "stop": {
+      "display_name": "Stop Workflow",
+      "description": "Immediately stop workflow execution. Use for early termination or explicit end states.",
+      "service_type": "CORE",
+      "requires_credentials": false,
+      "orchestrator_hints": {
+        "stops_workflow": true
+      },
+      "parameter_schema": {
+        "type": "object",
+        "properties": {
+          "reason": {
+            "type": "string",
+            "title": "Stop Reason",
+            "description": "Human-readable reason for stopping the workflow",
+            "default": "Workflow stopped by Stop step",
+            "ui": {
+              "section": "Main",
+              "order": 1
+            }
+          },
+          "status": {
+            "type": "string",
+            "title": "Final Status",
+            "description": "The terminal status to assign to the workflow",
+            "enum": [
+              "completed",
+              "cancelled",
+              "stopped"
+            ],
+            "default": "completed",
+            "ui": {
+              "section": "Main",
+              "order": 2
+            }
+          },
+          "output": {
+            "type": "object",
+            "title": "Final Output",
+            "description": "Optional data to include in the workflow's final output",
+            "default": {},
+            "ui": {
+              "section": "Advanced",
+              "order": 1
+            }
+          }
+        }
+      },
+      "result_schema": {
+        "type": "object",
+        "properties": {
+          "stopped": {
+            "type": "boolean"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "stopped_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "output_view": {
+        "type": "key_value",
+        "fields": [
+          { "key": "stopped", "label": "Stopped" },
+          { "key": "reason", "label": "Reason" },
+          { "key": "stopped_at", "label": "Stopped At" }
+        ]
+      },
+      "example_parameters": {
+        "reason": "Validation failed - missing required data",
+        "status": "stopped"
+      },
+      "ui_hints": {
+        "categories": ["flow"],
+        "color": "#ef4444",
+        "icon": "square"
+      }
+    },
+    "notify": {
+      "display_name": "Send Notification",
+      "description": "Send an in-app notification to users. Shows in notification bell and logs to workflow execution.",
+      "service_type": "CORE",
+      "requires_credentials": false,
+      "orchestrator_hints": {
+        "inline": true
+      },
+      "parameter_schema": {
+        "type": "object",
+        "required": [
+          "title"
+        ],
+        "properties": {
+          "title": {
+            "type": "string",
+            "title": "Title",
+            "description": "Notification title",
+            "ui": {
+              "section": "Main",
+              "order": 1
+            }
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "description": "Notification message body",
+            "ui": {
+              "section": "Main",
+              "order": 2
+            }
+          },
+          "level": {
+            "type": "string",
+            "title": "Level",
+            "enum": [
+              "info",
+              "success",
+              "warning",
+              "error"
+            ],
+            "default": "info",
+            "description": "Notification severity level",
+            "ui": {
+              "section": "Main",
+              "order": 3
+            }
+          },
+          "notify_users": {
+            "type": "array",
+            "title": "Notify Users",
+            "description": "User IDs to notify (empty = workflow owner only)",
+            "items": {
+              "type": "string"
+            },
+            "default": [],
+            "ui": {
+              "section": "Advanced",
+              "order": 1
+            }
+          },
+          "require_acknowledgment": {
+            "type": "boolean",
+            "title": "Require Acknowledgment",
+            "description": "If true, workflow pauses until user acknowledges",
+            "default": false,
+            "ui": {
+              "section": "Advanced",
+              "order": 2
+            }
+          }
+        }
+      },
+      "orchestrator_hints": {
+        "pauses": "conditional",
+        "pause_condition": "parameters.require_acknowledgment == true"
+      },
+      "result_schema": {
+        "type": "object",
+        "properties": {
+          "notification_id": {
+            "type": "string"
+          },
+          "sent_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "acknowledged": {
+            "type": "boolean"
+          },
+          "acknowledged_by": {
+            "type": "string"
+          },
+          "acknowledged_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "output_view": {
+        "type": "key_value",
+        "fields": [
+          { "key": "notification_id", "label": "Notification ID" },
+          { "key": "sent_at", "label": "Sent At" },
+          { "key": "acknowledged", "label": "Acknowledged" },
+          { "key": "acknowledged_by", "label": "Acknowledged By" }
+        ]
+      },
+      "example_parameters": {
+        "title": "Workflow Step Complete",
+        "message": "Image generation finished successfully",
+        "level": "success",
+        "require_acknowledgment": false
+      },
+      "ui_hints": {
+        "categories": ["human_in_the_loop"],
+        "color": "#3b82f6",
+        "icon": "bell"
+      }
+    },
+    "log": {
+      "display_name": "Log Message",
+      "description": "Log a message to workflow execution history. Useful for debugging and audit trails.",
+      "service_type": "CORE",
+      "requires_credentials": false,
+      "orchestrator_hints": {
+        "inline": true
+      },
+      "parameter_schema": {
+        "type": "object",
+        "required": [
+          "message"
+        ],
+        "properties": {
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "description": "Message to log",
+            "ui": {
+              "section": "Main",
+              "order": 1
+            }
+          },
+          "level": {
+            "type": "string",
+            "title": "Log Level",
+            "description": "Severity level of the log entry",
+            "enum": [
+              "debug",
+              "info",
+              "warn",
+              "error"
+            ],
+            "default": "info",
+            "ui": {
+              "section": "Main",
+              "order": 2
+            }
+          },
+          "data": {
+            "type": "object",
+            "title": "Additional Data",
+            "description": "Extra data to include in log entry",
+            "default": {},
+            "ui": {
+              "section": "Advanced",
+              "order": 1
+            }
+          }
+        }
+      },
+      "result_schema": {
+        "type": "object",
+        "properties": {
+          "logged_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "log_id": {
+            "type": "string"
+          }
+        }
+      },
+      "output_view": {
+        "type": "key_value",
+        "fields": [
+          { "key": "log_id", "label": "Log ID" },
+          { "key": "logged_at", "label": "Logged At" }
+        ]
+      },
+      "example_parameters": {
+        "message": "Processing complete",
+        "level": "info",
+        "data": {
+          "items_processed": 42
+        }
+      },
+      "ui_hints": {
+        "categories": ["flow"],
+        "color": "#6b7280",
+        "icon": "file-text"
+      }
+    },
+    "poll_service": {
+      "display_name": "Poll Service",
+      "description": "Repeatedly call an API endpoint until it returns a success status code and an optional condition is met. Supports authentication via credentials. Useful for polling async job status endpoints.",
+      "service_type": "CORE",
+      "requires_credentials": true,
+      "hooks": [
+        "http_request"
+      ],
+      "orchestrator_hints": {
+        "polling": true
+      },
+      "parameter_schema": {
+        "type": "object",
+        "required": [
+          "url"
+        ],
+        "properties": {
+          "url": {
+            "type": "string",
+            "title": "URL to Poll",
+            "description": "The endpoint to repeatedly call (supports {{ templates }})",
+            "format": "uri",
+            "ui": {
+              "section": "Main",
+              "order": 1,
+              "placeholder": "https://api.example.com/jobs/{{ step1.job_id }}"
+            }
+          },
+          "method": {
+            "type": "string",
+            "title": "HTTP Method",
+            "enum": [
+              "GET",
+              "POST"
+            ],
+            "default": "GET",
+            "ui": {
+              "section": "Main",
+              "order": 2
+            }
+          },
+          "headers": {
+            "type": "object",
+            "title": "Additional Headers",
+            "description": "Extra headers to send (auth headers added automatically from credentials)",
+            "additionalProperties": {
+              "type": "string",
+              "description": "Header value"
+            },
+            "default": {},
+            "ui": {
+              "section": "Main",
+              "order": 3
+            }
+          },
+          "success_codes": {
+            "type": "array",
+            "title": "Success Status Codes",
+            "description": "HTTP status codes that indicate success. Type a code and press Enter to add.",
+            "items": {
+              "type": "integer"
+            },
+            "default": [
+              200
+            ],
+            "ui": {
+              "section": "Main",
+              "order": 4,
+              "widget": "tags",
+              "placeholder": "200"
+            }
+          },
+          "fail_codes": {
+            "type": "array",
+            "title": "Failure Status Codes",
+            "description": "HTTP status codes that indicate failure - stops polling with error immediately.",
+            "items": {
+              "type": "integer"
+            },
+            "default": [
+              400,
+              401,
+              402,
+              403,
+              404,
+              405,
+              406,
+              408,
+              409,
+              410,
+              422,
+              429,
+              500,
+              501,
+              502,
+              503,
+              504
+            ],
+            "ui": {
+              "section": "Main",
+              "order": 5,
+              "widget": "tags",
+              "placeholder": "500"
+            }
+          },
+          "success_condition": {
+            "type": "string",
+            "title": "Success Condition",
+            "description": "Boolean expression that must be true for polling to succeed. Supports field paths, comparisons (===, ==, !=, >, <, >=, <=), and logical operators (AND, OR, NOT). String values must be quoted.",
+            "ui": {
+              "section": "Main",
+              "order": 6,
+              "placeholder": "success === true AND movie.status === \"done\"",
+              "hints": [
+                "Use dot notation for nested fields: movie.status",
+                "String values must be quoted: status === \"done\"",
+                "Boolean literals: success === true",
+                "Comparisons: size > 0, attempts <= 10",
+                "Combine with AND/OR: success === true AND status === \"done\"",
+                "Group with parentheses: (status === \"done\" OR status === \"complete\") AND size > 0"
+              ]
+            }
+          },
+          "failure_condition": {
+            "type": "string",
+            "title": "Failure Condition",
+            "description": "Boolean expression that triggers immediate failure if true. Same syntax as success condition.",
+            "ui": {
+              "section": "Main",
+              "order": 7,
+              "placeholder": "movie.status === \"error\" OR success === false",
+              "hints": [
+                "Triggers immediate failure when true",
+                "Example: status === \"error\" OR status === \"failed\"",
+                "Check for error message: error != null"
+              ]
+            }
+          },
+          "condition_field": {
+            "type": "string",
+            "title": "Success Condition Field (Legacy)",
+            "description": "Simple mode: JSON path to check (e.g., 'movie.status'). Use Success Condition for complex expressions.",
+            "ui": {
+              "section": "legacy",
+              "order": 8,
+              "placeholder": "movie.status"
+            }
+          },
+          "condition_value": {
+            "type": "string",
+            "title": "Success Value (Legacy)",
+            "description": "Simple mode: The value that indicates completion",
+            "ui": {
+              "section": "legacy",
+              "order": 9,
+              "placeholder": "done"
+            }
+          },
+          "fail_values": {
+            "type": "array",
+            "title": "Failure Values (Legacy)",
+            "description": "Simple mode: Values that indicate failure",
+            "items": {
+              "type": "string"
+            },
+            "default": [
+              "error",
+              "failed"
+            ],
+            "ui": {
+              "section": "legacy",
+              "order": 10,
+              "widget": "tags",
+              "placeholder": "error"
+            }
+          },
+          "interval_seconds": {
+            "type": "integer",
+            "title": "Poll Interval (seconds)",
+            "description": "How often to check (minimum 5 seconds)",
+            "default": 10,
+            "minimum": 5,
+            "maximum": 300,
+            "ui": {
+              "section": "Advanced",
+              "order": 11
+            }
+          },
+          "max_attempts": {
+            "type": "integer",
+            "title": "Max Attempts",
+            "description": "Maximum number of poll attempts before giving up",
+            "default": 60,
+            "minimum": 1,
+            "maximum": 1000,
+            "ui": {
+              "section": "Advanced",
+              "order": 12
+            }
+          },
+          "timeout_seconds": {
+            "type": "integer",
+            "title": "Total Timeout (seconds)",
+            "description": "Maximum total time to wait (0 = use max attempts only)",
+            "default": 600,
+            "minimum": 0,
+            "maximum": 86400,
+            "ui": {
+              "section": "Advanced",
+              "order": 13
+            }
+          }
+        }
+      },
+      "result_schema": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "Whether polling completed successfully"
+          },
+          "attempts": {
+            "type": "integer",
+            "description": "Number of poll attempts made"
+          },
+          "elapsed_seconds": {
+            "type": "number",
+            "description": "Total time spent polling"
+          },
+          "status_code": {
+            "type": "integer",
+            "description": "Final HTTP status code"
+          },
+          "final_value": {
+            "description": "Final value of the condition field (if specified)"
+          },
+          "body": {
+            "type": "object",
+            "description": "Response body from the final successful poll",
+            "additionalProperties": true
+          }
+        }
+      },
+      "output_view": {
+        "type": "key_value",
+        "fields": [
+          { "key": "success", "label": "Success" },
+          { "key": "attempts", "label": "Attempts" },
+          { "key": "elapsed_seconds", "label": "Elapsed (s)" },
+          { "key": "status_code", "label": "Status Code" },
+          { "key": "final_value", "label": "Final Value" }
+        ]
+      },
+      "example_parameters": {
+        "url": "https://api.json2video.com/v2/movies?project={{ step1.project }}",
+        "method": "GET",
+        "success_codes": [
+          200
+        ],
+        "fail_codes": [
+          400,
+          401,
+          500
+        ],
+        "condition_field": "movie.status",
+        "condition_value": "done",
+        "fail_values": [
+          "error"
+        ],
+        "interval_seconds": 15,
+        "max_attempts": 40,
+        "timeout_seconds": 600
+      },
+      "ui_hints": {
+        "categories": ["flow"],
+        "color": "#8b5cf6",
+        "icon": "refresh-cw"
+      }
+    }
+  }
+}

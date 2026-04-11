@@ -1,0 +1,53 @@
+{
+  "$schema": "https://raw.githubusercontent.com/selfhosthub/studio-community/main/schemas/provider.schema.json",
+  "name": "OpenAI",
+  "slug": "openai",
+  "description": "AI models for chat completion, embeddings, and image generation",
+  "provider_type": "API",
+  "status": "ACTIVE",
+  "endpoint_url": "https://api.openai.com/v1",
+  "tier": "basic",
+  "category": "ai",
+  "credential_provider": null,
+  "requires": [],
+  "services_preview": [
+    "Chat Completion",
+    "Embeddings",
+    "Image Generation"
+  ],
+  "config": {
+    "auth_type": "api_key"
+  },
+  "capabilities": {
+    "chat": true,
+    "embeddings": true,
+    "images": true,
+    "vision": false,
+    "function_calling": false,
+    "streaming": false
+  },
+  "credential_schema": {
+    "type": "object",
+    "required": [
+      "api_key"
+    ],
+    "properties": {
+      "api_key": {
+        "type": "string",
+        "title": "API Key",
+        "description": "OpenAI API key (starts with sk-)",
+        "format": "password"
+      },
+      "organization_id": {
+        "type": "string",
+        "title": "Organization ID (optional)",
+        "description": "OpenAI organization ID for billing attribution"
+      }
+    }
+  },
+  "client_metadata": {
+    "icon": "openai",
+    "color": "#10a37f",
+    "documentation_url": "https://platform.openai.com/docs"
+  }
+}

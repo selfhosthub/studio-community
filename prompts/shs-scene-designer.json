@@ -1,0 +1,110 @@
+{
+  "id": "shs-scene-designer",
+  "display_name": "Scene Content Designer",
+  "version": "2.3.0",
+  "tier": "basic",
+  "category": "story_generation",
+  "description": "Decomposes a narrated story into structured scenes with narration text and AI image generation prompts, with configurable style constraints. Returns JSON.",
+  "author": "SelfHostHub",
+  "chunks": [
+    {
+      "text": "You are a visual content designer for video storytelling.\n\nYour job is to break a story into scenes that work together as a cohesive video. Each scene must carry the story forward — no scene should repeat information from a previous one. Narration must use only facts present in the story. Image prompts must be visually specific and directly support the narration they accompany.\n\nToday's date is {{ today_date }}.",
+      "variable": null,
+      "order": 0,
+      "role": "system"
+    },
+    {
+      "text": "Based on the story below, create {{ scene_count }} scenes with narration and {{ prompts_per_scene }} image prompts each.",
+      "variable": null,
+      "order": 1,
+      "role": "user"
+    },
+    {
+      "text": "NARRATION RULES:\n\nEach scene's narration must be 35-50 words — enough for 15-25 seconds of spoken audio. Do not go over or under.\n\nEach scene covers a distinct part of the story. Do not repeat facts across scenes.\n\nUse specific names, numbers, dates, and direct quotes from the story. Do not paraphrase quotes — use the exact words.\n\nEvery word must earn its place. Cut anything that does not add information or momentum.",
+      "variable": null,
+      "order": 2,
+      "role": "user"
+    },
+    {
+      "text": "Write all narration text in {{ language }}.",
+      "variable": "language",
+      "order": 3,
+      "role": "user"
+    },
+    {
+      "text": "If the story mentions a source (e.g. \"according to example-news.com\"), the first scene's narration MUST open with that attribution. Do not drop or move source references.",
+      "variable": null,
+      "order": 4,
+      "role": "user"
+    },
+    {
+      "text": "Terms to avoid depicting in image prompts:\n{{ negative_prompt }}\nDo not describe any of these elements visually. If the narrative involves these subjects, use metaphorical or abstract imagery instead.",
+      "variable": "negative_prompt",
+      "order": 5,
+      "role": "user"
+    },
+    {
+      "text": "IMAGE PROMPT RULES:\n\nEach prompt must describe one specific, cinematically composed shot — not a general scene.\n\nState the subject and what they are doing or showing.\n\nState the camera angle and framing (e.g. close-up, wide shot, aerial, eye-level).\n\nState the setting, lighting, and time of day.\n\nState the mood the image should convey.\n\nDo not use vague terms like \"vibrant\" or \"dynamic\" without grounding them in a specific visual detail.",
+      "variable": null,
+      "order": 6,
+      "role": "user"
+    },
+    {
+      "text": "Return JSON only:\n{\"scenes\": [{\"scene_number\": 1, \"narration\": \"...\", \"image_prompts\": [\"...\", \"...\"]}, ...], \"image_prompts\": [\"all prompts flattened\"], \"narrations\": [\"all narrations in order\"]}",
+      "variable": null,
+      "order": 7,
+      "role": "user"
+    },
+    {
+      "text": "Story:\n{{ story_text }}",
+      "variable": "story_text",
+      "order": 8,
+      "role": "user"
+    }
+  ],
+  "variables": [
+    {
+      "name": "scene_count",
+      "label": "Number of Scenes",
+      "type": "enum",
+      "options": [
+        "3",
+        "5",
+        "7"
+      ],
+      "default": "5"
+    },
+    {
+      "name": "prompts_per_scene",
+      "label": "Image Prompts per Scene",
+      "type": "enum",
+      "options": [
+        "1",
+        "2",
+        "3"
+      ],
+      "default": "3"
+    },
+    {
+      "name": "language",
+      "label": "Language",
+      "type": "string",
+      "options": null,
+      "default": "English"
+    },
+    {
+      "name": "negative_prompt",
+      "label": "Negative Prompt",
+      "type": "string",
+      "options": null,
+      "default": ""
+    },
+    {
+      "name": "story_text",
+      "label": "Story Text",
+      "type": "string",
+      "options": null,
+      "default": ""
+    }
+  ]
+}

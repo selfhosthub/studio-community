@@ -1,0 +1,1057 @@
+{
+  "default_queue": "step_jobs",
+  "$schema": "https://raw.githubusercontent.com/selfhosthub/studio-community/main/schemas/provider-config.schema.json",
+  "name": "OpenAI",
+  "slug": "openai",
+  "description": "AI models for chat completion, embeddings, image generation, and text-to-speech",
+  "category": "ai",
+  "provider_type": "API",
+  "icon_url": "/providers/openai.svg",
+  "auth": {
+    "type": "bearer"
+  },
+  "credential_schema": {
+    "type": "object",
+    "required": [
+      "api_key"
+    ],
+    "properties": {
+      "api_key": {
+        "type": "string",
+        "title": "API Key",
+        "description": "OpenAI API key (starts with sk-)",
+        "format": "password"
+      },
+      "organization_id": {
+        "type": "string",
+        "title": "Organization ID (optional)",
+        "description": "OpenAI organization ID for billing attribution"
+      }
+    }
+  },
+  "services": {
+    "openai_chat": {
+      "display_name": "Chat Completion",
+      "description": "Generate text responses using GPT models. Supports conversation history and system prompts.",
+      "service_type": "AI",
+      "endpoint": "/chat/completions",
+      "method": "POST",
+      "requires_credentials": true,
+      "parameterMapping": {
+        "body": [
+          "model",
+          "messages",
+          "temperature",
+          "max_tokens",
+          "top_p",
+          "frequency_penalty",
+          "presence_penalty",
+          "stop",
+          "seed",
+          "response_format",
+          "user"
+        ]
+      },
+      "parameter_schema": {
+        "type": "object",
+        "required": [
+          "model",
+          "messages"
+        ],
+        "properties": {
+          "model": {
+            "type": "string",
+            "title": "Model",
+            "description": "The model to use for completion",
+            "enum": [
+              "gpt-4o",
+              "gpt-4o-mini",
+              "gpt-4-turbo",
+              "gpt-4",
+              "gpt-3.5-turbo"
+            ],
+            "enumNames": [
+              "GPT-4o (Recommended)",
+              "GPT-4o Mini (Fast & Cheap)",
+              "GPT-4 Turbo",
+              "GPT-4",
+              "GPT-3.5 Turbo"
+            ],
+            "default": "gpt-4o",
+            "ui": {
+              "section": "basic",
+              "order": 1
+            }
+          },
+          "messages": {
+            "type": "array",
+            "title": "Messages",
+            "description": "The conversation messages. Each message has a role (system, user, assistant) and content.",
+            "items": {
+              "type": "object",
+              "required": [
+                "role",
+                "content"
+              ],
+              "properties": {
+                "role": {
+                  "type": "string",
+                  "title": "Role",
+                  "enum": [
+                    "system",
+                    "user",
+                    "assistant"
+                  ],
+                  "default": "user"
+                },
+                "content": {
+                  "type": "string",
+                  "title": "Content",
+                  "description": "The message content",
+                  "format": "textarea"
+                }
+              }
+            },
+            "minItems": 1,
+            "ui": {
+              "section": "basic",
+              "order": 2,
+              "prompt": true
+            }
+          },
+          "temperature": {
+            "type": "number",
+            "title": "Temperature",
+            "description": "Controls randomness. 0 = deterministic, 2 = very random.",
+            "default": 1,
+            "minimum": 0,
+            "maximum": 2,
+            "ui": {
+              "section": "basic",
+              "order": 3
+            }
+          },
+          "max_tokens": {
+            "type": "integer",
+            "title": "Max Tokens",
+            "description": "Maximum tokens in the response. Leave empty for model default.",
+            "minimum": 1,
+            "maximum": 128000,
+            "ui": {
+              "section": "basic",
+              "order": 4
+            }
+          },
+          "top_p": {
+            "type": "number",
+            "title": "Top P",
+            "description": "Nucleus sampling. Consider tokens with top_p probability mass.",
+            "default": 1,
+            "minimum": 0,
+            "maximum": 1,
+            "ui": {
+              "section": "advanced",
+              "order": 1
+            }
+          },
+          "frequency_penalty": {
+            "type": "number",
+            "title": "Frequency Penalty",
+            "description": "Penalize tokens based on frequency in text so far. -2 to 2.",
+            "default": 0,
+            "minimum": -2,
+            "maximum": 2,
+            "ui": {
+              "section": "advanced",
+              "order": 2
+            }
+          },
+          "presence_penalty": {
+            "type": "number",
+            "title": "Presence Penalty",
+            "description": "Penalize tokens based on presence in text so far. -2 to 2.",
+            "default": 0,
+            "minimum": -2,
+            "maximum": 2,
+            "ui": {
+              "section": "advanced",
+              "order": 3
+            }
+          },
+          "stop": {
+            "type": "array",
+            "title": "Stop Sequences",
+            "description": "Up to 4 sequences where the API will stop generating.",
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 4,
+            "ui": {
+              "section": "advanced",
+              "order": 4,
+              "widget": "tags"
+            }
+          },
+          "seed": {
+            "type": "integer",
+            "title": "Seed",
+            "description": "For deterministic sampling. Same seed = same output (beta).",
+            "ui": {
+              "section": "advanced",
+              "order": 5
+            }
+          },
+          "response_format": {
+            "type": "object",
+            "title": "Response Format",
+            "description": "Force JSON output format",
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
+                  "text",
+                  "json_object"
+                ],
+                "default": "text"
+              }
+            },
+            "ui": {
+              "section": "advanced",
+              "order": 6
+            }
+          },
+          "user": {
+            "type": "string",
+            "title": "User ID",
+            "description": "Unique identifier for end-user tracking and abuse monitoring.",
+            "ui": {
+              "section": "advanced",
+              "order": 7
+            }
+          }
+        }
+      },
+      "result_schema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique completion ID"
+          },
+          "object": {
+            "type": "string"
+          },
+          "created": {
+            "type": "integer",
+            "description": "Unix timestamp"
+          },
+          "model": {
+            "type": "string",
+            "description": "Model used"
+          },
+          "choices": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "index": {
+                  "type": "integer"
+                },
+                "message": {
+                  "type": "object",
+                  "properties": {
+                    "role": {
+                      "type": "string"
+                    },
+                    "content": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "finish_reason": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "usage": {
+            "type": "object",
+            "properties": {
+              "prompt_tokens": {
+                "type": "integer"
+              },
+              "completion_tokens": {
+                "type": "integer"
+              },
+              "total_tokens": {
+                "type": "integer"
+              }
+            }
+          }
+        }
+      },
+      "output_view": {
+        "type": "key_value",
+        "fields": [
+          {
+            "key": "choices.0.message.content",
+            "label": "Response"
+          },
+          {
+            "key": "choices.0.message.role",
+            "label": "Role"
+          },
+          {
+            "key": "model",
+            "label": "Model"
+          },
+          {
+            "key": "choices.0.finish_reason",
+            "label": "Finish Reason"
+          },
+          {
+            "key": "usage.total_tokens",
+            "label": "Total Tokens"
+          }
+        ]
+      },
+      "example_parameters": {
+        "model": "gpt-4o",
+        "messages": [
+          {
+            "role": "system",
+            "content": "You are a helpful assistant."
+          },
+          {
+            "role": "user",
+            "content": "What is the capital of France?"
+          }
+        ],
+        "temperature": 0.7,
+        "max_tokens": 1000
+      },
+      "ui_hints": {
+        "color": "#10a37f",
+        "icon": "message-square",
+        "sections": {
+          "basic": {
+            "title": "Basic",
+            "collapsed": false,
+            "order": 1
+          },
+          "advanced": {
+            "title": "Advanced Options",
+            "collapsed": true,
+            "order": 2
+          }
+        },
+        "categories": [
+          "ai"
+        ]
+      }
+    },
+    "openai_embeddings": {
+      "display_name": "Embeddings",
+      "description": "Generate vector embeddings for text. Use for semantic search, clustering, and similarity comparisons.",
+      "service_type": "AI",
+      "endpoint": "/embeddings",
+      "method": "POST",
+      "requires_credentials": true,
+      "parameterMapping": {
+        "body": [
+          "model",
+          "input",
+          "dimensions",
+          "encoding_format",
+          "user"
+        ]
+      },
+      "parameter_schema": {
+        "type": "object",
+        "required": [
+          "model",
+          "input"
+        ],
+        "properties": {
+          "model": {
+            "type": "string",
+            "title": "Model",
+            "description": "The embedding model to use",
+            "enum": [
+              "text-embedding-3-small",
+              "text-embedding-3-large",
+              "text-embedding-ada-002"
+            ],
+            "enumNames": [
+              "text-embedding-3-small (Recommended)",
+              "text-embedding-3-large (Higher quality)",
+              "text-embedding-ada-002 (Legacy)"
+            ],
+            "default": "text-embedding-3-small",
+            "ui": {
+              "order": 1
+            }
+          },
+          "input": {
+            "type": "string",
+            "title": "Input Text",
+            "description": "The text to generate embeddings for",
+            "ui": {
+              "order": 2,
+              "widget": "textarea",
+              "rows": 4
+            }
+          },
+          "dimensions": {
+            "type": "integer",
+            "title": "Dimensions",
+            "description": "Output vector dimensions (only for text-embedding-3 models). Smaller = faster search, larger = more accurate.",
+            "minimum": 1,
+            "maximum": 3072,
+            "ui": {
+              "order": 3,
+              "show_when": {
+                "model": [
+                  "text-embedding-3-small",
+                  "text-embedding-3-large"
+                ]
+              }
+            }
+          },
+          "encoding_format": {
+            "type": "string",
+            "title": "Encoding Format",
+            "description": "Output format for embeddings",
+            "enum": [
+              "float",
+              "base64"
+            ],
+            "default": "float",
+            "ui": {
+              "order": 4
+            }
+          },
+          "user": {
+            "type": "string",
+            "title": "User ID",
+            "description": "Unique identifier for end-user tracking",
+            "ui": {
+              "order": 5
+            }
+          }
+        }
+      },
+      "result_schema": {
+        "type": "object",
+        "properties": {
+          "object": {
+            "type": "string"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "object": {
+                  "type": "string"
+                },
+                "index": {
+                  "type": "integer"
+                },
+                "embedding": {
+                  "type": "array",
+                  "items": {
+                    "type": "number"
+                  }
+                }
+              }
+            }
+          },
+          "model": {
+            "type": "string"
+          },
+          "usage": {
+            "type": "object",
+            "properties": {
+              "prompt_tokens": {
+                "type": "integer"
+              },
+              "total_tokens": {
+                "type": "integer"
+              }
+            }
+          }
+        }
+      },
+      "output_view": {
+        "type": "key_value",
+        "fields": [
+          { "key": "model", "label": "Model" },
+          { "key": "data.0.index", "label": "Index" },
+          { "key": "usage.prompt_tokens", "label": "Prompt Tokens" },
+          { "key": "usage.total_tokens", "label": "Total Tokens" }
+        ]
+      },
+      "example_parameters": {
+        "model": "text-embedding-3-small",
+        "input": "The quick brown fox jumps over the lazy dog."
+      },
+      "ui_hints": {
+        "color": "#10a37f",
+        "icon": "hash",
+        "categories": [
+          "ai"
+        ]
+      }
+    },
+    "openai_images": {
+      "display_name": "Image Generation",
+      "description": "Generate images using DALL-E models. Create original images from text descriptions.",
+      "service_type": "AI",
+      "endpoint": "/images/generations",
+      "method": "POST",
+      "requires_credentials": true,
+      "parameterMapping": {
+        "body": [
+          "prompt",
+          "model",
+          "size",
+          "quality",
+          "style",
+          "n",
+          "response_format",
+          "user"
+        ]
+      },
+      "parameter_schema": {
+        "type": "object",
+        "required": [
+          "prompt"
+        ],
+        "properties": {
+          "prompt": {
+            "type": "string",
+            "title": "Prompt",
+            "description": "A text description of the desired image. Maximum 4000 characters for DALL-E 3.",
+            "maxLength": 4000,
+            "ui": {
+              "section": "basic",
+              "order": 1,
+              "widget": "textarea",
+              "rows": 4
+            }
+          },
+          "model": {
+            "type": "string",
+            "title": "Model",
+            "description": "The image generation model to use",
+            "enum": [
+              "dall-e-3",
+              "dall-e-2"
+            ],
+            "enumNames": [
+              "DALL-E 3 (Recommended)",
+              "DALL-E 2 (Legacy)"
+            ],
+            "default": "dall-e-3",
+            "ui": {
+              "section": "basic",
+              "order": 2
+            }
+          },
+          "size": {
+            "type": "string",
+            "title": "Size",
+            "description": "Image dimensions. DALL-E 3 supports 1024x1024, 1792x1024, 1024x1792.",
+            "enum": [
+              "1024x1024",
+              "1792x1024",
+              "1024x1792",
+              "512x512",
+              "256x256"
+            ],
+            "enumNames": [
+              "1024x1024 (Square)",
+              "1792x1024 (Landscape)",
+              "1024x1792 (Portrait)",
+              "512x512 (DALL-E 2 only)",
+              "256x256 (DALL-E 2 only)"
+            ],
+            "default": "1024x1024",
+            "ui": {
+              "section": "basic",
+              "order": 3
+            }
+          },
+          "quality": {
+            "type": "string",
+            "title": "Quality",
+            "description": "Image quality. HD creates finer details and greater consistency.",
+            "enum": [
+              "standard",
+              "hd"
+            ],
+            "enumNames": [
+              "Standard",
+              "HD (More detail)"
+            ],
+            "default": "standard",
+            "ui": {
+              "section": "basic",
+              "order": 4,
+              "show_when": {
+                "model": "dall-e-3"
+              }
+            }
+          },
+          "style": {
+            "type": "string",
+            "title": "Style",
+            "description": "Visual style of the generated image",
+            "enum": [
+              "vivid",
+              "natural"
+            ],
+            "enumNames": [
+              "Vivid (Hyper-real & dramatic)",
+              "Natural (More natural, less hyper-real)"
+            ],
+            "default": "vivid",
+            "ui": {
+              "section": "basic",
+              "order": 5,
+              "show_when": {
+                "model": "dall-e-3"
+              }
+            }
+          },
+          "n": {
+            "type": "integer",
+            "title": "Number of Images",
+            "description": "Number of images to generate. DALL-E 3 only supports 1.",
+            "default": 1,
+            "minimum": 1,
+            "maximum": 10,
+            "ui": {
+              "section": "basic",
+              "order": 6,
+              "show_when": {
+                "model": "dall-e-2"
+              }
+            }
+          },
+          "response_format": {
+            "type": "string",
+            "title": "Response Format",
+            "description": "Format for the generated image",
+            "enum": [
+              "url",
+              "b64_json"
+            ],
+            "enumNames": [
+              "URL (Download link)",
+              "Base64 (Inline data)"
+            ],
+            "default": "url",
+            "ui": {
+              "section": "advanced",
+              "order": 1
+            }
+          },
+          "user": {
+            "type": "string",
+            "title": "User ID",
+            "description": "Unique identifier for end-user tracking",
+            "ui": {
+              "section": "advanced",
+              "order": 2
+            }
+          }
+        }
+      },
+      "post_processing": {
+        "download_files": {
+          "source_path": "$.data[*].url",
+          "filename_pattern": "openai_image_{index}.png",
+          "timeout_seconds": 60,
+          "max_file_size_mb": 50
+        }
+      },
+      "result_schema": {
+        "type": "object",
+        "properties": {
+          "created": {
+            "type": "integer",
+            "description": "Unix timestamp"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "url": {
+                  "type": "string",
+                  "description": "URL to download the image (expires after 1 hour)"
+                },
+                "b64_json": {
+                  "type": "string",
+                  "description": "Base64-encoded image data"
+                },
+                "revised_prompt": {
+                  "type": "string",
+                  "description": "The prompt that was used (DALL-E 3 may revise prompts)"
+                }
+              }
+            }
+          },
+          "downloaded_files": {
+            "type": "array",
+            "description": "Downloaded image files (added by post-processing)",
+            "items": {
+              "type": "object",
+              "properties": {
+                "filename": {
+                  "type": "string"
+                },
+                "file_size": {
+                  "type": "integer"
+                },
+                "virtual_path": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "output_view": {
+        "type": "media_grid",
+        "source": "downloaded_files",
+        "media_type": "image",
+        "thumbnail_field": "virtual_path",
+        "download_field": "virtual_path",
+        "filename_field": "filename"
+      },
+      "example_parameters": {
+        "prompt": "A white siamese cat sitting on a windowsill at sunset, digital art",
+        "model": "dall-e-3",
+        "size": "1024x1024",
+        "quality": "standard",
+        "style": "vivid"
+      },
+      "ui_hints": {
+        "color": "#10a37f",
+        "icon": "image",
+        "sections": {
+          "basic": {
+            "title": "Basic",
+            "collapsed": false,
+            "order": 1
+          },
+          "advanced": {
+            "title": "Advanced",
+            "collapsed": true,
+            "order": 2
+          }
+        },
+        "categories": [
+          "ai"
+        ]
+      }
+    },
+    "openai_tts": {
+      "display_name": "Text to Speech",
+      "description": "Generate natural-sounding speech from text using OpenAI TTS models. Supports multiple voices and languages.",
+      "service_type": "AI",
+      "endpoint": "/audio/speech",
+      "method": "POST",
+      "requires_credentials": true,
+      "response_type": "binary",
+      "parameterMapping": {
+        "body": [
+          "model",
+          "input",
+          "voice",
+          "instructions",
+          "response_format",
+          "speed"
+        ]
+      },
+      "parameter_schema": {
+        "type": "object",
+        "required": [
+          "input"
+        ],
+        "properties": {
+          "input": {
+            "type": "string",
+            "title": "Text",
+            "description": "The text to generate audio for. Maximum 4096 characters.",
+            "maxLength": 4096,
+            "ui": {
+              "section": "basic",
+              "order": 1,
+              "widget": "textarea",
+              "rows": 4
+            }
+          },
+          "model": {
+            "type": "string",
+            "title": "Model",
+            "description": "The TTS model to use",
+            "enum": [
+              "gpt-4o-mini-tts",
+              "tts-1",
+              "tts-1-hd"
+            ],
+            "enumNames": [
+              "GPT-4o Mini TTS (Recommended, steerable)",
+              "TTS-1 (Fast)",
+              "TTS-1 HD (Higher quality)"
+            ],
+            "default": "gpt-4o-mini-tts",
+            "ui": {
+              "section": "basic",
+              "order": 2
+            }
+          },
+          "voice": {
+            "type": "string",
+            "title": "Voice",
+            "description": "The voice to use for speech generation",
+            "enum": [
+              "cedar",
+              "marin",
+              "alloy",
+              "ash",
+              "ballad",
+              "coral",
+              "echo",
+              "fable",
+              "nova",
+              "onyx",
+              "sage",
+              "shimmer",
+              "verse"
+            ],
+            "enumNames": [
+              "Cedar (Warm, conversational)",
+              "Marin (Bright, articulate)",
+              "Alloy (Balanced, versatile)",
+              "Ash (Clear, direct)",
+              "Ballad (Soft, melodic)",
+              "Coral (Warm, friendly)",
+              "Echo (Smooth, neutral)",
+              "Fable (Expressive, storytelling)",
+              "Nova (Bright, energetic)",
+              "Onyx (Deep, authoritative)",
+              "Sage (Calm, measured)",
+              "Shimmer (Light, cheerful)",
+              "Verse (Rich, dramatic)"
+            ],
+            "default": "cedar",
+            "ui": {
+              "section": "basic",
+              "order": 3
+            }
+          },
+          "language": {
+            "type": "string",
+            "title": "Language",
+            "description": "Target language. The model auto-detects from input text, but this helps ensure correct pronunciation and is used by downstream steps (e.g., subtitles).",
+            "enum": [
+              "en",
+              "es",
+              "fr",
+              "de",
+              "it",
+              "pt",
+              "nl",
+              "pl",
+              "ru",
+              "zh",
+              "ja",
+              "ko",
+              "ar",
+              "hi",
+              "tr",
+              "sv",
+              "da",
+              "no",
+              "fi"
+            ],
+            "enumNames": [
+              "English",
+              "Spanish",
+              "French",
+              "German",
+              "Italian",
+              "Portuguese",
+              "Dutch",
+              "Polish",
+              "Russian",
+              "Chinese",
+              "Japanese",
+              "Korean",
+              "Arabic",
+              "Hindi",
+              "Turkish",
+              "Swedish",
+              "Danish",
+              "Norwegian",
+              "Finnish"
+            ],
+            "default": "en",
+            "ui": {
+              "section": "basic",
+              "order": 4
+            }
+          },
+          "instructions": {
+            "type": "string",
+            "title": "Voice Instructions",
+            "description": "Instructions for how the voice should speak (tone, pace, emotion). Only works with gpt-4o-mini-tts model.",
+            "ui": {
+              "section": "basic",
+              "order": 5,
+              "widget": "textarea",
+              "rows": 2,
+              "show_when": {
+                "model": [
+                  "gpt-4o-mini-tts"
+                ]
+              }
+            }
+          },
+          "response_format": {
+            "type": "string",
+            "title": "Audio Format",
+            "description": "Output audio format",
+            "enum": [
+              "mp3",
+              "wav",
+              "opus",
+              "aac",
+              "flac",
+              "pcm"
+            ],
+            "enumNames": [
+              "MP3 (Default)",
+              "WAV (Uncompressed)",
+              "Opus (Low latency)",
+              "AAC (Apple)",
+              "FLAC (Lossless)",
+              "PCM (Raw)"
+            ],
+            "default": "mp3",
+            "ui": {
+              "section": "advanced",
+              "order": 1
+            }
+          },
+          "speed": {
+            "type": "number",
+            "title": "Speed",
+            "description": "Playback speed (0.25 to 4.0). 1.0 is normal speed.",
+            "default": 1.0,
+            "minimum": 0.25,
+            "maximum": 4.0,
+            "ui": {
+              "section": "advanced",
+              "order": 2
+            }
+          }
+        }
+      },
+      "post_processing": {
+        "save_binary": {
+          "filename_pattern": "openai_tts_{uuid}.mp3",
+          "compute_duration": true,
+          "display_name": "TTS Audio",
+          "file_key": "audio_file"
+        }
+      },
+      "result_schema": {
+        "type": "object",
+        "properties": {
+          "audio_file": {
+            "type": "string",
+            "description": "Audio filename"
+          },
+          "storage_url": {
+            "type": "string",
+            "description": "Virtual path to the audio file (use this for mapping to subsequent steps)"
+          },
+          "duration_seconds": {
+            "type": "number",
+            "description": "Audio duration in seconds"
+          },
+          "voice": {
+            "type": "string",
+            "description": "Voice used for generation"
+          },
+          "language": {
+            "type": "string",
+            "description": "Language code"
+          },
+          "downloaded_files": {
+            "type": "array",
+            "description": "Array of saved audio files (for UI display)",
+            "items": {
+              "type": "object",
+              "properties": {
+                "filename": {
+                  "type": "string"
+                },
+                "file_size": {
+                  "type": "integer"
+                },
+                "virtual_path": {
+                  "type": "string"
+                },
+                "display_name": {
+                  "type": "string"
+                },
+                "index": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        }
+      },
+      "output_view": {
+        "type": "media_grid",
+        "source": null,
+        "media_type": "audio",
+        "url_field": "storage_url",
+        "download_field": "storage_url"
+      },
+      "example_parameters": {
+        "input": "Today is a wonderful day to build something people love!",
+        "model": "gpt-4o-mini-tts",
+        "voice": "cedar",
+        "speed": 1.0
+      },
+      "ui_hints": {
+        "color": "#10a37f",
+        "icon": "volume-2",
+        "sections": {
+          "basic": {
+            "title": "Basic",
+            "collapsed": false,
+            "order": 1
+          },
+          "advanced": {
+            "title": "Audio Settings",
+            "collapsed": true,
+            "order": 2
+          }
+        },
+        "categories": [
+          "ai"
+        ]
+      }
+    }
+  }
+}

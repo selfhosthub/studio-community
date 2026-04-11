@@ -1,0 +1,24 @@
+{
+  "$schema": "https://raw.githubusercontent.com/selfhosthub/studio-community/main/schemas/manifest.schema.json",
+  "name": "core",
+  "version": "1.0.0",
+  "tier": "basic",
+  "display_name": "Core",
+  "description": "Built-in workflow utilities for data transformation, control flow, HTTP requests, notifications, and logging",
+  "category": "flow",
+  "services_preview": [
+    "Set Fields",
+    "Call Webhook",
+    "Wait for Approval",
+    "Wait for Webhook",
+    "Send Notification",
+    "Log Message"
+  ],
+  "provides": {
+    "provider": "provider.json",
+    "adapter_config": "adapter-config.json"
+  },
+  "changelog": {
+    "1.0.0": "Initial release"
+  }
+}

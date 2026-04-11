@@ -1,0 +1,28 @@
+{
+  "$schema": "https://raw.githubusercontent.com/selfhosthub/studio-community/main/schemas/prompts-catalog.schema.json",
+  "version": "1.0.0",
+  "prompts": [
+    {
+      "id": "shs-story-generator",
+      "display_name": "Story Generator",
+      "version": "1.0.0",
+      "tier": "basic",
+      "category": "story_generation",
+      "description": "Turns a news article into a narrated voice-over script with structured headline, opening, key facts, and closing.",
+      "author": "SelfHostHub",
+      "download_url": "https://raw.githubusercontent.com/selfhosthub/studio-community/main/prompts/shs-story-generator.json",
+      "path": "prompts/shs-story-generator.json"
+    },
+    {
+      "id": "shs-scene-designer",
+      "display_name": "Scene Content Designer",
+      "version": "1.0.0",
+      "tier": "basic",
+      "category": "story_generation",
+      "description": "Decomposes a narrated story into structured scenes with narration text and AI image generation prompts, with configurable style constraints. Returns JSON.",
+      "author": "SelfHostHub",
+      "download_url": "https://raw.githubusercontent.com/selfhosthub/studio-community/main/prompts/shs-scene-designer.json",
+      "path": "prompts/shs-scene-designer.json"
+    }
+  ]
+}

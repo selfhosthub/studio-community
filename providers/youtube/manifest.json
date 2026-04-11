@@ -1,0 +1,27 @@
+{
+  "$schema": "https://raw.githubusercontent.com/selfhosthub/studio-community/main/schemas/manifest.schema.json",
+  "name": "youtube",
+  "version": "1.0.0",
+  "tier": "basic",
+  "display_name": "YouTube",
+  "description": "YouTube integration for video management, comments, and analytics",
+  "category": "social_media",
+  "services_preview": [
+    "List Videos",
+    "Get Video",
+    "Search",
+    "Upload Video",
+    "Update Video",
+    "Delete Video",
+    "Playlists",
+    "Comments",
+    "Reply"
+  ],
+  "provides": {
+    "provider": "provider.json",
+    "adapter_config": "adapter-config.json"
+  },
+  "changelog": {
+    "1.0.0": "Initial release with video listing, stats, comments, and replies"
+  }
+}

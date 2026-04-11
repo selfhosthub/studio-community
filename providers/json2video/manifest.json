@@ -1,0 +1,26 @@
+{
+  "$schema": "https://raw.githubusercontent.com/selfhosthub/studio-community/main/schemas/manifest.schema.json",
+  "name": "json2video",
+  "version": "1.0.0",
+  "display_name": "JSON2Video",
+  "description": "Programmatic video generation with JSON2Video API",
+  "category": "ai",
+  "tier": "basic",
+  "services_preview": [
+    "Render Video"
+  ],
+  "author": "SelfHostHub",
+  "license": "MIT",
+  "homepage": "https://json2video.com",
+  "requires": {
+    "studio_version": ">=1.0.0"
+  },
+  "provides": {
+    "provider": "provider.json",
+    "adapter_config": "adapter-config.json"
+  },
+  "hooks": [],
+  "changelog": {
+    "1.0.0": "Initial release with render and status services"
+  }
+}

@@ -1,0 +1,61 @@
+{
+  "$schema": "https://raw.githubusercontent.com/selfhosthub/studio-community/main/schemas/provider.schema.json",
+  "name": "Leonardo",
+  "slug": "leonardo",
+  "provider_type": "API",
+  "description": "AI-powered image generation service",
+  "endpoint_url": "https://cloud.leonardo.ai/api/rest/v1",
+  "api_reference_url": "https://docs.leonardo.ai/reference",
+  "status": "ACTIVE",
+  "help_text": "This provider uses the Leonardo REST API at https://cloud.leonardo.ai/api/rest/v1. If you experience issues, verify the API URL hasn't changed at https://docs.leonardo.ai/reference",
+  "tier": "basic",
+  "category": "ai",
+  "credential_provider": null,
+  "requires": [],
+  "services_preview": [
+    "Generate Image",
+    "Upscale Image",
+    "List Models"
+  ],
+  "config": {
+    "auth_type": "api_key",
+    "rate_limits": {
+      "requests_per_minute": 60,
+      "concurrent_requests": 5
+    }
+  },
+  "capabilities": {
+    "image_generation": [
+      "text_to_image",
+      "image_to_image"
+    ],
+    "models": [
+      "leonardo",
+      "sd_xl",
+      "anime",
+      "realistic"
+    ],
+    "features": [
+      "prompt_magic",
+      "alchemy",
+      "photoreal"
+    ],
+    "upscaling": true
+  },
+  "credential_schema": {
+    "type": "object",
+    "required": [
+      "api_key"
+    ],
+    "properties": {
+      "api_key": {
+        "type": "string",
+        "title": "API Key",
+        "description": "Leonardo API key from dashboard",
+        "format": "password"
+      }
+    }
+  },
+  "documentation_url": "https://docs.leonardo.ai/",
+  "icon_url": "https://leonardo.ai/favicon.ico"
+}

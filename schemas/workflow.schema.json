@@ -1,0 +1,342 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://raw.githubusercontent.com/selfhosthub/studio-community/main/schemas/workflow.schema.json",
+  "title": "Studio Workflow",
+  "description": "A complete workflow definition with steps forming a directed acyclic graph.",
+  "type": "object",
+  "required": ["name", "description", "version", "author", "steps"],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "description": {
+      "type": "string"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "author": {
+      "type": "string"
+    },
+    "requires": {
+      "type": "array",
+      "description": "Provider slugs required to run this workflow.",
+      "items": {
+        "type": "string",
+        "pattern": "^[a-z][a-z0-9-]*$"
+      },
+      "default": []
+    },
+    "prompts": {
+      "type": "array",
+      "description": "Marketplace prompt templates used by this workflow.",
+      "items": {
+        "$ref": "#/$defs/promptReference"
+      }
+    },
+    "steps": {
+      "type": "object",
+      "description": "Step definitions keyed by step ID. Forms a DAG via depends_on.",
+      "additionalProperties": {
+        "$ref": "#/$defs/step"
+      }
+    },
+    "client_metadata": {
+      "type": "object",
+      "description": "Frontend-owned metadata (experience_config, etc.). Not validated by the backend.",
+      "additionalProperties": true
+    }
+  },
+  "$defs": {
+    "step": {
+      "type": "object",
+      "required": ["name"],
+      "additionalProperties": true,
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "description": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string",
+          "description": "Step type. Maps to step_type in the backend.",
+          "enum": ["trigger", "task"],
+          "default": "task"
+        },
+        "depends_on": {
+          "type": "array",
+          "description": "Step IDs this step depends on. __instance_form__ is a virtual step for user input.",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        },
+        "ui_config": {
+          "$ref": "#/$defs/uiConfig"
+        },
+        "job": {
+          "$ref": "#/$defs/job"
+        },
+        "timeout": {
+          "type": "integer",
+          "description": "Timeout in seconds.",
+          "minimum": 1
+        },
+        "trigger_type": {
+          "type": "string",
+          "description": "How the step is triggered.",
+          "enum": ["manual", "auto"],
+          "default": "auto"
+        },
+        "outputs": {
+          "type": "object",
+          "description": "Output field extraction configuration.",
+          "additionalProperties": {
+            "$ref": "#/$defs/outputField"
+          }
+        },
+        "input_mappings": {
+          "type": "object",
+          "description": "Parameter mappings from other steps, prompts, or forms. Keys can be param names, nested paths (scenes[0].elements[0].src), or _prompt_variable: prefixed.",
+          "additionalProperties": {
+            "$ref": "#/$defs/inputMapping"
+          }
+        },
+        "iteration_config": {
+          "$ref": "#/$defs/iterationConfig"
+        },
+        "config": {
+          "type": "object",
+          "description": "Step-level configuration (secret_id, parameter_ui_state, etc.).",
+          "additionalProperties": true
+        },
+        "output_forwarding": {
+          "$ref": "#/$defs/outputForwarding"
+        },
+        "service_type": {
+          "type": "string",
+          "description": "Service category. Sometimes at step level instead of inside job."
+        },
+        "retry_count": {
+          "type": "integer",
+          "default": 0,
+          "minimum": 0
+        },
+        "retry_delay_seconds": {
+          "type": "integer",
+          "default": 60,
+          "minimum": 0
+        },
+        "is_required": {
+          "type": "boolean",
+          "default": true
+        },
+        "on_failure": {
+          "type": "string",
+          "enum": ["fail_workflow", "continue", "retry"],
+          "default": "fail_workflow"
+        },
+        "condition": {
+          "type": "string",
+          "description": "Conditional execution expression."
+        }
+      }
+    },
+    "job": {
+      "type": "object",
+      "description": "Job execution configuration.",
+      "additionalProperties": true,
+      "properties": {
+        "service_type": {
+          "type": "string",
+          "description": "Service category (ai, core, transform, SOCIAL_MEDIA, etc.)."
+        },
+        "provider_id": {
+          "type": "string",
+          "description": "Provider slug (converted to UUID at seed time)."
+        },
+        "service_id": {
+          "type": "string",
+          "description": "Service identifier, e.g. openai.openai_chat."
+        },
+        "parameters": {
+          "type": "object",
+          "description": "Service-specific parameters.",
+          "additionalProperties": true
+        }
+      }
+    },
+    "inputMapping": {
+      "type": "object",
+      "required": ["mappingType"],
+      "additionalProperties": true,
+      "properties": {
+        "mappingType": {
+          "type": "string",
+          "description": "How the parameter value is resolved.",
+          "enum": ["static", "mapped", "form", "prompt"]
+        },
+        "stepId": {
+          "type": "string",
+          "description": "Source step ID for mapped type. __instance_form__ for user input."
+        },
+        "outputField": {
+          "type": "string",
+          "description": "Field from source step's outputs (mapped type)."
+        },
+        "promptSlug": {
+          "type": "string",
+          "description": "Marketplace prompt slug (prompt type)."
+        },
+        "formField": {
+          "type": "string",
+          "description": "Form field name (form type)."
+        },
+        "staticValue": {
+          "description": "Static value (static type)."
+        },
+        "path": {
+          "type": "string",
+          "description": "Path expression for nested data access (.url, [0].url, [*].url, [*] with element_mapping)."
+        },
+        "element_mapping": {
+          "type": "object",
+          "description": "Field mapping for array transforms when path is [*].",
+          "additionalProperties": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "iterationConfig": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": false
+        },
+        "source_step_id": {
+          "type": "string",
+          "description": "Step that provides the array to iterate over."
+        },
+        "source_output_field": {
+          "type": "string",
+          "description": "Output field containing the array."
+        },
+        "target_parameter": {
+          "type": "string",
+          "description": "Parameter that receives each array element."
+        },
+        "execution_mode": {
+          "type": "string",
+          "enum": ["sequential", "parallel"],
+          "default": "sequential"
+        },
+        "estimated_count": {
+          "type": "integer",
+          "description": "Estimated array size for resource planning.",
+          "minimum": 0
+        },
+        "accumulators": {
+          "type": "array",
+          "description": "Accumulator definitions for sequential mode.",
+          "items": {
+            "type": "object",
+            "required": ["field_name", "expression"],
+            "additionalProperties": false,
+            "properties": {
+              "field_name": {
+                "type": "string"
+              },
+              "expression": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "outputForwarding": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "mode": {
+          "type": "string",
+          "enum": ["all", "selected"]
+        },
+        "selected_fields": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "outputField": {
+      "type": "object",
+      "required": ["path", "type"],
+      "additionalProperties": false,
+      "properties": {
+        "path": {
+          "type": "string",
+          "description": "JSONPath-like expression to extract from the service response."
+        },
+        "type": {
+          "type": "string",
+          "enum": ["string", "number", "boolean", "object", "array"]
+        },
+        "description": {
+          "type": "string"
+        }
+      }
+    },
+    "uiConfig": {
+      "type": "object",
+      "description": "Visual editor configuration.",
+      "additionalProperties": true,
+      "properties": {
+        "position": {
+          "type": "object",
+          "required": ["x", "y"],
+          "additionalProperties": false,
+          "properties": {
+            "x": {
+              "type": "number"
+            },
+            "y": {
+              "type": "number"
+            }
+          }
+        }
+      }
+    },
+    "promptReference": {
+      "type": "object",
+      "required": ["marketplace_slug", "used_by_step"],
+      "additionalProperties": false,
+      "properties": {
+        "marketplace_slug": {
+          "type": "string",
+          "description": "Marketplace prompt slug to install/resolve."
+        },
+        "used_by_step": {
+          "type": "string",
+          "description": "Step ID that uses this prompt."
+        }
+      }
+    }
+  }
+}

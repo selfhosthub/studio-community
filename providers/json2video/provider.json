@@ -1,0 +1,33 @@
+{
+  "$schema": "https://raw.githubusercontent.com/selfhosthub/studio-community/main/schemas/provider.schema.json",
+  "name": "JSON2Video",
+  "slug": "json2video",
+  "provider_type": "API",
+  "description": "Programmatic video generation with JSON2Video API",
+  "endpoint_url": "https://api.json2video.com/v2",
+  "status": "ACTIVE",
+  "tier": "basic",
+  "category": "ai",
+  "icon_url": "/providers/json2video.svg",
+  "services_preview": [
+    "Generate Video",
+    "Check Render Status"
+  ],
+  "config": {
+    "auth_type": "api_key"
+  },
+  "credential_schema": {
+    "type": "object",
+    "required": [
+      "api_key"
+    ],
+    "properties": {
+      "api_key": {
+        "type": "string",
+        "title": "API Key",
+        "description": "Your JSON2Video API key",
+        "format": "password"
+      }
+    }
+  }
+}

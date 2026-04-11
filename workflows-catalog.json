@@ -1,0 +1,24 @@
+{
+  "$schema": "https://raw.githubusercontent.com/selfhosthub/studio-community/main/schemas/workflows-catalog.schema.json",
+  "version": "1.0.0",
+  "workflows": [
+    {
+      "id": "j2v-faceless-video",
+      "display_name": "Faceless Video (API Edition)",
+      "version": "1.0.0",
+      "tier": "basic",
+      "category": "video",
+      "description": "Turn a news article into a narrated video using Leonardo AI images, OpenAI TTS narration, and JSON2Video rendering. No self-hosted infrastructure required.",
+      "requires": [
+        "openai",
+        "leonardo",
+        "json2video",
+        "core",
+        "youtube"
+      ],
+      "author": "SelfHostHub",
+      "download_url": "https://raw.githubusercontent.com/selfhosthub/studio-community/main/workflows/j2v-faceless-video.json",
+      "path": "workflows/j2v-faceless-video.json"
+    }
+  ]
+}

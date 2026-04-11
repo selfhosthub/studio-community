@@ -1,0 +1,96 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://raw.githubusercontent.com/selfhosthub/studio-community/main/schemas/workflows-catalog.schema.json",
+  "title": "Studio Workflows Catalog",
+  "description": "Index of all standalone workflow recipes. Workflows are complete automations users can install and run.",
+  "type": "object",
+  "required": ["version", "workflows"],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "workflows": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/workflowEntry"
+      }
+    }
+  },
+  "$defs": {
+    "workflowEntry": {
+      "type": "object",
+      "required": [
+        "id",
+        "display_name",
+        "version",
+        "tier",
+        "category",
+        "description",
+        "author",
+        "download_url"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9-]*$",
+          "examples": ["hello-world"]
+        },
+        "display_name": {
+          "type": "string",
+          "examples": ["Hello World"]
+        },
+        "version": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$"
+        },
+        "tier": {
+          "type": "string",
+          "enum": ["basic", "plus"]
+        },
+        "category": {
+          "type": "string",
+          "examples": ["getting-started", "video", "ai"]
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 300
+        },
+        "requires": {
+          "type": "array",
+          "description": "Provider slugs required to run this workflow.",
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9-]*$"
+          },
+          "default": []
+        },
+        "author": {
+          "type": "string"
+        },
+        "download_url": {
+          "type": "string",
+          "format": "uri"
+        },
+        "requires_token": {
+          "type": "boolean",
+          "default": false
+        },
+        "path": {
+          "type": "string",
+          "description": "Relative path to the workflow JSON file within studio-cat."
+        },
+        "status": {
+          "type": "string",
+          "description": "Release status of this catalog entry.",
+          "enum": ["dev", "released"]
+        }
+      }
+    }
+  }
+}

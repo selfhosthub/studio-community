@@ -1,0 +1,35 @@
+{
+  "$schema": "https://raw.githubusercontent.com/selfhosthub/studio-community/main/schemas/blueprints-catalog.schema.json",
+  "version": "1.0.0",
+  "blueprints": [
+    {
+      "id": "leonardo-image-pipeline",
+      "display_name": "Leonardo Image Pipeline",
+      "version": "1.0.0",
+      "tier": "advanced",
+      "category": "ai",
+      "description": "Generate images with Leonardo AI and process results via webhook callback.",
+      "requires": [
+        "core",
+        "leonardo"
+      ],
+      "author": "SelfHostHub",
+      "download_url": "https://raw.githubusercontent.com/selfhosthub/studio-marketplace/main/blueprints/leonardo-image-pipeline.json",
+      "requires_token": true
+    },
+    {
+      "id": "image-generator",
+      "display_name": "AI Image Generator",
+      "version": "1.0.0",
+      "tier": "basic",
+      "category": "ai",
+      "description": "Generate AI images from text prompts using ComfyUI with customizable styles and batch sizes.",
+      "requires": [
+        "shs-comfyui"
+      ],
+      "author": "SelfHostHub",
+      "download_url": "https://raw.githubusercontent.com/selfhosthub/studio-plus/main/blueprints/image-generator.json",
+      "path": "blueprints/image-generator.json"
+    }
+  ]
+}

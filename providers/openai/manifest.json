@@ -1,0 +1,21 @@
+{
+  "$schema": "https://raw.githubusercontent.com/selfhosthub/studio-community/main/schemas/manifest.schema.json",
+  "name": "openai",
+  "version": "1.0.0",
+  "tier": "basic",
+  "display_name": "OpenAI",
+  "description": "AI models for chat completion, embeddings, and image generation",
+  "category": "ai",
+  "services_preview": [
+    "Chat Completion",
+    "Embeddings",
+    "Image Generation"
+  ],
+  "provides": {
+    "provider": "provider.json",
+    "adapter_config": "adapter-config.json"
+  },
+  "changelog": {
+    "1.0.0": "Initial release with chat, embeddings, and image generation"
+  }
+}

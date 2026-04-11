@@ -1,0 +1,124 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://raw.githubusercontent.com/selfhosthub/studio-community/main/schemas/prompt.schema.json",
+  "title": "Studio Prompt",
+  "description": "A prompt template definition with text chunks and configurable variables.",
+  "type": "object",
+  "required": ["id", "display_name", "version", "tier", "category", "description", "author", "chunks", "variables"],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]*$",
+      "examples": ["shs-news-narrator", "shs-scene-description"]
+    },
+    "display_name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "tier": {
+      "type": "string",
+      "enum": ["basic", "plus"]
+    },
+    "category": {
+      "type": "string",
+      "description": "Prompt category for filtering.",
+      "examples": ["story_generation", "scene_description", "summarization", "classification", "extraction", "rewriting", "copywriting", "research"],
+      "default": "general"
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 300
+    },
+    "author": {
+      "type": "string"
+    },
+    "chunks": {
+      "type": "array",
+      "description": "Ordered text chunks that are assembled into the final prompt.",
+      "items": {
+        "$ref": "#/$defs/promptChunk"
+      },
+      "default": []
+    },
+    "variables": {
+      "type": "array",
+      "description": "Configurable variables referenced by {{ name }} in chunk text.",
+      "items": {
+        "$ref": "#/$defs/promptVariable"
+      },
+      "default": []
+    }
+  },
+  "$defs": {
+    "promptChunk": {
+      "type": "object",
+      "required": ["text", "order", "role"],
+      "additionalProperties": false,
+      "properties": {
+        "text": {
+          "type": "string",
+          "description": "Prompt text. May contain {{ variable_name }} template expressions."
+        },
+        "variable": {
+          "type": ["string", "null"],
+          "description": "Variable name this chunk is associated with. Null for static text chunks.",
+          "default": null
+        },
+        "order": {
+          "type": "integer",
+          "description": "Assembly order. Lower = earlier in the prompt.",
+          "minimum": 0,
+          "default": 0
+        },
+        "role": {
+          "type": "string",
+          "description": "Chat message role for this chunk.",
+          "enum": ["system", "user", "assistant"],
+          "default": "user"
+        }
+      }
+    },
+    "promptVariable": {
+      "type": "object",
+      "required": ["name", "label"],
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Variable identifier. Must match {{ name }} references in chunks."
+        },
+        "label": {
+          "type": "string",
+          "description": "Human-readable label shown in the form."
+        },
+        "type": {
+          "type": "string",
+          "description": "Variable type. 'enum' renders as a dropdown, 'string' as a text field, 'number' as a number input.",
+          "enum": ["string", "enum", "number"],
+          "default": "string"
+        },
+        "options": {
+          "type": ["array", "null"],
+          "description": "Available options for enum-type variables. Null for other types.",
+          "items": {
+            "type": "string"
+          },
+          "default": null
+        },
+        "default": {
+          "type": ["string", "null"],
+          "description": "Default value. Used during assembly if no value provided.",
+          "default": null
+        }
+      }
+    }
+  }
+}

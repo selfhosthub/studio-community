@@ -1,0 +1,122 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://raw.githubusercontent.com/selfhosthub/studio-community/main/schemas/services-catalog.schema.json",
+  "title": "Studio Services Catalog",
+  "description": "Index of all services available across all providers. Allows the UI to list, search, and filter services without downloading every provider package. Each service entry references its parent provider and includes the parameter and result schemas needed for step configuration.",
+  "type": "object",
+  "required": ["version", "services"],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "JSON Schema reference for editor validation."
+    },
+    "version": {
+      "type": "string",
+      "description": "Catalog format version. Semver.",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "services": {
+      "type": "array",
+      "description": "List of service entries.",
+      "items": {
+        "$ref": "#/$defs/serviceEntry"
+      }
+    }
+  },
+  "$defs": {
+    "serviceEntry": {
+      "type": "object",
+      "description": "A single service listing in the catalog. Contains the service identity, its parent provider, and the parameter/result schemas needed for workflow step configuration.",
+      "required": [
+        "id",
+        "provider_id",
+        "display_name",
+        "description",
+        "service_type",
+        "parameter_schema",
+        "result_schema"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Service identifier. Must match the service key in the provider's adapter-config.json services map. Convention: {provider_slug}_{action}.",
+          "pattern": "^[a-z][a-z0-9_-]*$",
+          "examples": ["openai_chat", "slack_send_message", "core_set_fields"]
+        },
+        "provider_id": {
+          "type": "string",
+          "description": "Provider slug that owns this service. Must match an entry in providers-catalog.json.",
+          "pattern": "^[a-z][a-z0-9-]*$",
+          "examples": ["openai", "core", "shs-video"]
+        },
+        "display_name": {
+          "type": "string",
+          "description": "Human-readable service name. Shown in the workflow step picker.",
+          "examples": ["Chat Completion", "Send Message", "Set Fields"]
+        },
+        "description": {
+          "type": "string",
+          "description": "What this service does. 1-2 sentences.",
+          "maxLength": 300
+        },
+        "service_type": {
+          "type": "string",
+          "description": "Service category. Determines which section the service appears in within the step picker.",
+          "enum": [
+            "CORE",
+            "FLOW",
+            "TRANSFORM",
+            "NETWORK",
+            "AI",
+            "DATA_TRANSFORMATION",
+            "PRODUCTIVITY",
+            "COMMUNICATION",
+            "DEVELOPMENT",
+            "STORAGE",
+            "SOCIAL_MEDIA"
+          ]
+        },
+        "tier": {
+          "type": "string",
+          "description": "Access tier inherited from the parent provider. Basic services are available to all users; plus services require an entitlement token.",
+          "enum": ["basic", "plus"],
+          "default": "basic"
+        },
+        "requires_credentials": {
+          "type": "boolean",
+          "description": "Whether this service needs provider credentials to execute.",
+          "default": true
+        },
+        "parameter_schema": {
+          "type": "object",
+          "description": "JSON Schema defining the input parameters for this service. Each property becomes a form field in the step settings panel.",
+          "required": ["type", "properties"],
+          "properties": {
+            "type": {
+              "type": "string",
+              "const": "object"
+            },
+            "required": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "properties": {
+              "type": "object",
+              "description": "Parameter definitions. Each key is a parameter name."
+            }
+          },
+          "additionalProperties": true
+        },
+        "result_schema": {
+          "type": "object",
+          "description": "JSON Schema describing the response structure. Used by downstream steps for data mapping and by output_view for display.",
+          "additionalProperties": true
+        }
+      }
+    }
+  }
+}

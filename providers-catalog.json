@@ -1,0 +1,92 @@
+{
+  "$schema": "https://raw.githubusercontent.com/selfhosthub/studio-community/main/schemas/providers-catalog.schema.json",
+  "version": "1.0.0",
+  "packages": [
+    {
+      "id": "openai",
+      "display_name": "OpenAI",
+      "version": "1.0.0",
+      "tier": "basic",
+      "category": "ai",
+      "description": "AI models for chat completion, embeddings, and image generation",
+      "services_preview": [
+        "Chat Completion",
+        "Embeddings",
+        "Image Generation"
+      ],
+      "requires_token": false,
+      "path": "openai",
+      "download_url": "https://raw.githubusercontent.com/selfhosthub/studio-community/main/providers/openai"
+    },
+    {
+      "id": "leonardo",
+      "display_name": "Leonardo",
+      "version": "1.0.0",
+      "tier": "basic",
+      "category": "ai",
+      "description": "AI-powered image generation with Leonardo",
+      "services_preview": [
+        "Text to Image"
+      ],
+      "requires_token": false,
+      "path": "leonardo",
+      "download_url": "https://raw.githubusercontent.com/selfhosthub/studio-community/main/providers/leonardo"
+    },
+    {
+      "id": "json2video",
+      "display_name": "JSON2Video",
+      "version": "1.0.0",
+      "tier": "basic",
+      "category": "ai",
+      "description": "Programmatic video generation with JSON2Video API",
+      "services_preview": [
+        "Generate Video",
+        "Check Render Status"
+      ],
+      "requires_token": false,
+      "path": "json2video",
+      "download_url": "https://raw.githubusercontent.com/selfhosthub/studio-community/main/providers/json2video"
+    },
+    {
+      "id": "youtube",
+      "display_name": "YouTube",
+      "version": "1.0.0",
+      "tier": "basic",
+      "category": "social_media",
+      "description": "YouTube integration for video management, search, playlists, comments, and analytics",
+      "services_preview": [
+        "List Videos",
+        "Get Video",
+        "Search",
+        "Upload Video",
+        "Update Video",
+        "Delete Video",
+        "Playlists",
+        "Comments",
+        "Reply"
+      ],
+      "requires_token": false,
+      "path": "youtube",
+      "download_url": "https://raw.githubusercontent.com/selfhosthub/studio-community/main/providers/youtube"
+    },
+    {
+      "id": "core",
+      "display_name": "Core",
+      "version": "1.0.0",
+      "tier": "basic",
+      "category": "flow",
+      "description": "Built-in workflow utilities for data transformation, control flow, HTTP requests, notifications, and logging",
+      "services_preview": [
+        "Set Fields",
+        "Call Webhook",
+        "Wait for Approval",
+        "Wait for Webhook",
+        "Send Notification",
+        "Log Message"
+      ],
+      "requires_token": false,
+      "path": "core",
+      "download_url": "https://raw.githubusercontent.com/selfhosthub/studio-community/main/providers/core"
+    }
+  ]
+}

@@ -1,0 +1,801 @@
+{
+  "name": "Faceless Video (API Edition)",
+  "description": "Turn a news article into a narrated video using Leonardo AI images, OpenAI TTS narration, and JSON2Video rendering.",
+  "version": "1.0.0",
+  "author": "SelfHostHub",
+  "requires": [
+    "openai",
+    "leonardo",
+    "json2video",
+    "core",
+    "youtube"
+  ],
+  "prompts": [
+    {
+      "marketplace_slug": "shs-story-generator",
+      "used_by_step": "generate_story"
+    },
+    {
+      "marketplace_slug": "shs-scene-designer",
+      "used_by_step": "generate_scene_content"
+    }
+  ],
+  "steps": {
+    "generate_story": {
+      "name": "Generate Story",
+      "description": "Generate a narrated story from the article (via prompt template)",
+      "type": "task",
+      "depends_on": [],
+      "ui_config": {
+        "position": {
+          "x": 400,
+          "y": 138
+        }
+      },
+      "job": {
+        "service_type": "ai",
+        "provider_id": "openai",
+        "service_id": "openai.openai_chat",
+        "parameters": {
+          "model": "gpt-4o",
+          "messages": [],
+          "temperature": 0.1,
+          "max_tokens": 1000
+        }
+      },
+      "input_mappings": {
+        "messages": {
+          "mappingType": "prompt",
+          "promptSlug": "shs-story-generator"
+        },
+        "_prompt_variable:language": {
+          "mappingType": "mapped",
+          "stepId": "__instance_form__",
+          "outputField": "subtitles_language"
+        }
+      },
+      "timeout": 60,
+      "outputs": {
+        "response": {
+          "path": "choices[0].message.content",
+          "type": "string"
+        }
+      }
+    },
+    "generate_scene_content": {
+      "name": "Generate Scene Content",
+      "description": "Generate scenes with narration and image prompts (via prompt)",
+      "type": "task",
+      "depends_on": [
+        "generate_story"
+      ],
+      "ui_config": {
+        "position": {
+          "x": 700,
+          "y": 134
+        }
+      },
+      "job": {
+        "service_type": "ai",
+        "provider_id": "openai",
+        "service_id": "openai.openai_chat",
+        "parameters": {
+          "model": "gpt-4o",
+          "messages": [],
+          "temperature": 0.1,
+          "max_tokens": 4000,
+          "response_format": {
+            "type": "json_object"
+          }
+        }
+      },
+      "input_mappings": {
+        "messages": {
+          "mappingType": "prompt",
+          "promptSlug": "shs-scene-designer"
+        },
+        "_prompt_variable:story_text": {
+          "mappingType": "mapped",
+          "stepId": "generate_story",
+          "outputField": "response"
+        },
+        "_prompt_variable:language": {
+          "mappingType": "mapped",
+          "stepId": "__instance_form__",
+          "outputField": "subtitles_language"
+        }
+      },
+      "timeout": 120,
+      "outputs": {
+        "scenes": {
+          "path": "choices[0].message.content.scenes",
+          "type": "array",
+          "description": "Array of scene objects with narration and image_prompts"
+        },
+        "image_prompts": {
+          "path": "choices[0].message.content.image_prompts",
+          "type": "array",
+          "description": "Flat array of all image prompts across all scenes"
+        },
+        "narrations": {
+          "path": "choices[0].message.content.narrations",
+          "type": "array",
+          "description": "Flat array of all narration texts, one per scene"
+        }
+      }
+    },
+    "generate_images": {
+      "name": "Generate Images",
+      "description": "Generate illustrations for each image prompt using Leonardo AI",
+      "type": "task",
+      "depends_on": [
+        "generate_scene_content"
+      ],
+      "ui_config": {
+        "position": {
+          "x": 1000,
+          "y": 40
+        }
+      },
+      "iteration_config": {
+        "enabled": true,
+        "source_step_id": "generate_scene_content",
+        "source_output_field": "image_prompts",
+        "target_parameter": "prompt",
+        "execution_mode": "sequential"
+      },
+      "job": {
+        "service_type": "ai",
+        "provider_id": "leonardo",
+        "service_id": "leonardo.text_to_image",
+        "parameters": {
+          "prompt": "{{ generate_scene_content.image_prompts[*] }}",
+          "width": 1024,
+          "height": 576,
+          "num_images": 1,
+          "modelId": "1e60896f-3c26-4296-8ecc-53e2afecc132"
+        }
+      },
+      "input_mappings": {
+        "prompt": {
+          "mappingType": "mapped",
+          "stepId": "generate_scene_content",
+          "outputField": "image_prompts"
+        },
+        "modelId": {
+          "mappingType": "form",
+          "formField": "modelId"
+        },
+        "width": {
+          "mappingType": "form",
+          "formField": "image_width"
+        },
+        "height": {
+          "mappingType": "form",
+          "formField": "image_height"
+        }
+      },
+      "timeout": 300,
+      "outputs": {
+        "downloaded_files": {
+          "path": "downloaded_files",
+          "type": "array"
+        }
+      }
+    },
+    "generate_narration": {
+      "name": "Generate Narration (OpenAI TTS)",
+      "description": "Generate TTS audio for each scene narration using OpenAI",
+      "type": "task",
+      "depends_on": [
+        "generate_scene_content"
+      ],
+      "ui_config": {
+        "position": {
+          "x": 1000,
+          "y": 228
+        }
+      },
+      "iteration_config": {
+        "enabled": true,
+        "source_step_id": "generate_scene_content",
+        "source_output_field": "narrations",
+        "target_parameter": "input",
+        "execution_mode": "sequential"
+      },
+      "job": {
+        "service_type": "ai",
+        "provider_id": "openai",
+        "service_id": "openai.openai_tts",
+        "parameters": {
+          "input": "{{ generate_scene_content.narrations[*] }}",
+          "model": "gpt-4o-mini-tts",
+          "voice": "cedar",
+          "instructions": "Speak in a clear, engaging news narrator voice. Maintain a steady, informative tone."
+        }
+      },
+      "input_mappings": {
+        "input": {
+          "mappingType": "mapped",
+          "stepId": "generate_scene_content",
+          "outputField": "narrations"
+        },
+        "voice": {
+          "mappingType": "form",
+          "formField": "voice"
+        },
+        "language": {
+          "mappingType": "mapped",
+          "stepId": "__instance_form__",
+          "outputField": "subtitles_language"
+        }
+      },
+      "timeout": 300,
+      "outputs": {
+        "duration_seconds": {
+          "path": "duration_seconds",
+          "type": "number"
+        },
+        "storage_url": {
+          "path": "storage_url",
+          "type": "string"
+        }
+      }
+    },
+    "render_video": {
+      "name": "Render Video",
+      "description": "Submit video render job to JSON2Video with images and audio",
+      "type": "task",
+      "depends_on": [
+        "generate_images",
+        "generate_narration"
+      ],
+      "ui_config": {
+        "position": {
+          "x": 1300,
+          "y": 146
+        }
+      },
+      "job": {
+        "service_type": "ai",
+        "provider_id": "json2video",
+        "service_id": "json2video.j2v_render",
+        "parameters": {
+          "cache": true,
+          "draft": false,
+          "width": 1920,
+          "height": 1080,
+          "quality": "high",
+          "elements": [
+            {
+              "type": "subtitles",
+              "language": "en",
+              "settings": {
+                "font-family": "Luckiest Guy"
+              }
+            }
+          ],
+          "scenes": [
+            {
+              "type": "scene_group",
+              "scene_count": "{{ generate_scene_content.scene_count }}",
+              "elements": [
+                {
+                  "type": "image",
+                  "src": "{{ generate_images.downloaded_files }}",
+                  "count": "{{ generate_scene_content.prompts_per_scene }}",
+                  "duration": -1,
+                  "resize": "cover"
+                },
+                {
+                  "type": "audio",
+                  "src": "{{ generate_narration.storage_url }}",
+                  "count": 1,
+                  "durations": "{{ generate_narration.duration_seconds }}"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "input_mappings": {
+        "scenes[0].scene_count": {
+          "mappingType": "mapped",
+          "stepId": "__instance_form__",
+          "outputField": "scene_count"
+        },
+        "elements[0].language": {
+          "mappingType": "form",
+          "formField": "subtitles_language"
+        }
+      },
+      "timeout": 120,
+      "outputs": {
+        "success": {
+          "path": "success",
+          "description": "Whether the request was accepted",
+          "type": "boolean"
+        },
+        "project": {
+          "path": "project",
+          "description": "Project ID for tracking the render job",
+          "type": "string"
+        },
+        "status_url": {
+          "path": "status_url",
+          "type": "string",
+          "description": "URL to check video render status"
+        },
+        "timestamp": {
+          "path": "timestamp",
+          "description": "Timestamp when the job was created",
+          "type": "string"
+        },
+        "project_id": {
+          "path": "project",
+          "type": "string",
+          "description": "JSON2Video project ID"
+        }
+      }
+    },
+    "wait_for_video": {
+      "name": "Wait for Video",
+      "description": "Poll until video generation is complete",
+      "type": "task",
+      "depends_on": [
+        "render_video"
+      ],
+      "ui_config": {
+        "position": {
+          "x": 1600,
+          "y": 154
+        }
+      },
+      "job": {
+        "service_type": "flow",
+        "provider_id": "core",
+        "credential_provider_id": "json2video",
+        "service_id": "core.poll_service",
+        "auth_config": {
+          "type": "header",
+          "header": "x-api-key"
+        },
+        "parameters": {
+          "url": "{{ render_video.status_url }}",
+          "method": "GET",
+          "interval_seconds": 10,
+          "max_attempts": 60,
+          "success_codes": [
+            200
+          ],
+          "fail_codes": [
+            400,
+            401,
+            500
+          ],
+          "success_condition": "success == true AND movie.status == \"done\"",
+          "failure_condition": "movie.status == \"error\""
+        }
+      },
+      "input_mappings": {
+        "url": {
+          "mappingType": "mapped",
+          "stepId": "render_video",
+          "outputField": "status_url"
+        }
+      },
+      "timeout": 600,
+      "outputs": {
+        "video_url": {
+          "path": "movie.url",
+          "type": "string",
+          "description": "URL of the completed video"
+        },
+        "status": {
+          "path": "movie.status",
+          "type": "string",
+          "description": "Final render status"
+        }
+      },
+      "output_forwarding": {
+        "enabled": true,
+        "mode": "selected",
+        "selected_fields": [
+          "project_id"
+        ]
+      }
+    },
+    "get_video": {
+      "name": "Get Video",
+      "description": "Retrieve the final video details and download URL",
+      "type": "task",
+      "depends_on": [
+        "wait_for_video"
+      ],
+      "ui_config": {
+        "position": {
+          "x": 1900,
+          "y": 146
+        }
+      },
+      "job": {
+        "service_type": "ai",
+        "provider_id": "json2video",
+        "service_id": "json2video.j2v_get_video",
+        "parameters": {
+          "project": ""
+        }
+      },
+      "input_mappings": {
+        "project": {
+          "mappingType": "mapped",
+          "stepId": "wait_for_video",
+          "outputField": "project_id"
+        }
+      },
+      "timeout": 30,
+      "outputs": {
+        "success": {
+          "path": "success",
+          "description": "Whether the API request was successful",
+          "type": "boolean"
+        },
+        "movie": {
+          "path": "movie",
+          "description": "Video render job details",
+          "type": "object"
+        },
+        "remaining_quota": {
+          "path": "remaining_quota",
+          "description": "Your account's remaining API credits",
+          "type": "object"
+        },
+        "video_url": {
+          "path": "movie.url",
+          "type": "string",
+          "description": "Download URL of the video"
+        },
+        "duration": {
+          "path": "movie.duration",
+          "type": "number",
+          "description": "Video duration in seconds"
+        },
+        "size": {
+          "path": "movie.size",
+          "type": "number",
+          "description": "Video file size in bytes"
+        }
+      }
+    },
+    "upload_to_youtube": {
+      "name": "Upload to YouTube",
+      "description": "Upload the rendered video to YouTube",
+      "type": "task",
+      "trigger_type": "manual",
+      "depends_on": [
+        "get_video"
+      ],
+      "ui_config": {
+        "position": {
+          "x": 2200,
+          "y": 154
+        }
+      },
+      "job": {
+        "service_type": "SOCIAL_MEDIA",
+        "provider_id": "youtube",
+        "service_id": "youtube.youtube_upload_video",
+        "parameters": {
+          "title": "Untitled Video",
+          "description": "",
+          "categoryId": "22",
+          "privacyStatus": "private",
+          "madeForKids": false,
+          "body_source_url": "{{ get_video.video_url }}",
+          "content_type": "video/mp4"
+        }
+      },
+      "input_mappings": {
+        "body_source_url": {
+          "mappingType": "mapped",
+          "stepId": "get_video",
+          "outputField": "video_url"
+        }
+      },
+      "timeout": 600,
+      "outputs": {
+        "video_id": {
+          "path": "id",
+          "type": "string"
+        },
+        "upload_status": {
+          "path": "status.uploadStatus",
+          "type": "string"
+        }
+      }
+    }
+  },
+  "client_metadata": {
+    "experience_config": {
+      "title": "Faceless Video (API Edition)",
+      "icon": "film",
+      "description": "Turn a news article into a narrated video with Leonardo AI images and JSON2Video rendering (no self-hosted infra required)",
+      "input": {
+        "fields": [
+          {
+            "step_id": "generate_story",
+            "param_path": "_prompt_variable:article_text",
+            "label": "Article Text",
+            "type": "textarea",
+            "placeholder": "Paste your news article here...",
+            "required": true
+          },
+          {
+            "step_id": "generate_scene_content",
+            "param_path": "_prompt_variable:scene_count",
+            "label": "Scene Count",
+            "type": "select",
+            "options": [
+              {
+                "label": "3",
+                "value": "3"
+              },
+              {
+                "label": "5",
+                "value": "5"
+              },
+              {
+                "label": "7",
+                "value": "7"
+              },
+              {
+                "label": "10",
+                "value": "10"
+              }
+            ],
+            "default": "3",
+            "required": true
+          },
+          {
+            "step_id": "generate_scene_content",
+            "param_path": "_prompt_variable:prompts_per_scene",
+            "label": "Image Prompts Per Scene",
+            "type": "select",
+            "options": [
+              {
+                "label": "1",
+                "value": "1"
+              },
+              {
+                "label": "2",
+                "value": "2"
+              },
+              {
+                "label": "3",
+                "value": "3"
+              }
+            ],
+            "default": "1",
+            "required": true
+          },
+          {
+            "step_id": "generate_images",
+            "param_path": "modelId",
+            "label": "Leonardo Model",
+            "type": "select",
+            "options": [
+              {
+                "label": "Leonardo Phoenix",
+                "value": "1e60896f-3c26-4296-8ecc-53e2afecc132"
+              },
+              {
+                "label": "Leonardo Kino XL",
+                "value": "aa77f04e-3eec-4034-9c07-d0f619684628"
+              },
+              {
+                "label": "Leonardo Diffusion XL",
+                "value": "b24e16ff-06e3-43eb-8d33-4416c2d75876"
+              },
+              {
+                "label": "Leonardo Lightning XL",
+                "value": "b7aa9939-abed-4d4e-96c4-140b8c65dd92"
+              },
+              {
+                "label": "DreamShaper v7",
+                "value": "5c232a9e-9061-4777-980a-ddc8e65647c6"
+              },
+              {
+                "label": "Absolute Reality v1.6",
+                "value": "e316348f-7773-490e-adcd-46757c738eb7"
+              },
+              {
+                "label": "AlbedoBase XL",
+                "value": "2067ae52-33fd-4a82-bb92-c2c55e7d2786"
+              }
+            ],
+            "default": "1e60896f-3c26-4296-8ecc-53e2afecc132",
+            "required": true
+          },
+          {
+            "step_id": "generate_images",
+            "param_path": "image_width",
+            "label": "Image Width",
+            "type": "select",
+            "options": [
+              {
+                "label": "512",
+                "value": "512"
+              },
+              {
+                "label": "768",
+                "value": "768"
+              },
+              {
+                "label": "1024",
+                "value": "1024"
+              }
+            ],
+            "default": "1024",
+            "required": true
+          },
+          {
+            "step_id": "generate_images",
+            "param_path": "image_height",
+            "label": "Image Height",
+            "type": "select",
+            "options": [
+              {
+                "label": "512",
+                "value": "512"
+              },
+              {
+                "label": "576",
+                "value": "576"
+              },
+              {
+                "label": "768",
+                "value": "768"
+              }
+            ],
+            "default": "576",
+            "required": true
+          },
+          {
+            "step_id": "generate_narration",
+            "param_path": "voice",
+            "label": "Narration Voice",
+            "type": "select",
+            "options": [
+              {
+                "label": "Alloy",
+                "value": "alloy"
+              },
+              {
+                "label": "Ash",
+                "value": "ash"
+              },
+              {
+                "label": "Ballad",
+                "value": "ballad"
+              },
+              {
+                "label": "Cedar",
+                "value": "cedar"
+              },
+              {
+                "label": "Coral",
+                "value": "coral"
+              },
+              {
+                "label": "Echo",
+                "value": "echo"
+              },
+              {
+                "label": "Fable",
+                "value": "fable"
+              },
+              {
+                "label": "Nova",
+                "value": "nova"
+              },
+              {
+                "label": "Onyx",
+                "value": "onyx"
+              },
+              {
+                "label": "Sage",
+                "value": "sage"
+              },
+              {
+                "label": "Shimmer",
+                "value": "shimmer"
+              }
+            ],
+            "default": "cedar",
+            "required": true
+          },
+          {
+            "step_id": "generate_narration",
+            "param_path": "subtitles_language",
+            "label": "Language",
+            "type": "select",
+            "options": [
+              {
+                "label": "English",
+                "value": "en"
+              },
+              {
+                "label": "Spanish",
+                "value": "es"
+              },
+              {
+                "label": "French",
+                "value": "fr"
+              },
+              {
+                "label": "German",
+                "value": "de"
+              },
+              {
+                "label": "Portuguese",
+                "value": "pt"
+              },
+              {
+                "label": "Italian",
+                "value": "it"
+              },
+              {
+                "label": "Japanese",
+                "value": "ja"
+              },
+              {
+                "label": "Korean",
+                "value": "ko"
+              },
+              {
+                "label": "Chinese",
+                "value": "zh"
+              }
+            ],
+            "default": "en",
+            "required": true
+          }
+        ],
+        "submit_label": "Create Video",
+        "hint": "Paste a news article to generate a narrated video with AI images"
+      },
+      "working": {
+        "message": "Creating your video...",
+        "steps": {
+          "generate_story": "Writing the story",
+          "generate_scene_content": "Designing scenes",
+          "generate_images": "Generating images with Leonardo AI",
+          "generate_narration": "Recording narration",
+          "render_video": "Submitting to JSON2Video",
+          "wait_for_video": "Rendering video",
+          "get_video": "Retrieving video",
+          "upload_to_youtube": "Uploading to YouTube"
+        }
+      },
+      "decisions": [],
+      "result": {
+        "type": "video",
+        "source": {
+          "step_id": "get_video",
+          "field": "video_url"
+        },
+        "title": "Your Video is Ready",
+        "actions": [
+          {
+            "label": "Download",
+            "type": "download"
+          },
+          {
+            "label": "Create Another",
+            "type": "run_again"
+          }
+        ]
+      }
+    }
+  }
+}

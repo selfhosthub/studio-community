@@ -1,0 +1,69 @@
+{
+  "version": "1.0.0",
+  "updated_at": "2025-01-15T00:00:00Z",
+  "docs": {
+    "user": {
+      "title": "User Guide",
+      "description": "Using workflows, templates, instances, and the visual editor",
+      "file": "user.md",
+      "icon": "book-open",
+      "public": true
+    },
+    "admin": {
+      "title": "Admin Guide",
+      "description": "Managing users, organizations, credentials, and billing",
+      "file": "admin.md",
+      "icon": "settings",
+      "public": false
+    },
+    "super-admin": {
+      "title": "Super Admin Guide",
+      "description": "Deployment, infrastructure, networking, and system configuration",
+      "file": "super-admin.md",
+      "icon": "server",
+      "public": false
+    }
+  },
+  "providers": [
+    {
+      "title": "JSON2Video Provider",
+      "description": "Create videos programmatically using JSON definitions.",
+      "file": "providers/json2video.md",
+      "icon": "box",
+      "public": true,
+      "id": "json2video"
+    },
+    {
+      "title": "Leonardo AI Provider",
+      "description": "Generate high-quality AI images using Leonardo.ai's models.",
+      "file": "providers/leonardo.md",
+      "icon": "box",
+      "public": true,
+      "id": "leonardo"
+    },
+    {
+      "title": "OpenAI Provider",
+      "description": "Connect to OpenAI's GPT models for chat completion, embeddings, and DALL-E image generation.",
+      "file": "providers/openai.md",
+      "icon": "box",
+      "public": true,
+      "id": "openai"
+    },
+    {
+      "title": "YouTube Provider",
+      "description": "Upload, manage, and search YouTube videos, playlists, and comments.",
+      "file": "providers/youtube.md",
+      "icon": "box",
+      "public": true,
+      "id": "youtube"
+    },
+    {
+      "title": "Core Provider",
+      "description": "Built-in workflow utilities for control flow, data transformation, HTTP requests, and human-in-the-loop steps.",
+      "file": "providers/core.md",
+      "icon": "box",
+      "public": true,
+      "id": "core"
+    }
+  ]
+}

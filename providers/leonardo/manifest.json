@@ -1,0 +1,30 @@
+{
+  "$schema": "https://raw.githubusercontent.com/selfhosthub/studio-community/main/schemas/manifest.schema.json",
+  "name": "leonardo",
+  "version": "1.0.0",
+  "tier": "basic",
+  "display_name": "Leonardo",
+  "description": "AI-powered image generation with Leonardo",
+  "category": "ai",
+  "services_preview": [
+    "Text to Image"
+  ],
+  "author": "SelfHostHub",
+  "license": "MIT",
+  "homepage": "https://leonardo.ai",
+  "repository": "https://github.com/selfhosthub/studio-providers",
+  "requires": {
+    "studio_version": ">=1.0.0"
+  },
+  "provides": {
+    "provider": "provider.json",
+    "services": "services/",
+    "adapter_config": "adapter-config.json"
+  },
+  "hooks": [
+    "poll_until_complete"
+  ],
+  "changelog": {
+    "1.0.0": "Initial release with text_to_image service"
+  }
+}

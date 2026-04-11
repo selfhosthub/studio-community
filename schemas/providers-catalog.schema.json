@@ -1,0 +1,161 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://raw.githubusercontent.com/selfhosthub/studio-community/main/schemas/providers-catalog.schema.json",
+  "title": "Studio Providers Catalog",
+  "description": "Index of all provider packages available in the catalog. Lists both basic (public) and advanced (marketplace) providers with optional version history and download URLs.",
+  "type": "object",
+  "required": ["version", "packages"],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "JSON Schema reference for editor validation."
+    },
+    "version": {
+      "type": "string",
+      "description": "Catalog format version. Semver.",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "packages": {
+      "type": "array",
+      "description": "List of provider package entries.",
+      "items": {
+        "$ref": "#/$defs/packageEntry"
+      }
+    }
+  },
+  "$defs": {
+    "packageEntry": {
+      "type": "object",
+      "description": "A single provider package listing in the catalog. Contains enough metadata for browsing and filtering without downloading the full package.",
+      "required": [
+        "id",
+        "display_name",
+        "version",
+        "tier",
+        "category",
+        "description"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Provider identifier. Must match the provider package slug/directory name.",
+          "pattern": "^[a-z][a-z0-9-]*$",
+          "examples": ["openai", "core", "shs-video"]
+        },
+        "display_name": {
+          "type": "string",
+          "description": "Human-readable provider name. Title Case.",
+          "examples": ["OpenAI", "Core", "Self-Host Studio Video"]
+        },
+        "version": {
+          "type": "string",
+          "description": "Latest available version. If versions array is present, must match the highest entry.",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$"
+        },
+        "tier": {
+          "type": "string",
+          "description": "Access tier. Basic providers are in the public catalog repo; plus providers require an entitlement token.",
+          "enum": ["basic", "plus"]
+        },
+        "category": {
+          "type": "string",
+          "description": "Provider category for filtering in the UI.",
+          "examples": ["ai", "flow", "video", "audio", "communication", "productivity", "social_media", "data"]
+        },
+        "description": {
+          "type": "string",
+          "description": "Short description (1-2 sentences) of the provider's purpose.",
+          "maxLength": 300
+        },
+        "services_preview": {
+          "type": "array",
+          "description": "Short display names of key services. Shown in catalog cards before install.",
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 10
+        },
+        "requires": {
+          "type": "array",
+          "description": "Provider slugs this provider depends on. Empty if no dependencies.",
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9-]*$"
+          },
+          "default": []
+        },
+        "credential_provider": {
+          "type": ["string", "null"],
+          "description": "OAuth provider identifier for OAuth-based providers. Null for API key or no-auth providers.",
+          "examples": ["google", "slack", null]
+        },
+        "requires_token": {
+          "type": "boolean",
+          "description": "True if downloading this provider requires an entitlement token (advanced tier).",
+          "default": false
+        },
+        "path": {
+          "type": "string",
+          "description": "Local path relative to PROVIDERS_DIR for directory-based install. Matches the provider slug.",
+          "pattern": "^[a-z][a-z0-9-]*$"
+        },
+        "download_url": {
+          "type": "string",
+          "description": "URL to download a specific version of the provider package zip.",
+          "format": "uri"
+        },
+        "latest_url": {
+          "type": "string",
+          "description": "URL to download the latest version of the provider package zip.",
+          "format": "uri"
+        },
+        "versions": {
+          "type": "array",
+          "description": "Version history, newest first. Each entry has a download URL and changelog.",
+          "items": {
+            "$ref": "#/$defs/versionEntry"
+          }
+        },
+        "bug_report_url": {
+          "type": "string",
+          "description": "URL for reporting issues with this provider.",
+          "format": "uri"
+        },
+        "status": {
+          "type": "string",
+          "description": "Release status of this catalog entry.",
+          "enum": ["dev", "released"]
+        }
+      }
+    },
+    "versionEntry": {
+      "type": "object",
+      "description": "A single version of a provider package.",
+      "required": ["version", "download_url"],
+      "additionalProperties": false,
+      "properties": {
+        "version": {
+          "type": "string",
+          "description": "Semver version string.",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$"
+        },
+        "download_url": {
+          "type": "string",
+          "description": "URL to download the provider package zip. Basic tier: raw GitHub URL. Advanced tier: GitHub release asset URL.",
+          "format": "uri"
+        },
+        "release_date": {
+          "type": "string",
+          "description": "Release date in ISO 8601 format (YYYY-MM-DD).",
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+        },
+        "changelog": {
+          "type": "string",
+          "description": "Brief description of what changed in this version."
+        }
+      }
+    }
+  }
+}

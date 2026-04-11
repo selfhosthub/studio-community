@@ -1,0 +1,2059 @@
+{
+  "$schema": "https://raw.githubusercontent.com/selfhosthub/studio-community/main/schemas/provider-config.schema.json",
+  "default_queue": "step_jobs",
+  "name": "YouTube",
+  "slug": "youtube",
+  "description": "YouTube Data API v3 integration",
+  "category": "social_media",
+  "provider_type": "API",
+  "icon_url": "/providers/youtube.svg",
+  "auth": {
+    "type": "bearer",
+    "config": {
+      "token_field": "access_token"
+    }
+  },
+  "credential_schema": {
+    "type": "object",
+    "properties": {
+      "oauth_provider": {
+        "type": "string",
+        "title": "Authentication",
+        "description": "Connect with Google OAuth (YouTube scopes)",
+        "const": "google",
+        "ui": {
+          "widget": "oauth-button",
+          "provider": "google"
+        }
+      }
+    }
+  },
+  "services": {
+    "youtube_upload_video": {
+      "display_name": "Upload Video",
+      "description": "Upload a video file to YouTube with metadata. Handles resumable upload (init + file stream) in a single step.",
+      "service_type": "SOCIAL_MEDIA",
+      "endpoint_url": "https://www.googleapis.com/upload/youtube/v3/videos?uploadType=resumable&part=snippet,status,recordingDetails",
+      "method": "POST",
+      "requires_credentials": true,
+      "is_active": true,
+      "parameterMapping": {
+        "init_content_type": "application/json; charset=UTF-8",
+        "file_source_param": "body_source_url",
+        "body_content_type_param": "content_type",
+        "query": [
+          "notifySubscribers"
+        ],
+        "body": {
+          "snippet": {
+            "title": "title",
+            "description": "description",
+            "tags": "tags",
+            "categoryId": "categoryId",
+            "defaultLanguage": "defaultLanguage",
+            "defaultAudioLanguage": "defaultAudioLanguage"
+          },
+          "status": {
+            "privacyStatus": "privacyStatus",
+            "selfDeclaredMadeForKids": "madeForKids",
+            "publishAt": "publishAt",
+            "embeddable": "embeddable",
+            "publicStatsViewable": "publicStatsViewable",
+            "license": "license"
+          },
+          "recordingDetails": {
+            "recordingDate": "recordingDate"
+          }
+        }
+      },
+      "request_body_template": {
+        "snippet": {
+          "title": "{{ parameters.title }}",
+          "description": "{{ parameters.description }}",
+          "tags": "{{ parameters.tags }}",
+          "categoryId": "{{ parameters.categoryId }}",
+          "defaultLanguage": "{{ parameters.defaultLanguage }}",
+          "defaultAudioLanguage": "{{ parameters.defaultAudioLanguage }}"
+        },
+        "status": {
+          "privacyStatus": "{{ parameters.privacyStatus }}",
+          "selfDeclaredMadeForKids": "{{ parameters.madeForKids }}",
+          "publishAt": "{{ parameters.publishAt }}",
+          "embeddable": "{{ parameters.embeddable }}",
+          "publicStatsViewable": "{{ parameters.publicStatsViewable }}",
+          "license": "{{ parameters.license }}"
+        },
+        "recordingDetails": {
+          "recordingDate": "{{ parameters.recordingDate }}"
+        }
+      },
+      "parameter_schema": {
+        "type": "object",
+        "required": [
+          "title",
+          "body_source_url",
+          "madeForKids"
+        ],
+        "properties": {
+          "title": {
+            "type": "string",
+            "title": "Video Title",
+            "description": "Title for the uploaded video (max 100 characters)",
+            "maxLength": 100,
+            "ui": {
+              "section": "basic",
+              "order": 1
+            }
+          },
+          "body_source_url": {
+            "type": "string",
+            "title": "Video File URL",
+            "description": "URL to the video file to upload",
+            "ui": {
+              "section": "basic",
+              "order": 2
+            }
+          },
+          "description": {
+            "type": "string",
+            "title": "Description",
+            "description": "Video description (max 5000 characters)",
+            "maxLength": 5000,
+            "ui": {
+              "section": "basic",
+              "order": 3,
+              "widget": "textarea"
+            }
+          },
+          "privacyStatus": {
+            "type": "string",
+            "title": "Privacy Status",
+            "enum": [
+              "public",
+              "unlisted",
+              "private"
+            ],
+            "default": "private",
+            "ui": {
+              "section": "basic",
+              "order": 4
+            }
+          },
+          "madeForKids": {
+            "type": "boolean",
+            "title": "Made for Kids",
+            "description": "Declare whether this video is made for kids. YouTube legally requires this declaration. Setting this to true limits features like personalized ads, comments, and notifications.",
+            "default": false,
+            "ui": {
+              "section": "basic",
+              "order": 5
+            }
+          },
+          "tags": {
+            "type": "array",
+            "title": "Tags",
+            "description": "Tags for the video",
+            "items": {
+              "type": "string"
+            },
+            "ui": {
+              "section": "basic",
+              "order": 6
+            }
+          },
+          "categoryId": {
+            "type": "string",
+            "title": "Category ID",
+            "description": "YouTube video category ID (22 = People & Blogs)",
+            "default": "22",
+            "ui": {
+              "section": "options",
+              "order": 2
+            }
+          },
+          "content_type": {
+            "type": "string",
+            "title": "Content Type",
+            "description": "MIME type of the video file",
+            "default": "video/mp4",
+            "ui": {
+              "section": "options",
+              "order": 3
+            }
+          },
+          "publishAt": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Publish At",
+            "description": "Schedule the video to auto-publish at this time. Only works when Privacy Status is 'private'. The video will automatically become public at the specified time. Use ISO 8601 format.",
+            "ui": {
+              "section": "advanced",
+              "group": "Scheduling",
+              "order": 1,
+              "show_when": {
+                "privacyStatus": "private"
+              }
+            }
+          },
+          "defaultLanguage": {
+            "type": "string",
+            "title": "Default Language",
+            "description": "The language of the video's default metadata (title, description). Use BCP-47 language codes (e.g., 'en', 'es', 'fr', 'de', 'ja').",
+            "ui": {
+              "section": "advanced",
+              "group": "Metadata",
+              "order": 1
+            }
+          },
+          "defaultAudioLanguage": {
+            "type": "string",
+            "title": "Default Audio Language",
+            "description": "The language spoken in the video's audio. Use BCP-47 language codes (e.g., 'en', 'es', 'fr', 'de', 'ja').",
+            "ui": {
+              "section": "advanced",
+              "group": "Metadata",
+              "order": 2
+            }
+          },
+          "recordingDate": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Recording Date",
+            "description": "The date and time when the video was recorded.",
+            "ui": {
+              "section": "advanced",
+              "group": "Metadata",
+              "order": 3
+            }
+          },
+          "notifySubscribers": {
+            "type": "boolean",
+            "title": "Notify Subscribers",
+            "description": "Whether to send a notification to subscribers about the new video. Set to false for bulk uploads or test videos to avoid spamming subscribers.",
+            "default": true,
+            "ui": {
+              "section": "advanced",
+              "group": "Visibility & Access",
+              "order": 1
+            }
+          },
+          "embeddable": {
+            "type": "boolean",
+            "title": "Embeddable",
+            "description": "Whether the video can be embedded on other websites.",
+            "default": true,
+            "ui": {
+              "section": "advanced",
+              "group": "Visibility & Access",
+              "order": 2
+            }
+          },
+          "publicStatsViewable": {
+            "type": "boolean",
+            "title": "Public Stats Viewable",
+            "description": "Whether the extended video statistics on the watch page are publicly viewable.",
+            "default": true,
+            "ui": {
+              "section": "advanced",
+              "group": "Visibility & Access",
+              "order": 3
+            }
+          },
+          "license": {
+            "type": "string",
+            "title": "License",
+            "enum": [
+              "youtube",
+              "creativeCommon"
+            ],
+            "enumNames": [
+              "Standard YouTube License",
+              "Creative Commons - Attribution"
+            ],
+            "default": "youtube",
+            "ui": {
+              "section": "advanced",
+              "group": "Visibility & Access",
+              "order": 4
+            }
+          }
+        }
+      },
+      "result_schema": {
+        "type": "object",
+        "properties": {
+          "status_code": {
+            "type": "integer"
+          },
+          "response_body": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "snippet": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string"
+                  },
+                  "publishedAt": {
+                    "type": "string"
+                  }
+                }
+              },
+              "status": {
+                "type": "object",
+                "properties": {
+                  "uploadStatus": {
+                    "type": "string"
+                  },
+                  "privacyStatus": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "example_parameters": {
+        "title": "My Awesome Video",
+        "body_source_url": "https://example.com/video.mp4",
+        "description": "Check out this video! Like and subscribe for more content.",
+        "privacyStatus": "private",
+        "madeForKids": false,
+        "tags": ["tutorial", "howto", "studio"]
+      },
+      "ui_hints": {
+        "color": "#FF0000",
+        "icon": "upload",
+        "sections": {
+          "basic": {
+            "title": "Basic",
+            "collapsed": false,
+            "order": 1
+          },
+          "options": {
+            "title": "Options",
+            "collapsed": true,
+            "order": 2
+          },
+          "advanced": {
+            "title": "Advanced Options",
+            "collapsed": true,
+            "order": 3
+          }
+        },
+        "groups": {
+          "Scheduling": {
+            "order": 1
+          },
+          "Metadata": {
+            "order": 2
+          },
+          "Visibility & Access": {
+            "order": 3
+          }
+        },
+        "categories": [
+          "social_media"
+        ]
+      },
+      "client_metadata": {
+        "queue": "transfer_jobs"
+      }
+    },
+    "youtube_set_thumbnail": {
+      "display_name": "Set Thumbnail",
+      "description": "Upload a custom thumbnail image for a YouTube video.",
+      "service_type": "SOCIAL_MEDIA",
+      "endpoint_url": "https://www.googleapis.com/upload/youtube/v3/thumbnails/set",
+      "method": "POST",
+      "requires_credentials": true,
+      "is_active": true,
+      "parameterMapping": {
+        "file_source_param": "body_source_url",
+        "body_content_type_param": "content_type",
+        "query": [
+          "videoId"
+        ]
+      },
+      "parameter_schema": {
+        "type": "object",
+        "required": [
+          "videoId",
+          "body_source_url"
+        ],
+        "properties": {
+          "videoId": {
+            "type": "string",
+            "title": "Video ID",
+            "description": "The YouTube video ID to set the thumbnail for",
+            "ui": {
+              "section": "basic",
+              "order": 1
+            }
+          },
+          "body_source_url": {
+            "type": "string",
+            "title": "Thumbnail Image URL",
+            "description": "URL to the thumbnail image file (JPEG, PNG, GIF, BMP — max 2MB)",
+            "ui": {
+              "section": "basic",
+              "order": 2
+            }
+          },
+          "content_type": {
+            "type": "string",
+            "title": "Content Type",
+            "default": "image/jpeg",
+            "ui": {
+              "section": "options",
+              "order": 1
+            }
+          }
+        }
+      },
+      "result_schema": {
+        "type": "object",
+        "properties": {
+          "status_code": {
+            "type": "integer"
+          },
+          "response_body": {
+            "type": "object",
+            "properties": {
+              "items": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "default": {
+                      "type": "object"
+                    },
+                    "medium": {
+                      "type": "object"
+                    },
+                    "high": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "example_parameters": {
+        "videoId": "dQw4w9WgXcQ",
+        "body_source_url": "https://example.com/thumbnail.jpg"
+      },
+      "ui_hints": {
+        "color": "#FF0000",
+        "icon": "image",
+        "sections": {
+          "basic": {
+            "title": "Basic",
+            "collapsed": false,
+            "order": 1
+          },
+          "options": {
+            "title": "Options",
+            "collapsed": true,
+            "order": 2
+          }
+        },
+        "categories": [
+          "social_media"
+        ]
+      },
+      "client_metadata": {
+        "queue": "transfer_jobs"
+      }
+    },
+    "youtube_list_videos": {
+      "display_name": "List My Videos",
+      "description": "Get videos from the authenticated user's YouTube channel with statistics",
+      "service_type": "SOCIAL_MEDIA",
+      "endpoint_url": "https://www.googleapis.com/youtube/v3/search",
+      "method": "GET",
+      "requires_credentials": true,
+      "parameterMapping": {
+        "query": [
+          "part",
+          "forMine",
+          "type",
+          "maxResults",
+          "pageToken",
+          "order"
+        ]
+      },
+      "parameter_schema": {
+        "type": "object",
+        "properties": {
+          "maxResults": {
+            "type": "integer",
+            "title": "Max Results",
+            "description": "Number of videos to return (1-50)",
+            "minimum": 1,
+            "maximum": 50,
+            "default": 25,
+            "ui": {
+              "section": "basic",
+              "order": 1
+            }
+          },
+          "order": {
+            "type": "string",
+            "title": "Sort Order",
+            "enum": [
+              "date",
+              "rating",
+              "viewCount",
+              "relevance",
+              "title"
+            ],
+            "default": "date",
+            "ui": {
+              "section": "basic",
+              "order": 2
+            }
+          },
+          "pageToken": {
+            "type": "string",
+            "title": "Page Token",
+            "description": "Token for fetching the next page of results",
+            "ui": {
+              "section": "options",
+              "order": 1
+            }
+          },
+          "part": {
+            "type": "string",
+            "default": "snippet",
+            "ui": {
+              "hidden": true
+            }
+          },
+          "forMine": {
+            "type": "boolean",
+            "default": true,
+            "ui": {
+              "hidden": true
+            }
+          },
+          "type": {
+            "type": "string",
+            "default": "video",
+            "ui": {
+              "hidden": true
+            }
+          }
+        }
+      },
+      "result_schema": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "object",
+                  "properties": {
+                    "videoId": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "snippet": {
+                  "type": "object",
+                  "properties": {
+                    "title": {
+                      "type": "string"
+                    },
+                    "description": {
+                      "type": "string"
+                    },
+                    "publishedAt": {
+                      "type": "string"
+                    },
+                    "channelTitle": {
+                      "type": "string"
+                    },
+                    "thumbnails": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "nextPageToken": {
+            "type": "string"
+          },
+          "pageInfo": {
+            "type": "object",
+            "properties": {
+              "totalResults": {
+                "type": "integer"
+              },
+              "resultsPerPage": {
+                "type": "integer"
+              }
+            }
+          }
+        }
+      },
+      "output_view": {
+        "type": "table",
+        "source": "items",
+        "columns": [
+          "snippet.title",
+          "snippet.publishedAt",
+          "id.videoId"
+        ]
+      },
+      "example_parameters": {
+        "maxResults": 25,
+        "order": "date"
+      },
+      "ui_hints": {
+        "color": "#FF0000",
+        "icon": "list",
+        "sections": {
+          "basic": {
+            "title": "Basic",
+            "collapsed": false,
+            "order": 1
+          },
+          "options": {
+            "title": "Options",
+            "collapsed": true,
+            "order": 2
+          }
+        },
+        "categories": [
+          "social_media"
+        ]
+      }
+    },
+    "youtube_get_video": {
+      "display_name": "Get Video Details",
+      "description": "Retrieve detailed information, statistics, and content details for a specific YouTube video",
+      "service_type": "SOCIAL_MEDIA",
+      "endpoint_url": "https://www.googleapis.com/youtube/v3/videos",
+      "method": "GET",
+      "requires_credentials": true,
+      "parameterMapping": {
+        "query": [
+          "id",
+          "part"
+        ]
+      },
+      "parameter_schema": {
+        "type": "object",
+        "required": [
+          "id"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Video ID",
+            "description": "The YouTube video ID",
+            "ui": {
+              "section": "basic",
+              "order": 1,
+              "placeholder": "dQw4w9WgXcQ"
+            }
+          },
+          "part": {
+            "type": "string",
+            "title": "Response Parts",
+            "description": "Comma-separated resource properties to include",
+            "default": "snippet,statistics,status,contentDetails",
+            "ui": {
+              "section": "options",
+              "order": 1
+            }
+          }
+        }
+      },
+      "result_schema": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "snippet": {
+                  "type": "object",
+                  "properties": {
+                    "title": {
+                      "type": "string"
+                    },
+                    "description": {
+                      "type": "string"
+                    },
+                    "publishedAt": {
+                      "type": "string"
+                    },
+                    "channelTitle": {
+                      "type": "string"
+                    },
+                    "tags": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "thumbnails": {
+                      "type": "object"
+                    }
+                  }
+                },
+                "statistics": {
+                  "type": "object",
+                  "properties": {
+                    "viewCount": {
+                      "type": "string"
+                    },
+                    "likeCount": {
+                      "type": "string"
+                    },
+                    "favoriteCount": {
+                      "type": "string"
+                    },
+                    "commentCount": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "contentDetails": {
+                  "type": "object",
+                  "properties": {
+                    "duration": {
+                      "type": "string"
+                    },
+                    "dimension": {
+                      "type": "string"
+                    },
+                    "definition": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "status": {
+                  "type": "object",
+                  "properties": {
+                    "uploadStatus": {
+                      "type": "string"
+                    },
+                    "privacyStatus": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "example_parameters": {
+        "id": "dQw4w9WgXcQ"
+      },
+      "ui_hints": {
+        "color": "#FF0000",
+        "icon": "film",
+        "sections": {
+          "basic": {
+            "title": "Basic",
+            "collapsed": false,
+            "order": 1
+          },
+          "options": {
+            "title": "Options",
+            "collapsed": true,
+            "order": 2
+          }
+        },
+        "categories": [
+          "social_media"
+        ]
+      }
+    },
+    "youtube_search": {
+      "display_name": "Search YouTube",
+      "description": "Search for videos, channels, or playlists on YouTube",
+      "service_type": "SOCIAL_MEDIA",
+      "endpoint_url": "https://www.googleapis.com/youtube/v3/search",
+      "method": "GET",
+      "requires_credentials": true,
+      "parameterMapping": {
+        "query": [
+          "part",
+          "q",
+          "type",
+          "maxResults",
+          "pageToken",
+          "order"
+        ]
+      },
+      "parameter_schema": {
+        "type": "object",
+        "required": [
+          "q"
+        ],
+        "properties": {
+          "q": {
+            "type": "string",
+            "title": "Search Query",
+            "description": "The search term to look for",
+            "ui": {
+              "section": "basic",
+              "order": 1
+            }
+          },
+          "type": {
+            "type": "string",
+            "title": "Resource Type",
+            "description": "Type of resource to search for",
+            "enum": [
+              "video",
+              "channel",
+              "playlist"
+            ],
+            "default": "video",
+            "ui": {
+              "section": "basic",
+              "order": 2
+            }
+          },
+          "maxResults": {
+            "type": "integer",
+            "title": "Max Results",
+            "description": "Number of results to return (1-50)",
+            "minimum": 1,
+            "maximum": 50,
+            "default": 10,
+            "ui": {
+              "section": "basic",
+              "order": 3
+            }
+          },
+          "order": {
+            "type": "string",
+            "title": "Sort Order",
+            "enum": [
+              "relevance",
+              "date",
+              "rating",
+              "viewCount",
+              "title"
+            ],
+            "default": "relevance",
+            "ui": {
+              "section": "options",
+              "order": 1
+            }
+          },
+          "pageToken": {
+            "type": "string",
+            "title": "Page Token",
+            "description": "Token for the next page of results",
+            "ui": {
+              "section": "options",
+              "order": 2
+            }
+          },
+          "part": {
+            "type": "string",
+            "default": "snippet",
+            "ui": {
+              "hidden": true
+            }
+          }
+        }
+      },
+      "result_schema": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "type": "string"
+                    },
+                    "videoId": {
+                      "type": "string"
+                    },
+                    "channelId": {
+                      "type": "string"
+                    },
+                    "playlistId": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "snippet": {
+                  "type": "object",
+                  "properties": {
+                    "title": {
+                      "type": "string"
+                    },
+                    "description": {
+                      "type": "string"
+                    },
+                    "publishedAt": {
+                      "type": "string"
+                    },
+                    "channelTitle": {
+                      "type": "string"
+                    },
+                    "thumbnails": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "nextPageToken": {
+            "type": "string"
+          },
+          "pageInfo": {
+            "type": "object",
+            "properties": {
+              "totalResults": {
+                "type": "integer"
+              },
+              "resultsPerPage": {
+                "type": "integer"
+              }
+            }
+          }
+        }
+      },
+      "output_view": {
+        "type": "table",
+        "source": "items",
+        "columns": [
+          "snippet.title",
+          "snippet.channelTitle",
+          "snippet.publishedAt"
+        ]
+      },
+      "example_parameters": {
+        "q": "how to make sourdough bread",
+        "type": "video",
+        "maxResults": 10
+      },
+      "ui_hints": {
+        "color": "#FF0000",
+        "icon": "search",
+        "sections": {
+          "basic": {
+            "title": "Basic",
+            "collapsed": false,
+            "order": 1
+          },
+          "options": {
+            "title": "Options",
+            "collapsed": true,
+            "order": 2
+          }
+        },
+        "categories": [
+          "social_media"
+        ]
+      }
+    },
+    "youtube_list_channels": {
+      "display_name": "List My Channels",
+      "description": "Get channel details and statistics for the authenticated user's YouTube channels",
+      "service_type": "SOCIAL_MEDIA",
+      "endpoint_url": "https://www.googleapis.com/youtube/v3/channels",
+      "method": "GET",
+      "requires_credentials": true,
+      "parameterMapping": {
+        "query": [
+          "part",
+          "mine"
+        ]
+      },
+      "parameter_schema": {
+        "type": "object",
+        "properties": {
+          "part": {
+            "type": "string",
+            "title": "Response Parts",
+            "default": "snippet,statistics,contentDetails",
+            "ui": {
+              "section": "options",
+              "order": 1
+            }
+          },
+          "mine": {
+            "type": "boolean",
+            "default": true,
+            "ui": {
+              "hidden": true
+            }
+          }
+        }
+      },
+      "result_schema": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "snippet": {
+                  "type": "object",
+                  "properties": {
+                    "title": {
+                      "type": "string"
+                    },
+                    "description": {
+                      "type": "string"
+                    },
+                    "customUrl": {
+                      "type": "string"
+                    },
+                    "thumbnails": {
+                      "type": "object"
+                    }
+                  }
+                },
+                "statistics": {
+                  "type": "object",
+                  "properties": {
+                    "viewCount": {
+                      "type": "string"
+                    },
+                    "subscriberCount": {
+                      "type": "string"
+                    },
+                    "videoCount": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "example_parameters": {},
+      "ui_hints": {
+        "color": "#FF0000",
+        "icon": "tv",
+        "sections": {
+          "options": {
+            "title": "Options",
+            "collapsed": true,
+            "order": 1
+          }
+        },
+        "categories": [
+          "social_media"
+        ]
+      }
+    },
+    "youtube_list_playlists": {
+      "display_name": "List My Playlists",
+      "description": "Get playlists owned by the authenticated user's YouTube channel",
+      "service_type": "SOCIAL_MEDIA",
+      "endpoint_url": "https://www.googleapis.com/youtube/v3/playlists",
+      "method": "GET",
+      "requires_credentials": true,
+      "parameterMapping": {
+        "query": [
+          "part",
+          "mine",
+          "maxResults",
+          "pageToken"
+        ]
+      },
+      "parameter_schema": {
+        "type": "object",
+        "properties": {
+          "maxResults": {
+            "type": "integer",
+            "title": "Max Results",
+            "description": "Number of playlists to return (1-50)",
+            "minimum": 1,
+            "maximum": 50,
+            "default": 25,
+            "ui": {
+              "section": "basic",
+              "order": 1
+            }
+          },
+          "pageToken": {
+            "type": "string",
+            "title": "Page Token",
+            "description": "Token for the next page of results",
+            "ui": {
+              "section": "options",
+              "order": 1
+            }
+          },
+          "part": {
+            "type": "string",
+            "default": "snippet,status,contentDetails",
+            "ui": {
+              "hidden": true
+            }
+          },
+          "mine": {
+            "type": "boolean",
+            "default": true,
+            "ui": {
+              "hidden": true
+            }
+          }
+        }
+      },
+      "result_schema": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "snippet": {
+                  "type": "object",
+                  "properties": {
+                    "title": {
+                      "type": "string"
+                    },
+                    "description": {
+                      "type": "string"
+                    },
+                    "publishedAt": {
+                      "type": "string"
+                    },
+                    "thumbnails": {
+                      "type": "object"
+                    }
+                  }
+                },
+                "status": {
+                  "type": "object",
+                  "properties": {
+                    "privacyStatus": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "contentDetails": {
+                  "type": "object",
+                  "properties": {
+                    "itemCount": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "nextPageToken": {
+            "type": "string"
+          }
+        }
+      },
+      "output_view": {
+        "type": "table",
+        "source": "items",
+        "columns": [
+          "snippet.title",
+          "contentDetails.itemCount",
+          "status.privacyStatus"
+        ]
+      },
+      "example_parameters": {
+        "maxResults": 25
+      },
+      "ui_hints": {
+        "color": "#FF0000",
+        "icon": "list",
+        "sections": {
+          "basic": {
+            "title": "Basic",
+            "collapsed": false,
+            "order": 1
+          },
+          "options": {
+            "title": "Options",
+            "collapsed": true,
+            "order": 2
+          }
+        },
+        "categories": [
+          "social_media"
+        ]
+      }
+    },
+    "youtube_update_video": {
+      "display_name": "Update Video",
+      "description": "Update the title, description, tags, or privacy status of an existing YouTube video",
+      "service_type": "SOCIAL_MEDIA",
+      "endpoint_url": "https://www.googleapis.com/youtube/v3/videos",
+      "method": "PUT",
+      "requires_credentials": true,
+      "parameterMapping": {
+        "query": [
+          "part"
+        ]
+      },
+      "request_body_template": {
+        "id": "{{ parameters.video_id }}",
+        "snippet": {
+          "title": "{{ parameters.title }}",
+          "description": "{{ parameters.description }}",
+          "tags": "{{ parameters.tags }}",
+          "categoryId": "{{ parameters.categoryId }}"
+        },
+        "status": {
+          "privacyStatus": "{{ parameters.privacyStatus }}"
+        }
+      },
+      "parameter_schema": {
+        "type": "object",
+        "required": [
+          "video_id",
+          "title"
+        ],
+        "properties": {
+          "video_id": {
+            "type": "string",
+            "title": "Video ID",
+            "description": "The YouTube video ID to update",
+            "ui": {
+              "section": "basic",
+              "order": 1
+            }
+          },
+          "title": {
+            "type": "string",
+            "title": "Video Title",
+            "description": "Updated video title (max 100 characters)",
+            "maxLength": 100,
+            "ui": {
+              "section": "basic",
+              "order": 2
+            }
+          },
+          "description": {
+            "type": "string",
+            "title": "Description",
+            "description": "Updated video description",
+            "ui": {
+              "section": "basic",
+              "order": 3,
+              "widget": "textarea"
+            }
+          },
+          "tags": {
+            "type": "array",
+            "title": "Tags",
+            "description": "Updated tags for the video",
+            "items": {
+              "type": "string"
+            },
+            "ui": {
+              "section": "options",
+              "order": 1
+            }
+          },
+          "categoryId": {
+            "type": "string",
+            "title": "Category ID",
+            "description": "YouTube video category ID",
+            "ui": {
+              "section": "options",
+              "order": 2
+            }
+          },
+          "privacyStatus": {
+            "type": "string",
+            "title": "Privacy Status",
+            "enum": [
+              "public",
+              "unlisted",
+              "private"
+            ],
+            "ui": {
+              "section": "basic",
+              "order": 4
+            }
+          },
+          "part": {
+            "type": "string",
+            "default": "snippet,status",
+            "ui": {
+              "hidden": true
+            }
+          }
+        }
+      },
+      "result_schema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "snippet": {
+            "type": "object",
+            "properties": {
+              "title": {
+                "type": "string"
+              },
+              "description": {
+                "type": "string"
+              }
+            }
+          },
+          "status": {
+            "type": "object",
+            "properties": {
+              "privacyStatus": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "example_parameters": {
+        "video_id": "dQw4w9WgXcQ",
+        "title": "Updated Video Title",
+        "description": "Updated description for this video."
+      },
+      "ui_hints": {
+        "color": "#FF0000",
+        "icon": "edit",
+        "sections": {
+          "basic": {
+            "title": "Basic",
+            "collapsed": false,
+            "order": 1
+          },
+          "options": {
+            "title": "Options",
+            "collapsed": true,
+            "order": 2
+          }
+        },
+        "categories": [
+          "social_media"
+        ]
+      }
+    },
+    "youtube_delete_video": {
+      "display_name": "Delete Video",
+      "description": "Permanently delete a YouTube video",
+      "service_type": "SOCIAL_MEDIA",
+      "endpoint_url": "https://www.googleapis.com/youtube/v3/videos",
+      "method": "DELETE",
+      "requires_credentials": true,
+      "parameterMapping": {
+        "query": [
+          "id"
+        ]
+      },
+      "parameter_schema": {
+        "type": "object",
+        "required": [
+          "id"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Video ID",
+            "description": "The YouTube video ID to delete",
+            "ui": {
+              "section": "basic",
+              "order": 1
+            }
+          }
+        }
+      },
+      "result_schema": {
+        "type": "object",
+        "properties": {}
+      },
+      "example_parameters": {
+        "id": "dQw4w9WgXcQ"
+      },
+      "ui_hints": {
+        "color": "#FF0000",
+        "icon": "trash-2",
+        "sections": {
+          "basic": {
+            "title": "Basic",
+            "collapsed": false,
+            "order": 1
+          }
+        },
+        "categories": [
+          "social_media"
+        ]
+      }
+    },
+    "youtube_create_playlist": {
+      "display_name": "Create Playlist",
+      "description": "Create a new playlist on the authenticated user's YouTube channel",
+      "service_type": "SOCIAL_MEDIA",
+      "endpoint_url": "https://www.googleapis.com/youtube/v3/playlists",
+      "method": "POST",
+      "requires_credentials": true,
+      "parameterMapping": {
+        "query": [
+          "part"
+        ]
+      },
+      "request_body_template": {
+        "snippet": {
+          "title": "{{ parameters.title }}",
+          "description": "{{ parameters.description }}"
+        },
+        "status": {
+          "privacyStatus": "{{ parameters.privacyStatus }}"
+        }
+      },
+      "parameter_schema": {
+        "type": "object",
+        "required": [
+          "title"
+        ],
+        "properties": {
+          "title": {
+            "type": "string",
+            "title": "Playlist Title",
+            "description": "Name of the playlist",
+            "ui": {
+              "section": "basic",
+              "order": 1
+            }
+          },
+          "description": {
+            "type": "string",
+            "title": "Description",
+            "description": "Playlist description",
+            "ui": {
+              "section": "basic",
+              "order": 2,
+              "widget": "textarea"
+            }
+          },
+          "privacyStatus": {
+            "type": "string",
+            "title": "Privacy Status",
+            "enum": [
+              "public",
+              "unlisted",
+              "private"
+            ],
+            "default": "private",
+            "ui": {
+              "section": "basic",
+              "order": 3
+            }
+          },
+          "part": {
+            "type": "string",
+            "default": "snippet,status",
+            "ui": {
+              "hidden": true
+            }
+          }
+        }
+      },
+      "result_schema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "snippet": {
+            "type": "object",
+            "properties": {
+              "title": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "example_parameters": {
+        "title": "My Playlist",
+        "description": "A collection of my favorite videos.",
+        "privacyStatus": "private"
+      },
+      "ui_hints": {
+        "color": "#FF0000",
+        "icon": "plus-circle",
+        "sections": {
+          "basic": {
+            "title": "Basic",
+            "collapsed": false,
+            "order": 1
+          }
+        },
+        "categories": [
+          "social_media"
+        ]
+      }
+    },
+    "youtube_add_to_playlist": {
+      "display_name": "Add to Playlist",
+      "description": "Add a video to an existing YouTube playlist",
+      "service_type": "SOCIAL_MEDIA",
+      "endpoint_url": "https://www.googleapis.com/youtube/v3/playlistItems",
+      "method": "POST",
+      "requires_credentials": true,
+      "parameterMapping": {
+        "query": [
+          "part"
+        ]
+      },
+      "request_body_template": {
+        "snippet": {
+          "playlistId": "{{ parameters.playlistId }}",
+          "resourceId": {
+            "kind": "youtube#video",
+            "videoId": "{{ parameters.videoId }}"
+          }
+        }
+      },
+      "parameter_schema": {
+        "type": "object",
+        "required": [
+          "playlistId",
+          "videoId"
+        ],
+        "properties": {
+          "playlistId": {
+            "type": "string",
+            "title": "Playlist ID",
+            "description": "The ID of the playlist to add the video to",
+            "ui": {
+              "section": "basic",
+              "order": 1
+            }
+          },
+          "videoId": {
+            "type": "string",
+            "title": "Video ID",
+            "description": "The YouTube video ID to add",
+            "ui": {
+              "section": "basic",
+              "order": 2
+            }
+          },
+          "part": {
+            "type": "string",
+            "default": "snippet",
+            "ui": {
+              "hidden": true
+            }
+          }
+        }
+      },
+      "result_schema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "snippet": {
+            "type": "object",
+            "properties": {
+              "playlistId": {
+                "type": "string"
+              },
+              "title": {
+                "type": "string"
+              },
+              "resourceId": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      },
+      "example_parameters": {
+        "playlistId": "PLxxxxxxxxxxxxxxxx",
+        "videoId": "dQw4w9WgXcQ"
+      },
+      "ui_hints": {
+        "color": "#FF0000",
+        "icon": "plus",
+        "sections": {
+          "basic": {
+            "title": "Basic",
+            "collapsed": false,
+            "order": 1
+          }
+        },
+        "categories": [
+          "social_media"
+        ]
+      }
+    },
+    "youtube_remove_from_playlist": {
+      "display_name": "Remove from Playlist",
+      "description": "Remove an item from a YouTube playlist by its playlist item ID",
+      "service_type": "SOCIAL_MEDIA",
+      "endpoint_url": "https://www.googleapis.com/youtube/v3/playlistItems",
+      "method": "DELETE",
+      "requires_credentials": true,
+      "parameterMapping": {
+        "query": [
+          "id"
+        ]
+      },
+      "parameter_schema": {
+        "type": "object",
+        "required": [
+          "id"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Playlist Item ID",
+            "description": "The playlist item ID to remove (not the video ID)",
+            "ui": {
+              "section": "basic",
+              "order": 1
+            }
+          }
+        }
+      },
+      "result_schema": {
+        "type": "object",
+        "properties": {}
+      },
+      "example_parameters": {
+        "id": "UExxxxxxxxxxxxxxxQ.5"
+      },
+      "ui_hints": {
+        "color": "#FF0000",
+        "icon": "minus",
+        "sections": {
+          "basic": {
+            "title": "Basic",
+            "collapsed": false,
+            "order": 1
+          }
+        },
+        "categories": [
+          "social_media"
+        ]
+      }
+    },
+    "youtube_list_comments": {
+      "display_name": "List Video Comments",
+      "description": "Retrieve comment threads on a YouTube video",
+      "service_type": "SOCIAL_MEDIA",
+      "endpoint_url": "https://www.googleapis.com/youtube/v3/commentThreads",
+      "method": "GET",
+      "requires_credentials": true,
+      "parameterMapping": {
+        "query": [
+          "videoId",
+          "part",
+          "maxResults",
+          "pageToken",
+          "order"
+        ]
+      },
+      "parameter_schema": {
+        "type": "object",
+        "required": [
+          "videoId"
+        ],
+        "properties": {
+          "videoId": {
+            "type": "string",
+            "title": "Video ID",
+            "description": "The YouTube video ID to get comments for",
+            "ui": {
+              "section": "basic",
+              "order": 1
+            }
+          },
+          "maxResults": {
+            "type": "integer",
+            "title": "Max Results",
+            "description": "Number of comment threads to return (1-100)",
+            "minimum": 1,
+            "maximum": 100,
+            "default": 20,
+            "ui": {
+              "section": "basic",
+              "order": 2
+            }
+          },
+          "order": {
+            "type": "string",
+            "title": "Sort Order",
+            "enum": [
+              "time",
+              "relevance"
+            ],
+            "default": "time",
+            "ui": {
+              "section": "basic",
+              "order": 3
+            }
+          },
+          "pageToken": {
+            "type": "string",
+            "title": "Page Token",
+            "description": "Token for the next page of results",
+            "ui": {
+              "section": "options",
+              "order": 1
+            }
+          },
+          "part": {
+            "type": "string",
+            "default": "snippet,replies",
+            "ui": {
+              "hidden": true
+            }
+          }
+        }
+      },
+      "result_schema": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "snippet": {
+                  "type": "object",
+                  "properties": {
+                    "videoId": {
+                      "type": "string"
+                    },
+                    "totalReplyCount": {
+                      "type": "integer"
+                    },
+                    "topLevelComment": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "snippet": {
+                          "type": "object",
+                          "properties": {
+                            "authorDisplayName": {
+                              "type": "string"
+                            },
+                            "authorProfileImageUrl": {
+                              "type": "string"
+                            },
+                            "textDisplay": {
+                              "type": "string"
+                            },
+                            "textOriginal": {
+                              "type": "string"
+                            },
+                            "likeCount": {
+                              "type": "integer"
+                            },
+                            "publishedAt": {
+                              "type": "string"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "replies": {
+                  "type": "object",
+                  "properties": {
+                    "comments": {
+                      "type": "array"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "nextPageToken": {
+            "type": "string"
+          }
+        }
+      },
+      "output_view": {
+        "type": "list",
+        "source": "items"
+      },
+      "example_parameters": {
+        "videoId": "dQw4w9WgXcQ",
+        "maxResults": 20
+      },
+      "ui_hints": {
+        "color": "#FF0000",
+        "icon": "message-circle",
+        "sections": {
+          "basic": {
+            "title": "Basic",
+            "collapsed": false,
+            "order": 1
+          },
+          "options": {
+            "title": "Options",
+            "collapsed": true,
+            "order": 2
+          }
+        },
+        "categories": [
+          "social_media"
+        ]
+      }
+    },
+    "youtube_post_comment": {
+      "display_name": "Post Comment",
+      "description": "Post a new top-level comment on a YouTube video",
+      "service_type": "SOCIAL_MEDIA",
+      "endpoint_url": "https://www.googleapis.com/youtube/v3/commentThreads",
+      "method": "POST",
+      "requires_credentials": true,
+      "parameterMapping": {
+        "query": [
+          "part"
+        ]
+      },
+      "request_body_template": {
+        "snippet": {
+          "videoId": "{{ parameters.videoId }}",
+          "topLevelComment": {
+            "snippet": {
+              "textOriginal": "{{ parameters.text }}"
+            }
+          }
+        }
+      },
+      "parameter_schema": {
+        "type": "object",
+        "required": [
+          "videoId",
+          "text"
+        ],
+        "properties": {
+          "videoId": {
+            "type": "string",
+            "title": "Video ID",
+            "description": "The YouTube video ID to comment on",
+            "ui": {
+              "section": "basic",
+              "order": 1
+            }
+          },
+          "text": {
+            "type": "string",
+            "title": "Comment Text",
+            "description": "The text of the comment to post",
+            "ui": {
+              "section": "basic",
+              "order": 2,
+              "widget": "textarea"
+            }
+          },
+          "part": {
+            "type": "string",
+            "default": "snippet",
+            "ui": {
+              "hidden": true
+            }
+          }
+        }
+      },
+      "result_schema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "snippet": {
+            "type": "object",
+            "properties": {
+              "videoId": {
+                "type": "string"
+              },
+              "topLevelComment": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "snippet": {
+                    "type": "object",
+                    "properties": {
+                      "textDisplay": {
+                        "type": "string"
+                      },
+                      "authorDisplayName": {
+                        "type": "string"
+                      },
+                      "publishedAt": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "example_parameters": {
+        "videoId": "dQw4w9WgXcQ",
+        "text": "Great video! Thanks for sharing."
+      },
+      "ui_hints": {
+        "color": "#FF0000",
+        "icon": "message-square",
+        "sections": {
+          "basic": {
+            "title": "Basic",
+            "collapsed": false,
+            "order": 1
+          }
+        },
+        "categories": [
+          "social_media"
+        ]
+      }
+    },
+    "youtube_reply_to_comment": {
+      "display_name": "Reply to Comment",
+      "description": "Post a reply to an existing YouTube comment",
+      "service_type": "SOCIAL_MEDIA",
+      "endpoint_url": "https://www.googleapis.com/youtube/v3/comments",
+      "method": "POST",
+      "requires_credentials": true,
+      "parameterMapping": {
+        "query": [
+          "part"
+        ]
+      },
+      "request_body_template": {
+        "snippet": {
+          "parentId": "{{ parameters.parentId }}",
+          "textOriginal": "{{ parameters.text }}"
+        }
+      },
+      "parameter_schema": {
+        "type": "object",
+        "required": [
+          "parentId",
+          "text"
+        ],
+        "properties": {
+          "parentId": {
+            "type": "string",
+            "title": "Parent Comment ID",
+            "description": "The ID of the comment to reply to",
+            "ui": {
+              "section": "basic",
+              "order": 1
+            }
+          },
+          "text": {
+            "type": "string",
+            "title": "Reply Text",
+            "description": "The text of the reply",
+            "ui": {
+              "section": "basic",
+              "order": 2,
+              "widget": "textarea"
+            }
+          },
+          "part": {
+            "type": "string",
+            "default": "snippet",
+            "ui": {
+              "hidden": true
+            }
+          }
+        }
+      },
+      "result_schema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "snippet": {
+            "type": "object",
+            "properties": {
+              "textDisplay": {
+                "type": "string"
+              },
+              "authorDisplayName": {
+                "type": "string"
+              },
+              "parentId": {
+                "type": "string"
+              },
+              "publishedAt": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "example_parameters": {
+        "parentId": "UgxxxxxxxxxxxxxxAaABAG",
+        "text": "Thanks for the feedback!"
+      },
+      "ui_hints": {
+        "color": "#FF0000",
+        "icon": "corner-down-right",
+        "sections": {
+          "basic": {
+            "title": "Basic",
+            "collapsed": false,
+            "order": 1
+          }
+        },
+        "categories": [
+          "social_media"
+        ]
+      }
+    }
+  }
+}

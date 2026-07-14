@@ -491,7 +491,7 @@ For each zone you want to support:
 4. Create the volume
 5. Launch a temporary pod in that zone, attach the volume, download your models to `/runpod-volume/`, then terminate the pod
 
-Approximate cost: $0.07/GB/month for the first 1TB. 100GB across 3 zones = ~$21/month.
+RunPod charges for network-volume storage per GB per month. Rates are set by RunPod and change; check their current pricing before you budget.
 
 #### 3. Create serverless endpoints
 
@@ -554,10 +554,10 @@ This means GPU availability in any single zone doesn't block your workflows - as
 
 You can create multiple endpoints for the same worker type with different GPUs:
 
-- **Basic tier:** RTX 5090 endpoint (fast, cost-effective for drafts)
-- **Premium tier:** H100 endpoint (maximum quality for final renders)
+- **Draft endpoint:** RTX 5090 (fast, cost-effective for drafts)
+- **Quality endpoint:** H100 (maximum quality for final renders)
 
-Map both in Studio and set priority. Users can select the GPU tier when running a workflow, or you can set defaults per workflow.
+Map both in Studio and set priority. Users can select the endpoint when running a workflow, or you can set defaults per workflow.
 
 ### Monitoring
 
@@ -826,7 +826,7 @@ Studio has three categories of data to back up:
 
 1. **Database** - PostgreSQL (users, orgs, workflows, instances, credentials)
 2. **User files** - workspace org directories (uploads, generated files, instance outputs)
-3. **Marketplace files** - providers, blueprints, ComfyUI workflows, schemas (repo-level)
+3. **Marketplace content** - the providers, workflows, and prompts installed on your instance
 
 ### Makefile commands
 
@@ -844,12 +844,10 @@ make backup-files                       # archive all orgs
 make backup-files ORG=<uuid>            # archive one org
 make restore-files                      # restore from most recent backup
 make restore-files FROM=backups/<ts>/orgs-all.tar.gz
-
-# Marketplace (providers, catalog, studio-cat content)
-make backup-marketplace                 # archive providers/ + studio-cat/
-make restore-marketplace                # restore from most recent backup
-make restore-marketplace FROM=backups/<ts>/marketplace.tar.gz
 ```
+
+Marketplace content is re-installable from the catalog, so it does not need its own backup.
+
 
 Restore commands auto-select the most recent backup when `FROM=` is not specified.
 
@@ -875,7 +873,7 @@ A backup you've never restored is not a backup.
 
 | Install size | Database | User files | Restore test |
 |---|---|---|---|
-| Development | Before destructive commands (`make -f dev/Makefile.dev clean`, `make -f dev/Makefile.dev seed-menu`) | As needed | - |
+| Development | Before destructive commands | As needed | - |
 | Small team | Daily | Weekly | Quarterly |
 | Production | Daily (automated) | Daily (automated) | Monthly |
 
@@ -907,7 +905,7 @@ Scaling is automatic. Set the **max workers** on your RunPod Serverless endpoint
 
 For burst workloads (e.g., 15 image iterations), set max workers >= the iteration count to get full parallelism.
 
-For GPU availability, add endpoints in multiple zones. Studio automatically routes to whichever zone has healthy workers. More zones = more availability, at the cost of duplicating network volumes (~$7/month per 100GB per zone).
+For GPU availability, add endpoints in multiple zones. Studio automatically routes to whichever zone has healthy workers. More zones means more availability, at the cost of duplicating network volumes, which RunPod bills per GB per zone.
 
 ---
 

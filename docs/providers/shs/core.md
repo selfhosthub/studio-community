@@ -113,7 +113,7 @@ Repeatedly call an API endpoint until it returns a success status and an optiona
 
 ---
 
-## Basic Workflows
+## Example Workflows
 
 ### Data Pipeline
 

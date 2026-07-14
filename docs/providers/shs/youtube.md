@@ -311,8 +311,7 @@ The upload URL should be clean - no extra query parameters beyond what YouTube's
 - Verify the transfer worker container is running
 
 **Step doesn't show as RUNNING:**
-- PROCESSING status notifications require the API changes from commit `f3a097c6`
-- Restart the API if recently updated
+- Restart the API if it was recently updated
 
 ---
 
@@ -362,7 +361,7 @@ Step 4: Upload Video Bytes (youtube_upload_video_bytes)
 
 ## Quota
 
-YouTube Data API v3 has a daily quota of **10,000 units** by default.
+YouTube Data API v3 applies a daily quota, 10,000 units by default at the time of writing. Google sets these values and can change them; see [Google's quota documentation](https://developers.google.com/youtube/v3/getting-started#quota) for current numbers.
 
 | Operation | Cost |
 |-----------|------|
@@ -371,14 +370,22 @@ YouTube Data API v3 has a daily quota of **10,000 units** by default.
 | Update/delete | 50 units |
 | Set thumbnail | 50 units |
 
-With the default quota, you can upload about **6 videos per day**. Request a [quota increase](https://support.google.com/youtube/contact/yt_api_form) for production use.
+At those values the default quota works out to roughly 6 uploads per day. Request a [quota increase](https://support.google.com/youtube/contact/yt_api_form) for production use.
 
 ---
 
 ## Security Notes
 
-- OAuth credentials are stored encrypted in the organization's credential store
-- Platform OAuth credentials (env vars) are never exposed to users
-- Each organization has completely isolated credentials
-- Access tokens are refreshed automatically - refresh tokens are stored securely
-- The platform uses the `offline` access type to ensure refresh tokens are always available
+- OAuth credentials are encrypted in the organization's credential store
+- Platform OAuth credentials (env vars) are not surfaced to users
+- Credentials are scoped per organization
+- Access tokens are refreshed automatically, and refresh tokens are held in the same encrypted store
+- The platform uses the `offline` access type so refresh tokens are available
+
+Studio is provided without warranty. Securing the deployment, including the credential store and the host it runs on, is the operator's responsibility. See LEGAL.md.
+
+---
+
+## Terms
+
+Your use of YouTube and Google is governed by YouTube and Google's own terms, not by Studio's: [https://developers.google.com/youtube/terms/api-services-terms-of-service](https://developers.google.com/youtube/terms/api-services-terms-of-service). Costs, rate limits, content-ownership rules, and acceptable-use policies are set by the provider. You are responsible for complying with them and for any charges you incur. See LEGAL.md in the Studio repository.

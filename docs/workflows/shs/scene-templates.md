@@ -37,7 +37,7 @@ These look similar but produce opposite results:
 
 A step that uses scene templates handles the whole list internally — so there's no "run once per item" toggle. It always takes everything and combines it.
 
-See [Run Once Per Item](shs/item-groups.md) for the other mode.
+See [Run Once Per Item](item-groups.md) for the other mode.
 
 ---
 

@@ -1,8 +1,8 @@
 # Studio Workflows & Blueprints
 
-The complete catalog of production-ready workflows and installable blueprints that ship with Studio.
+The Studio workflow catalog. Some entries are installable today; the rest are in development and listed here as the roadmap. Each entry says which.
 
-**Last Updated:** 2026-03-06
+**Last Updated:** 2026-07-14
 
 ---
 
@@ -10,18 +10,20 @@ The complete catalog of production-ready workflows and installable blueprints th
 
 A workflow is a sequence of connected steps that automate a task end to end. Each step calls a provider service - an AI model, a SaaS API, or a local tool - and passes its output to the next step. You configure a workflow once, run it whenever you need it, and pay nothing beyond the cost of your own API keys and compute.
 
-Studio ships with **21 production workflows** ready to use out of the box. 11 are included free. 10 are available to [Skool members](https://skool.com/selfhosthub).
+**Available to install today: 3.** One Community workflow (Faceless Video Pipeline) and two Plus workflows (Faceless Video API, Faceless Video API Webhook). The other 21 entries below are in development and cannot be installed yet.
+
+Plus workflows require an entitlement token, which comes with a [SelfHost Innovators membership](https://www.skool.com/selfhostinnovators).
 
 ### Why Self-Hosted?
 
 - **Your data stays on your servers.** Nothing leaves your infrastructure unless you tell it to.
 - **No per-run platform fees.** Local models (ComfyUI, Chatterbox TTS) run on your GPU at the cost of electricity.
 - **Run any model.** OpenAI, Claude, Gemini, and open-source models side by side - swap providers without rewriting workflows.
-- **No vendor lock-in.** Export, modify, or extend any workflow. You own the code.
+- **No vendor lock-in.** Export, modify, and extend any workflow on your own deployment. The workflow configurations you create are yours; Studio and the marketplace packages are licensed, not sold.
 
 ---
 
-## Basic Workflows
+## Community Workflows
 
 Included free with every Studio installation. Each one solves a specific, common task in 1-4 steps.
 
@@ -157,9 +159,9 @@ Turn a news article into a narrated video with AI-generated images, TTS audio, p
 
 ---
 
-## Advanced Workflows
+## Plus Workflows
 
-Available to [Skool members](https://skool.com/selfhosthub). Agency-grade automations that replace expensive SaaS tools or represent billable services agencies deliver to clients. Each one would take a developer a week to build from scratch.
+Require an entitlement token, which comes with a [SelfHost Innovators membership](https://www.skool.com/selfhostinnovators). Multi-step automations aimed at the kind of work agencies bill for.
 
 ### AI Email Triage Agent
 
@@ -167,7 +169,7 @@ Available to [Skool members](https://skool.com/selfhosthub). Agency-grade automa
 
 | | |
 |---|---|
-| **Replaces** | Email management + AI triage SaaS tools ($200-400/month) |
+| **Replaces** | Commercial email-triage tooling |
 | **Providers** | Claude, Google, Airtable, Notion, Telegram |
 | **Steps** | 6 |
 | **Trigger** | Schedule (every 15 min) |
@@ -181,7 +183,7 @@ The full AI SDR loop. A lead fills out your form, AI instantly researches their 
 
 | | |
 |---|---|
-| **Replaces** | AI SDR tools like AiSDR or Jason AI ($2-5k/month per seat) |
+| **Replaces** | Commercial AI SDR tooling |
 | **Providers** | Claude, Perplexity, Airtable |
 | **Steps** | 8 |
 | **Trigger** | Webhook |
@@ -195,7 +197,7 @@ One form submission, complete client setup in under 60 seconds. AI generates a p
 
 | | |
 |---|---|
-| **Replaces** | Manual onboarding (30-60 min per client). Agencies charge $500-2k to build this for others |
+| **Replaces** | Manual client onboarding (30-60 min per client) |
 | **Providers** | OpenAI, Notion, Airtable, Google, Telegram |
 | **Steps** | 6 |
 | **Trigger** | Webhook |
@@ -209,7 +211,7 @@ Drop any document into a watched Drive folder - invoice, contract, resume, repor
 
 | | |
 |---|---|
-| **Replaces** | Manual data entry + OCR tools like Rossum or Docsumo ($300-800/month) |
+| **Replaces** | Manual data entry and commercial OCR tooling |
 | **Providers** | Claude, Airtable, Google, Telegram |
 | **Steps** | 6 |
 | **Trigger** | Webhook |
@@ -223,7 +225,7 @@ Studio's killer differentiator. Send any brief simultaneously to OpenAI, Claude,
 
 | | |
 |---|---|
-| **Replaces** | No hosted tool offers this without tripling your API bill |
+| **Replaces** | Running the same prompt across several models by hand |
 | **Providers** | OpenAI, Claude, Gemini, Notion |
 | **Steps** | 6 (3-way parallel fanout) |
 | **Trigger** | Manual |
@@ -237,7 +239,7 @@ Every week Studio pulls top-performing content in your niche from YouTube, AI an
 
 | | |
 |---|---|
-| **Replaces** | Content agency retainers ($1-3k/month) for research + creation + scheduling |
+| **Replaces** | Content agency retainers for research, creation, and scheduling |
 | **Providers** | Claude, OpenAI, YouTube, ComfyUI |
 | **Steps** | 8 |
 | **Trigger** | Schedule (weekly) |
@@ -251,7 +253,7 @@ Your brand's comment section, always monitored. Every 6 hours Studio pulls new c
 
 | | |
 |---|---|
-| **Replaces** | Reputation management services + tools like Mention or Brand24 ($100-500/month) |
+| **Replaces** | Commercial reputation-monitoring tooling |
 | **Providers** | Gemini, Claude, YouTube, Airtable, Telegram |
 | **Steps** | 7 |
 | **Trigger** | Schedule (every 6 hours) |
@@ -265,7 +267,7 @@ Every inbound SMS to your Twilio number gets an instant AI response. Claude read
 
 | | |
 |---|---|
-| **Replaces** | AI SMS response tools + live chat agents for first-touch qualification |
+| **Replaces** | First-touch lead qualification by SMS tools or live agents |
 | **Providers** | Claude, Twilio, Airtable, Telegram |
 | **Steps** | 6 |
 | **Trigger** | Webhook |
@@ -279,7 +281,7 @@ Deep research on any company, competitor, or market - fully automated. Perplexit
 
 | | |
 |---|---|
-| **Replaces** | Research analyst time ($500-2k per report) or tools like Crayon/Klue ($500+/month) |
+| **Replaces** | Analyst time and commercial competitive-intelligence tooling |
 | **Providers** | Claude, OpenAI, Perplexity, Notion, Google |
 | **Steps** | 6 (3-way parallel research) |
 | **Trigger** | Schedule (weekly) or Manual |
@@ -293,7 +295,7 @@ Brief in, three ad variants out. AI writes three distinct script angles, ComfyUI
 
 | | |
 |---|---|
-| **Replaces** | Video ad production ($1.5-6k for 3 variants) + editing time |
+| **Replaces** | Video ad production and editing time |
 | **Providers** | OpenAI, ComfyUI, SHS Audio |
 | **Steps** | 13 (6-way parallel fanout) |
 | **Trigger** | Manual |
@@ -303,15 +305,15 @@ Brief in, three ad variants out. AI writes three distinct script angles, ComfyUI
 
 ## Blueprints
 
-Blueprints are provider-agnostic workflow templates you can install and customize. Where a workflow is configured for specific providers (e.g., OpenAI for text generation), a blueprint uses placeholders - so you can swap in whichever provider you prefer.
+Blueprints are provider-agnostic workflow templates you will be able to install and customize. Where a workflow is configured for specific providers (e.g., OpenAI for text generation), a blueprint uses placeholders - so you can swap in whichever provider you prefer.
 
-Install a blueprint from the catalog, choose your providers, and you have a working workflow in seconds.
+Once published, you install a blueprint from the catalog, choose your providers, and have a working workflow in seconds.
 
-Studio ships with **29 blueprints** across two tiers.
+**No blueprints have been published yet.** The two lists below are the planned set.
 
-### Community Blueprints (18)
+### Community Blueprints (18, planned)
 
-Included free with every installation.
+Will be included with every installation.
 
 | Blueprint | Category | Requires |
 |-----------|----------|----------|
@@ -334,9 +336,9 @@ Included free with every installation.
 | Customer Support Reply Drafter | AI | claude, core |
 | Google Drive Organizer | Productivity | openai, google |
 
-### Plus Blueprints (11)
+### Plus Blueprints (11, planned)
 
-Available to [Skool members](https://skool.com/selfhosthub).
+Will require an entitlement token, which comes with a [SelfHost Innovators membership](https://www.skool.com/selfhostinnovators).
 
 | Blueprint | Category | Requires |
 |-----------|----------|----------|
@@ -358,13 +360,14 @@ Available to [Skool members](https://skool.com/selfhosthub).
 
 | Guide | Description |
 |-------|-------------|
+| [Scene Templates](shs/scene-templates.md) | How scene templates drive video composition |
 | [Run Once Per Item](shs/item-groups.md) | How list inputs are paired and iterated across step runs - covers single vs. list inputs, zip behavior, chop vs. loop |
 
 ---
 
 ## Provider Coverage
 
-Studio workflows use 16 different providers. For full provider documentation, see the [Provider Catalog](../providers/index.md).
+Studio workflows use a range of providers. Per-provider documentation lives in `docs/providers/`.
 
 | Provider | Workflows | Blueprints | Type |
 |----------|-----------|------------|------|

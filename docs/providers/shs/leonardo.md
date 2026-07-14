@@ -80,7 +80,7 @@ Get available generation models and their capabilities.
 
 ---
 
-## Basic Workflows
+## Example Workflows
 
 ### Product Image Generation
 
@@ -131,9 +131,9 @@ Step 1: Leonardo Generate Image
 
 ---
 
-## Advanced Workflows
+## Multi-Step Workflows
 
-> **Skool Members:** Access advanced Leonardo workflows and model guides at [skool.com/selfhost](https://skool.com/selfhost)
+> **Plus catalog:** Plus workflows and video walkthroughs come with a [SelfHost Innovators membership](https://www.skool.com/selfhostinnovators).
 
 ### Brand Asset Pipeline
 
@@ -223,3 +223,9 @@ cinematic, wide angle, 4K wallpaper quality
 3. **Seeds** - Save seeds of good results for reproducibility
 4. **Alchemy** - Enable for enhanced quality (uses more credits)
 5. **Prompt Magic** - Automatically enhance prompts (uses more credits)
+
+---
+
+## Terms
+
+Your use of Leonardo.Ai is governed by Leonardo.Ai's own terms, not by Studio's: [https://leonardo.ai/terms-of-service/](https://leonardo.ai/terms-of-service/). Costs, rate limits, content-ownership rules, and acceptable-use policies are set by the provider. You are responsible for complying with them and for any charges you incur. See LEGAL.md in the Studio repository.

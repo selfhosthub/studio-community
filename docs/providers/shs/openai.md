@@ -89,7 +89,7 @@ Create images from text descriptions.
 
 ---
 
-## Basic Workflows
+## Example Workflows
 
 ### Customer Support Auto-Response
 
@@ -139,9 +139,9 @@ Step 2: Upload to storage
 
 ---
 
-## Advanced Workflows
+## Multi-Step Workflows
 
-> **Skool Members:** Access advanced workflow templates and video tutorials at [skool.com/selfhost](https://skool.com/selfhost)
+> **Plus catalog:** Plus workflows and video walkthroughs come with a [SelfHost Innovators membership](https://www.skool.com/selfhostinnovators).
 
 ### Multi-Step Content Pipeline
 
@@ -192,3 +192,9 @@ Extract structured data from unstructured text:
 3. **Token limits** - Set max_tokens to control costs and response length
 4. **JSON mode** - Use `response_format: json_object` for structured output
 5. **Embeddings** - Use the same model for queries and documents
+
+---
+
+## Terms
+
+Your use of OpenAI is governed by OpenAI's own terms, not by Studio's: [https://openai.com/policies/terms-of-use](https://openai.com/policies/terms-of-use). Costs, rate limits, content-ownership rules, and acceptable-use policies are set by the provider. You are responsible for complying with them and for any charges you incur. See LEGAL.md in the Studio repository.

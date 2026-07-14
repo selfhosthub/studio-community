@@ -152,7 +152,7 @@ Check job status and get download URL.
 
 ---
 
-## Basic Workflows
+## Example Workflows
 
 ### Social Media Video
 
@@ -210,9 +210,9 @@ Step 4: Post to YouTube
 
 ---
 
-## Advanced Workflows
+## Multi-Step Workflows
 
-> **Skool Members:** Access advanced video templates and production workflows at [skool.com/selfhost](https://skool.com/selfhost)
+> **Plus catalog:** Plus workflows and video walkthroughs come with a [SelfHost Innovators membership](https://www.skool.com/selfhostinnovators).
 
 ### Dynamic Video Template System
 
@@ -400,3 +400,9 @@ json2video's email destination has no `from` field — the sender is fixed by yo
 3. **Variables** - Use `{{ var.name }}` syntax for dynamic content
 4. **Webhooks** - Set up webhook exports to avoid polling
 5. **Quality** - Use "medium" for drafts, "high" for production
+
+---
+
+## Terms
+
+Your use of json2video is governed by json2video's own terms, not by Studio's: [https://json2video.com/terms/](https://json2video.com/terms/). Costs, rate limits, content-ownership rules, and acceptable-use policies are set by the provider. You are responsible for complying with them and for any charges you incur. See LEGAL.md in the Studio repository.

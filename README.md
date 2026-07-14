@@ -49,3 +49,11 @@ studio-cat/
 
 - **Community** - default tier. Public download, no authentication required.
 - **Plus** - Download requires an entitlement token.
+
+## License
+
+Content in this repository is governed by the **Studio Marketplace Package License** ([LICENSE](LICENSE)). It is not open source, and it is not a free public asset dump.
+
+You may install and use packages on Studio deployments you operate, and modify them for your own use. You may not redistribute, resell, sublicense, or transfer the packages themselves. Sharing a workflow that *references* a package is fine; sharing the package is not.
+
+The Studio platform itself is governed by the separate [Studio Use License](https://github.com/selfhosthub/studio/blob/main/LICENSE).

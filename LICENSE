@@ -24,7 +24,10 @@ You may:
       intellectual property.
 
   (e) Sell any output produced using Packages (images, video, text,
-      data, or any other generated content).
+      data, or any other generated content). Output generated through a
+      third-party service that a Package calls is additionally subject
+      to that provider's terms; this license grants no rights in
+      third-party output.
 
   (f) Contribute improvements back to this project.
 
@@ -49,6 +52,9 @@ For clarity: sharing a workflow configuration that references a Package
 is permitted. Sharing the Package itself is not. A recipient of a shared
 workflow must obtain required Packages independently from the official
 Studio Marketplace.
+
+Forking the public catalog repository to propose a contribution is
+permitted. Publishing or distributing packages from such a fork is not.
 
 
 3. ACCESS TIERS

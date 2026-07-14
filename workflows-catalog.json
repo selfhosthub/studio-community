@@ -26,7 +26,8 @@
         {
           "marketplace_slug": "shs/scene-designer"
         }
-      ]
+      ],
+      "requires_token": true
     },
     {
       "id": "shs/faceless-video-api-webhook",
@@ -52,7 +53,8 @@
         {
           "marketplace_slug": "shs/scene-designer"
         }
-      ]
+      ],
+      "requires_token": true
     },
     {
       "id": "shs/faceless-video-pipeline",

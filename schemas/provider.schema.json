@@ -1,0 +1,517 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://raw.githubusercontent.com/selfhosthub/studio-community/main/schemas/provider.schema.json",
+  "version": "1.0.0",
+  "title": "Studio Provider",
+  "description": "Unified single-file provider definition. Replaces the legacy manifest.json + provider.json + adapter-config.json triplet.\n\nStability: future versions of this schema must remain backward-compatible with content authored against earlier versions of itself \u2014 once a package is published with a given version, it must continue to validate against the schema in force at install time. Add fields conservatively (optional first); promote to required only with a major schema revision and a migration story.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "slug",
+    "version",
+    "name",
+    "description",
+    "provider_type",
+    "category",
+    "services"
+  ],
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "slug": {
+      "type": "string",
+      "description": "Stable identifier used as the provider key. Must match the file basename.",
+      "pattern": "^[a-z][a-z0-9-]*/[a-z][a-z0-9-]*$"
+    },
+    "version": {
+      "type": "string",
+      "description": "Semantic version of the package.",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "name": {
+      "type": "string",
+      "description": "Human-readable provider name shown in the UI.",
+      "minLength": 1
+    },
+    "description": {
+      "type": "string",
+      "description": "Short description of what the provider does."
+    },
+    "provider_type": {
+      "type": "string",
+      "description": "Backend type: API for HTTP providers, INTERNAL for built-in flow utilities, LOCAL_WORKER for jobs that run on a dedicated worker.",
+      "enum": [
+        "API",
+        "INTERNAL",
+        "LOCAL_WORKER",
+        "CUSTOM"
+      ]
+    },
+    "category": {
+      "type": "string",
+      "description": "Primary category for grouping in the UI."
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "ACTIVE",
+        "INACTIVE",
+        "active",
+        "inactive"
+      ],
+      "default": "ACTIVE"
+    },
+    "tier": {
+      "type": "string",
+      "enum": [
+        "community",
+        "plus"
+      ],
+      "default": "community"
+    },
+    "icon_url": {
+      "type": "string",
+      "description": "Path or URL to the provider icon."
+    },
+    "documentation_url": {
+      "type": "string",
+      "description": "External documentation URL for the provider's API."
+    },
+    "base_url": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Base URL for API providers. Null for INTERNAL providers."
+    },
+    "credential_provider": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Slug of another provider whose credentials this provider reuses (e.g. Google services share OAuth)."
+    },
+    "requires": {
+      "type": "array",
+      "description": "Other provider slugs this provider depends on.",
+      "items": {
+        "type": "string",
+        "pattern": "^[a-z][a-z0-9-]*/[a-z][a-z0-9-]*$"
+      },
+      "default": []
+    },
+    "services_preview": {
+      "type": "array",
+      "description": "Short list of service names shown in the marketplace card.",
+      "items": {
+        "type": "string"
+      }
+    },
+    "credential_schema": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "description": "JSON Schema describing the credential fields users must provide. Null for providers that need no auth."
+    },
+    "auth": {
+      "type": "object",
+      "description": "Authentication configuration consumed by GenericHTTPAdapter.",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "none",
+            "api_key",
+            "bearer",
+            "basic",
+            "oauth2",
+            "custom",
+            "custom_header",
+            "header",
+            "query_param"
+          ]
+        },
+        "config": {
+          "type": "object",
+          "description": "Type-specific config. For oauth2: must include oauth_provider (the credential provider slug) and optionally token_field."
+        }
+      },
+      "required": [
+        "type"
+      ],
+      "if": {
+        "properties": {
+          "type": {
+            "const": "oauth2"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "config": {
+            "required": [
+              "oauth_provider"
+            ],
+            "properties": {
+              "oauth_provider": {
+                "type": "string",
+                "description": "Slug of the OAuth provider (e.g. google, facebook, tiktok)."
+              },
+              "token_field": {
+                "type": "string",
+                "description": "Key in secret_data that holds the access token (default: access_token)."
+              }
+            }
+          }
+        },
+        "required": [
+          "config"
+        ]
+      }
+    },
+    "default_headers": {
+      "type": "object",
+      "description": "Default headers to include on every outbound request from this provider.",
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "oauth": {
+      "type": "object",
+      "description": "OAuth2 runtime config stored in provider.config.oauth and read by the OAuth flow at runtime.",
+      "required": [
+        "oauth_provider",
+        "authorization_url",
+        "token_url",
+        "scopes",
+        "client_id_env",
+        "client_secret_env"
+      ],
+      "properties": {
+        "oauth_provider": {
+          "type": "string"
+        },
+        "authorization_url": {
+          "type": "string"
+        },
+        "token_url": {
+          "type": "string"
+        },
+        "scopes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "client_id_env": {
+          "type": "string"
+        },
+        "client_secret_env": {
+          "type": "string"
+        },
+        "client_id_param": {
+          "type": "string"
+        }
+      }
+    },
+    "default_queue": {
+      "type": "string",
+      "description": "Default job queue services without an explicit queue override are dispatched to."
+    },
+    "local_worker": {
+      "type": "object",
+      "description": "Local-worker dispatch config. Set on providers whose jobs run on a dedicated GPU/audio/video worker rather than the generic step worker.",
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "queue": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "enabled",
+        "queue"
+      ]
+    },
+    "field_type_mapping": {
+      "type": "object",
+      "description": "Maps provider-specific field type names to generic UI field types. Used by the table-schema endpoint to render external schemas (e.g. Airtable) in a unified form.",
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "webhook_completion": {
+      "type": "object",
+      "description": "Provider-level inbound-callback ENVELOPE contract. The callback payload shape is a property of the provider's webhook API, not the service - every service shares one envelope; per-service differences (the create-response wrapper, the asset shape) live in the SERVICE-level webhook_completion. Required at the provider level when any service declares completion_modes including 'webhook'. The generic inbound handler resolves these JSONPaths against the provider callback and imports no provider.",
+      "properties": {
+        "id_callback_path": {
+          "type": "string",
+          "description": "JSONPath to the generation/job id in the inbound callback (the match key against the parked iteration's external_id)."
+        },
+        "status_callback_path": {
+          "type": "string",
+          "description": "JSONPath to the terminal status in the callback."
+        },
+        "success_values": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Status values that mean success."
+        },
+        "failure_values": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Status values that mean failure. Optional - absence means any non-success terminal status is a failure."
+        },
+        "auth": {
+          "type": "object",
+          "description": "Inbound-callback authentication.",
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "bearer_header",
+                "url_token",
+                "none"
+              ],
+              "description": "bearer_header = validate Authorization: Bearer against credential_field; url_token = the opaque callback_token in the URL is the only gate (e.g. json2video, which sends no auth header); none = no inbound auth."
+            },
+            "credential_field": {
+              "type": "string",
+              "description": "Credential-blob key holding the inbound secret (required for bearer_header)."
+            }
+          }
+        }
+      }
+    },
+    "services": {
+      "type": "object",
+      "description": "Map of service slug to service definition.",
+      "additionalProperties": {
+        "$ref": "#/$defs/service"
+      }
+    }
+  },
+  "$defs": {
+    "service": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "display_name",
+        "description",
+        "service_type",
+        "parameter_schema"
+      ],
+      "properties": {
+        "display_name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "service_type": {
+          "type": "string",
+          "description": "Service category (CORE, AI, AUTOMATION, COMMUNICATION, etc.)."
+        },
+        "requires_credentials": {
+          "type": "boolean",
+          "description": "Defaults to true at install time when omitted."
+        },
+        "custom_ui": {
+          "type": "boolean",
+          "description": "Render a custom editor instead of the generic parameter form. Defaults to false."
+        },
+        "custom_output": {
+          "type": "boolean",
+          "description": "Service manages its own output; the UI hides the output schema section. Defaults to false."
+        },
+        "parameter_title": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Custom parameter-section title; the UI falls back to 'Service Parameters' when null."
+        },
+        "path": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "URL path appended to the provider's base_url (was 'endpoint' in legacy adapter-config). Null for internal/local-worker services with no API endpoint."
+        },
+        "endpoint_url": {
+          "type": "string",
+          "description": "Per-service full URL override. Used when a single service hits a different host than the provider's base_url (e.g. Google Sheets services that hit sheets.googleapis.com instead of the OAuth root)."
+        },
+        "endpoint_template": {
+          "type": "string",
+          "description": "Per-service URL template with {{ }} placeholders (used by adapters that build URLs from parameters)."
+        },
+        "method": {
+          "type": "string",
+          "enum": [
+            "GET",
+            "POST",
+            "PUT",
+            "PATCH",
+            "DELETE"
+          ]
+        },
+        "queue": {
+          "type": "string",
+          "description": "Per-service queue override. Falls back to provider-level default_queue when omitted."
+        },
+        "status": {
+          "type": "string",
+          "description": "Per-service active/inactive flag (used by inactive providers to mark legacy services).",
+          "enum": [
+            "active",
+            "inactive",
+            "ACTIVE",
+            "INACTIVE"
+          ]
+        },
+        "dispatch": {
+          "type": "array",
+          "description": "Worker-side handler selectors. Currently 'http_request' routes through the generic outbound-HTTP handler. Replaces the legacy 'hooks' field.",
+          "items": {
+            "type": "string"
+          }
+        },
+        "parameter_mapping": {
+          "type": "object",
+          "description": "Maps user-facing parameter names to wire locations (body, query_params, headers, path_params). Replaces the legacy camelCase 'parameterMapping'."
+        },
+        "parameter_schema": {
+          "type": "object"
+        },
+        "result_schema": {
+          "type": "object"
+        },
+        "polling": {
+          "type": "object",
+          "description": "Adapter-driven polling config (status URL, completion path, interval)."
+        },
+        "completion_modes": {
+          "type": "array",
+          "description": "Completion modes this service supports. 'get' = synchronous polling (default when omitted). 'webhook' = fire-and-release, complete on a provider callback. A service declaring 'webhook' MUST also declare a webhook_completion block (enforced at install time and at commit time).",
+          "items": {
+            "type": "string",
+            "enum": [
+              "get",
+              "webhook"
+            ]
+          }
+        },
+        "webhook_completion": {
+          "type": "object",
+          "description": "Service-level webhook-completion config: the parsing tied to THIS specific endpoint. The inbound callback ENVELOPE (id_callback_path, status_callback_path, success/failure values, auth) is provider-level (see the top-level webhook_completion). Required when completion_modes includes 'webhook'.",
+          "properties": {
+            "id_response_path": {
+              "type": "string",
+              "description": "JSONPath to the generation/job id in THIS endpoint's submit response (endpoint-specific wrapper, e.g. $.sdGenerationJob.generationId)."
+            },
+            "result_callback_path": {
+              "type": "string",
+              "description": "JSONPath to the asset URL(s) inside the callback envelope (the asset shape differs per service - image vs. video vs. audio)."
+            }
+          }
+        },
+        "post_processing": {
+          "type": "object"
+        },
+        "output_view": {
+          "type": "object"
+        },
+        "ui_hints": {
+          "type": "object"
+        },
+        "local_worker": {
+          "type": "object",
+          "description": "Per-service local-worker override (rare \u2014 most providers set this at the top level).",
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            },
+            "queue": {
+              "type": "string"
+            }
+          }
+        },
+        "request_body_template": {
+          "type": "object",
+          "description": "Legacy alias for request_transform.body. Kept for backwards compat; prefer request_transform."
+        },
+        "response_type": {
+          "type": "string",
+          "description": "Hint to the response handler about the expected payload type (e.g. 'binary' for audio downloads vs 'json' for JSON-encoded results)."
+        },
+        "orchestrator_hints": {
+          "type": "object",
+          "description": "API enqueue hints (inline, pauses, wait_for, pause_status, polling, stops_workflow).",
+          "properties": {
+            "inline": {
+              "type": "boolean"
+            },
+            "pauses": {
+              "type": "boolean"
+            },
+            "wait_for": {
+              "type": "string"
+            },
+            "pause_status": {
+              "type": "string"
+            },
+            "stops_workflow": {
+              "type": "boolean"
+            }
+          }
+        },
+        "example_parameters": {
+          "type": "object"
+        },
+        "request_transform": {
+          "type": "object"
+        },
+        "prompt_shape": {
+          "type": "string",
+          "enum": [
+            "chat"
+          ],
+          "description": "Opts the service into prompt dispatch shaping. 'chat' parses the neutral messages list ([{role, content}]) into the dialect's wire shape at enqueue."
+        },
+        "wire_dialect": {
+          "type": "string",
+          "enum": [
+            "openai",
+            "anthropic",
+            "gemini"
+          ],
+          "description": "Wire format the service speaks. The dispatch shaper branches on this key only - never on provider name - so any provider speaking an existing dialect is pure config."
+        },
+        "iterable": {
+          "type": "boolean",
+          "default": true
+        },
+        "is_active": {
+          "type": "boolean",
+          "default": true
+        },
+        "array_mapping_notice": {
+          "type": "string",
+          "description": "Human-readable note shown in the UI when a list parameter is sent as one combined request rather than iterated (read by WorkflowStepConfig.tsx)."
+        },
+        "supports_image_presets": {
+          "type": "boolean",
+          "description": "Service accepts image-size presets (read by iteration_service.supports_image_presets)."
+        }
+      }
+    }
+  }
+}

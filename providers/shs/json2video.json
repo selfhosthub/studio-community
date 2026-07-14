@@ -1,0 +1,2285 @@
+{
+  "$schema": "https://raw.githubusercontent.com/selfhosthub/studio-community/main/schemas/provider.schema.json",
+  "slug": "shs/json2video",
+  "version": "1.0.0",
+  "name": "JSON2Video",
+  "description": "Programmatic video generation with JSON2Video API",
+  "provider_type": "API",
+  "category": "ai",
+  "status": "ACTIVE",
+  "tier": "community",
+  "icon_url": "/providers/json2video.svg",
+  "services_preview": [
+    "Generate Video",
+    "Check Render Status"
+  ],
+  "credential_schema": {
+    "type": "object",
+    "required": [
+      "api_key"
+    ],
+    "properties": {
+      "api_key": {
+        "type": "string",
+        "title": "API Key",
+        "description": "Your JSON2Video API key",
+        "format": "password"
+      }
+    }
+  },
+  "base_url": "https://api.json2video.com/v2",
+  "auth": {
+    "type": "header",
+    "header": "x-api-key"
+  },
+  "webhook_completion": {
+    "auth": {
+      "type": "url_token"
+    }
+  },
+  "services": {
+    "j2v_render": {
+      "display_name": "Generate Video",
+      "description": "Submit a video render job. Returns project ID immediately. Use webhook parameter for completion callbacks.",
+      "service_type": "AI",
+      "iterable": false,
+      "array_mapping_notice": "All items in this list are sent together and combined into a single video.",
+      "path": "/movies",
+      "method": "POST",
+      "requires_credentials": true,
+      "parameter_mapping": {
+        "body": [
+          "movie_id",
+          "comment",
+          "variables",
+          "client_data",
+          "elements",
+          "scenes",
+          "width",
+          "height",
+          "quality",
+          "cache",
+          "draft",
+          "exports"
+        ]
+      },
+      "parameter_schema": {
+        "type": "object",
+        "required": [
+          "scenes"
+        ],
+        "properties": {
+          "movie_id": {
+            "type": "string",
+            "title": "Movie ID",
+            "description": "Custom identifier for the video project",
+            "ui": {
+              "section": "movie_settings",
+              "order": 1
+            }
+          },
+          "comment": {
+            "type": "string",
+            "title": "Comment",
+            "description": "Internal note for this project",
+            "ui": {
+              "section": "movie_settings",
+              "order": 2
+            }
+          },
+          "variables": {
+            "type": "object",
+            "title": "Variables",
+            "description": "Global variables accessible throughout the project via {{var.name}} syntax",
+            "additionalProperties": true,
+            "ui": {
+              "section": "movie_settings",
+              "order": 3,
+              "widget": "json-editor",
+              "rows": 4
+            }
+          },
+          "client_data": {
+            "type": "object",
+            "title": "Client Data",
+            "description": "Custom data returned in webhook callback (useful for tracking)",
+            "additionalProperties": true,
+            "ui": {
+              "section": "movie_settings",
+              "order": 6,
+              "widget": "json-editor",
+              "rows": 3
+            }
+          },
+          "elements": {
+            "type": "array",
+            "title": "Movie Elements",
+            "description": "Subtitles element applied to the entire movie.",
+            "minItems": 0,
+            "maxItems": 1,
+            "iterable": true,
+            "items": {
+              "type": "object",
+              "required": [
+                "type"
+              ],
+              "title": "Element",
+              "ui_groups": {
+                "source": {
+                  "title": "Source & Transcription",
+                  "order": 1
+                },
+                "styling": {
+                  "title": "Styling",
+                  "order": 2
+                },
+                "vocabulary": {
+                  "title": "Vocabulary & Replacements",
+                  "order": 3
+                },
+                "advanced": {
+                  "title": "Advanced",
+                  "order": 4
+                }
+              },
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "title": "Element Type",
+                  "enum": [
+                    "subtitles"
+                  ],
+                  "enumNames": [
+                    "Subtitles"
+                  ],
+                  "default": "subtitles",
+                  "ui": {
+                    "order": 1
+                  }
+                },
+                "captions": {
+                  "type": "string",
+                  "title": "Manual Captions",
+                  "description": "Captions in ASS format. Alternative to auto-transcription.",
+                  "format": "textarea",
+                  "ui": {
+                    "order": 3,
+                    "group": "source",
+                    "rows": 4,
+                    "placeholder": "[Script Info]\nTitle: My Captions\n[Events]\nDialogue: 0,0:00:01.00,0:00:03.00,Default,,,,Hello world"
+                  }
+                },
+                "language": {
+                  "type": "string",
+                  "title": "Language",
+                  "description": "Language code for auto-transcription. Ignored when src or captions is provided.",
+                  "enum": [
+                    "en",
+                    "es",
+                    "fr",
+                    "de",
+                    "it",
+                    "pt",
+                    "nl",
+                    "pl",
+                    "ru",
+                    "ja",
+                    "ko",
+                    "zh",
+                    "auto"
+                  ],
+                  "enumNames": [
+                    "English",
+                    "Spanish",
+                    "French",
+                    "German",
+                    "Italian",
+                    "Portuguese",
+                    "Dutch",
+                    "Polish",
+                    "Russian",
+                    "Japanese",
+                    "Korean",
+                    "Chinese",
+                    "Auto-detect"
+                  ],
+                  "default": "auto",
+                  "ui": {
+                    "order": 4,
+                    "group": "source"
+                  }
+                },
+                "model": {
+                  "type": "string",
+                  "title": "Transcription Model",
+                  "description": "AI model for automatic speech recognition. 'default' supports vocabulary keywords; Whisper supports more languages; Nova-2 for high-quality English.",
+                  "enum": [
+                    "default",
+                    "whisper",
+                    "nova-2"
+                  ],
+                  "enumNames": [
+                    "Default",
+                    "Whisper",
+                    "Nova-2"
+                  ],
+                  "default": "default",
+                  "ui": {
+                    "order": 5,
+                    "group": "source"
+                  }
+                },
+                "style": {
+                  "type": "string",
+                  "title": "Style",
+                  "description": "Subtitle style preset. Classic shows simple overlays; boxed styles draw a box behind the text.",
+                  "enum": [
+                    "classic",
+                    "classic-progressive",
+                    "classic-one-word",
+                    "boxed-line",
+                    "boxed-word"
+                  ],
+                  "enumNames": [
+                    "Classic",
+                    "Classic Progressive",
+                    "Classic One Word",
+                    "Boxed Line",
+                    "Boxed Word"
+                  ],
+                  "default": "classic",
+                  "ui": {
+                    "order": 10,
+                    "group": "styling"
+                  }
+                },
+                "position": {
+                  "type": "string",
+                  "title": "Position",
+                  "description": "Position of subtitles on the canvas. Use 'custom' with X/Y for pixel-perfect placement.",
+                  "enum": [
+                    "top-left",
+                    "top-center",
+                    "top-right",
+                    "center-left",
+                    "center-center",
+                    "center-right",
+                    "bottom-left",
+                    "bottom-center",
+                    "bottom-right",
+                    "mid-bottom-center",
+                    "mid-top-center",
+                    "custom"
+                  ],
+                  "enumNames": [
+                    "Top Left",
+                    "Top Center",
+                    "Top Right",
+                    "Center Left",
+                    "Center",
+                    "Center Right",
+                    "Bottom Left",
+                    "Bottom Center",
+                    "Bottom Right",
+                    "Mid-Bottom Center",
+                    "Mid-Top Center",
+                    "Custom"
+                  ],
+                  "default": "bottom-center",
+                  "ui": {
+                    "order": 11,
+                    "group": "styling"
+                  }
+                },
+                "x": {
+                  "type": "integer",
+                  "title": "X (custom position)",
+                  "description": "Used when position is 'custom'",
+                  "default": 0,
+                  "ui": {
+                    "order": 12,
+                    "group": "styling",
+                    "show_when": {
+                      "position": "custom"
+                    }
+                  }
+                },
+                "y": {
+                  "type": "integer",
+                  "title": "Y (custom position)",
+                  "description": "Used when position is 'custom'",
+                  "default": 0,
+                  "ui": {
+                    "order": 13,
+                    "group": "styling",
+                    "show_when": {
+                      "position": "custom"
+                    }
+                  }
+                },
+                "font_family": {
+                  "type": "string",
+                  "title": "Font Family",
+                  "description": "Curated Google Font. Provide a custom TTF via Font URL if you need something else.",
+                  "enum": [
+                    "Luckiest Guy",
+                    "Roboto",
+                    "Comic Neue",
+                    "Lobster",
+                    "Oswald",
+                    "Pacifico",
+                    "Permanent Marker",
+                    "Nunito",
+                    "Libre Baskerville",
+                    "Fredericka the Great",
+                    "Shrikhand",
+                    "Nanum Pen Script",
+                    "Noto Sans KR",
+                    "Noto Sans SC",
+                    "Noto Sans TC"
+                  ],
+                  "enumNames": [
+                    "Luckiest Guy (Bold Display)",
+                    "Roboto (Clean Sans)",
+                    "Comic Neue (Casual)",
+                    "Lobster (Script)",
+                    "Oswald (Condensed)",
+                    "Pacifico (Brush Script)",
+                    "Permanent Marker (Handwritten)",
+                    "Nunito (Rounded Sans)",
+                    "Libre Baskerville (Serif)",
+                    "Fredericka the Great (Display)",
+                    "Shrikhand (Bold Display)",
+                    "Nanum Pen Script (Korean)",
+                    "Noto Sans KR (Korean)",
+                    "Noto Sans SC (Chinese Simplified)",
+                    "Noto Sans TC (Chinese Traditional)"
+                  ],
+                  "default": "Arial",
+                  "ui": {
+                    "order": 14,
+                    "group": "styling"
+                  }
+                },
+                "font_size": {
+                  "type": [
+                    "string",
+                    "number"
+                  ],
+                  "title": "Font Size",
+                  "description": "Defaults to 5% of movie width. Typical range 90-150.",
+                  "ui": {
+                    "order": 15,
+                    "group": "styling"
+                  }
+                },
+                "font_weight": {
+                  "type": "string",
+                  "title": "Font Weight",
+                  "description": "Google Font weight. Must be a weight the chosen font family supports; falls back to 400 if not available.",
+                  "enum": [
+                    "",
+                    "100",
+                    "200",
+                    "300",
+                    "400",
+                    "500",
+                    "600",
+                    "700",
+                    "800",
+                    "900"
+                  ],
+                  "enumNames": [
+                    "Default",
+                    "100 Thin",
+                    "200 Extra Light",
+                    "300 Light",
+                    "400 Regular",
+                    "500 Medium",
+                    "600 Semi Bold",
+                    "700 Bold",
+                    "800 Extra Bold",
+                    "900 Black"
+                  ],
+                  "ui": {
+                    "order": 16,
+                    "group": "styling"
+                  }
+                },
+                "font_url": {
+                  "type": "string",
+                  "title": "Font URL",
+                  "description": "URL to a custom TTF font file (font_family must match the font's name)",
+                  "format": "uri",
+                  "ui": {
+                    "order": 17,
+                    "group": "styling"
+                  }
+                },
+                "all_caps": {
+                  "type": "boolean",
+                  "title": "All Caps",
+                  "description": "Render subtitles in uppercase",
+                  "default": false,
+                  "ui": {
+                    "order": 18,
+                    "group": "styling"
+                  }
+                },
+                "line_color": {
+                  "type": "string",
+                  "title": "Line Color",
+                  "description": "Color of the non-active words in the line",
+                  "format": "color",
+                  "default": "#FFFFFF",
+                  "ui": {
+                    "order": 19,
+                    "group": "styling"
+                  }
+                },
+                "word_color": {
+                  "type": "string",
+                  "title": "Active Word Color",
+                  "description": "Color of the currently-spoken word",
+                  "format": "color",
+                  "default": "#FFFF00",
+                  "ui": {
+                    "order": 20,
+                    "group": "styling"
+                  }
+                },
+                "box_color": {
+                  "type": "string",
+                  "title": "Box Color",
+                  "description": "Box behind the subtitles (depends on style)",
+                  "format": "color",
+                  "default": "#000000",
+                  "ui": {
+                    "order": 21,
+                    "group": "styling"
+                  }
+                },
+                "outline_color": {
+                  "type": "string",
+                  "title": "Outline Color",
+                  "format": "color",
+                  "default": "#000000",
+                  "ui": {
+                    "order": 22,
+                    "group": "styling"
+                  }
+                },
+                "outline_width": {
+                  "type": "integer",
+                  "title": "Outline Width",
+                  "minimum": 0,
+                  "default": 0,
+                  "ui": {
+                    "order": 23,
+                    "group": "styling"
+                  }
+                },
+                "shadow_color": {
+                  "type": "string",
+                  "title": "Shadow Color",
+                  "format": "color",
+                  "default": "#000000",
+                  "ui": {
+                    "order": 24,
+                    "group": "styling"
+                  }
+                },
+                "shadow_offset": {
+                  "type": "integer",
+                  "title": "Shadow Offset",
+                  "default": 0,
+                  "ui": {
+                    "order": 25,
+                    "group": "styling"
+                  }
+                },
+                "max_words_per_line": {
+                  "type": "integer",
+                  "title": "Max Words Per Line",
+                  "description": "Set to 1 for one-word-at-a-time subtitles",
+                  "minimum": 1,
+                  "default": 4,
+                  "ui": {
+                    "order": 26,
+                    "group": "styling"
+                  }
+                },
+                "keywords": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "title": "Vocabulary Keywords",
+                  "description": "Brand names / technical terms to improve transcription accuracy. Only used with the 'default' transcription model.",
+                  "ui": {
+                    "order": 30,
+                    "group": "vocabulary",
+                    "widget": "tags",
+                    "placeholder": "Type a term, press Enter or Comma"
+                  }
+                },
+                "replacements": {
+                  "type": "object",
+                  "title": "Word Replacements",
+                  "description": "Post-transcription substitutions. Left column is the mis-transcribed phrase; right column is the correct replacement.",
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "ui": {
+                    "order": 31,
+                    "group": "vocabulary",
+                    "widget": "key-value",
+                    "keyPlaceholder": "wrong word",
+                    "valuePlaceholder": "replacement",
+                    "addLabel": "Add replacement"
+                  }
+                },
+                "comment": {
+                  "type": "string",
+                  "title": "Comment",
+                  "description": "Internal note about this element",
+                  "ui": {
+                    "order": 100,
+                    "group": "advanced"
+                  }
+                }
+              },
+              "additionalProperties": true
+            },
+            "ui": {
+              "section": "movie_elements",
+              "order": 1
+            }
+          },
+          "scenes": {
+            "type": "array",
+            "title": "Scenes",
+            "description": "Video scenes containing elements. Build a scene template to combine a list of scenes into one video.",
+            "iterable": true,
+            "items": {
+              "type": "object",
+              "title": "Scene",
+              "properties": {
+                "duration": {
+                  "type": "number",
+                  "title": "Duration (seconds)",
+                  "description": "Scene duration. Use -1 for intrinsic duration from elements.",
+                  "default": -1
+                },
+                "background-color": {
+                  "type": "string",
+                  "title": "Background Color",
+                  "description": "Hex color code (e.g., #000000)",
+                  "default": "#000000"
+                },
+                "comment": {
+                  "type": "string",
+                  "title": "Scene Comment",
+                  "description": "Internal note for this scene"
+                },
+                "transition": {
+                  "type": "object",
+                  "title": "Scene Transition",
+                  "description": "Transition effect between scenes",
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "title": "Transition Type",
+                      "enum": [
+                        "fade",
+                        "wipe-left",
+                        "wipe-right",
+                        "wipe-up",
+                        "wipe-down",
+                        "slide-left",
+                        "slide-right",
+                        "slide-up",
+                        "slide-down"
+                      ],
+                      "default": "fade"
+                    },
+                    "duration": {
+                      "type": "number",
+                      "title": "Duration (seconds)",
+                      "default": 0.5
+                    }
+                  }
+                },
+                "elements": {
+                  "type": "array",
+                  "title": "Elements",
+                  "description": "Visual and audio elements in this scene. Can be auto-expanded when fields are mapped to arrays.",
+                  "iterable": true,
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "type"
+                    ],
+                    "title": "Element",
+                    "ui_groups": {
+                      "timing": {
+                        "title": "Timing",
+                        "order": 1,
+                        "show_when": {
+                          "type": [
+                            "video",
+                            "image",
+                            "audio",
+                            "text",
+                            "voice",
+                            "html",
+                            "component",
+                            "audiogram"
+                          ]
+                        }
+                      },
+                      "layout": {
+                        "title": "Layout",
+                        "order": 2,
+                        "show_when": {
+                          "type": [
+                            "video",
+                            "image",
+                            "text",
+                            "html",
+                            "component",
+                            "audiogram"
+                          ]
+                        }
+                      },
+                      "audio_controls": {
+                        "title": "Audio Controls",
+                        "order": 3,
+                        "show_when": {
+                          "type": [
+                            "video",
+                            "audio",
+                            "voice"
+                          ]
+                        }
+                      },
+                      "voice_settings": {
+                        "title": "Voice Settings",
+                        "order": 4,
+                        "show_when": {
+                          "type": [
+                            "voice"
+                          ]
+                        }
+                      },
+                      "ai_image": {
+                        "title": "AI Image Settings",
+                        "order": 5,
+                        "show_when": {
+                          "type": [
+                            "image"
+                          ]
+                        }
+                      },
+                      "visual_effects": {
+                        "title": "Visual Effects",
+                        "order": 6,
+                        "show_when": {
+                          "type": [
+                            "video",
+                            "image",
+                            "html",
+                            "component",
+                            "audiogram"
+                          ]
+                        }
+                      },
+                      "html_settings": {
+                        "title": "HTML Settings",
+                        "order": 7,
+                        "show_when": {
+                          "type": [
+                            "html"
+                          ]
+                        }
+                      },
+                      "audiogram_settings": {
+                        "title": "Audiogram Settings",
+                        "order": 8,
+                        "show_when": {
+                          "type": [
+                            "audiogram"
+                          ]
+                        }
+                      },
+                      "advanced": {
+                        "title": "Advanced",
+                        "order": 9
+                      }
+                    },
+                    "properties": {
+                      "type": {
+                        "type": "string",
+                        "title": "Element Type",
+                        "enum": [
+                          "video",
+                          "audio",
+                          "image",
+                          "text",
+                          "voice",
+                          "component",
+                          "html",
+                          "audiogram"
+                        ],
+                        "enumNames": [
+                          "Video",
+                          "Audio",
+                          "Image",
+                          "Text",
+                          "Voice/TTS",
+                          "Component",
+                          "HTML",
+                          "Audiogram"
+                        ],
+                        "description": "Type of element to add",
+                        "default": "video",
+                        "ui": {
+                          "order": 1
+                        }
+                      },
+                      "src": {
+                        "type": "string",
+                        "title": "Source URL",
+                        "description": "URL to video, image, audio, or HTML file",
+                        "format": "uri",
+                        "ui": {
+                          "order": 2,
+                          "show_when": {
+                            "type": [
+                              "video",
+                              "image",
+                              "audio",
+                              "html",
+                              "audiogram"
+                            ]
+                          }
+                        }
+                      },
+                      "prompt": {
+                        "type": "string",
+                        "title": "AI Prompt",
+                        "description": "Generate image with AI (alternative to src)",
+                        "ui": {
+                          "order": 3,
+                          "widget": "textarea",
+                          "show_when": {
+                            "type": [
+                              "image"
+                            ]
+                          }
+                        }
+                      },
+                      "text": {
+                        "type": "string",
+                        "title": "Text Content",
+                        "description": "Text to display or speak",
+                        "ui": {
+                          "order": 4,
+                          "widget": "textarea",
+                          "show_when": {
+                            "type": [
+                              "text",
+                              "voice"
+                            ]
+                          }
+                        }
+                      },
+                      "style": {
+                        "type": "string",
+                        "title": "Text Style Preset",
+                        "description": "Pre-built text animation style",
+                        "enum": [
+                          "",
+                          "001",
+                          "002",
+                          "003",
+                          "004",
+                          "005",
+                          "006",
+                          "007",
+                          "008",
+                          "009",
+                          "010"
+                        ],
+                        "enumNames": [
+                          "None",
+                          "Style 1",
+                          "Style 2",
+                          "Style 3",
+                          "Style 4",
+                          "Style 5",
+                          "Style 6",
+                          "Style 7",
+                          "Style 8",
+                          "Style 9",
+                          "Style 10"
+                        ],
+                        "ui": {
+                          "order": 5,
+                          "show_when": {
+                            "type": [
+                              "text"
+                            ]
+                          }
+                        }
+                      },
+                      "settings": {
+                        "type": "object",
+                        "title": "Text Settings",
+                        "description": "Custom text styling (JSON)",
+                        "properties": {
+                          "font-family": {
+                            "type": "string",
+                            "title": "Font Family"
+                          },
+                          "font-size": {
+                            "type": "string",
+                            "title": "Font Size"
+                          },
+                          "font-weight": {
+                            "type": "string",
+                            "title": "Font Weight"
+                          },
+                          "color": {
+                            "type": "string",
+                            "title": "Text Color"
+                          },
+                          "background-color": {
+                            "type": "string",
+                            "title": "Background Color"
+                          },
+                          "text-align": {
+                            "type": "string",
+                            "title": "Text Align",
+                            "enum": [
+                              "left",
+                              "center",
+                              "right"
+                            ]
+                          }
+                        },
+                        "additionalProperties": true,
+                        "ui": {
+                          "order": 6,
+                          "show_when": {
+                            "type": [
+                              "text"
+                            ]
+                          }
+                        }
+                      },
+                      "component": {
+                        "type": "string",
+                        "title": "Component ID",
+                        "description": "JSON2Video component identifier",
+                        "ui": {
+                          "order": 7,
+                          "show_when": {
+                            "type": [
+                              "component"
+                            ]
+                          }
+                        }
+                      },
+                      "component_settings": {
+                        "type": "object",
+                        "title": "Component Settings",
+                        "description": "Settings passed to the component (JSON)",
+                        "additionalProperties": true,
+                        "ui": {
+                          "order": 8,
+                          "show_when": {
+                            "type": [
+                              "component"
+                            ]
+                          }
+                        }
+                      },
+                      "html": {
+                        "type": "string",
+                        "title": "HTML Code",
+                        "description": "HTML snippet to render (alternative to src)",
+                        "ui": {
+                          "order": 9,
+                          "widget": "textarea",
+                          "show_when": {
+                            "type": [
+                              "html"
+                            ]
+                          }
+                        }
+                      },
+                      "start": {
+                        "type": "number",
+                        "title": "Start Time (seconds)",
+                        "description": "When element appears in the scene",
+                        "default": 0,
+                        "ui": {
+                          "order": 10,
+                          "group": "timing"
+                        }
+                      },
+                      "duration": {
+                        "type": "number",
+                        "title": "Duration (seconds)",
+                        "description": "Element duration (-1=auto, -2=match scene)",
+                        "default": -1,
+                        "ui": {
+                          "order": 11,
+                          "group": "timing"
+                        }
+                      },
+                      "extra_time": {
+                        "type": "number",
+                        "title": "Extra Time (seconds)",
+                        "description": "Additional time after duration",
+                        "ui": {
+                          "order": 12,
+                          "group": "timing"
+                        }
+                      },
+                      "fade_in": {
+                        "type": "number",
+                        "title": "Fade In (seconds)",
+                        "description": "Fade in duration",
+                        "ui": {
+                          "order": 13,
+                          "group": "timing"
+                        }
+                      },
+                      "fade_out": {
+                        "type": "number",
+                        "title": "Fade Out (seconds)",
+                        "description": "Fade out duration",
+                        "ui": {
+                          "order": 14,
+                          "group": "timing"
+                        }
+                      },
+                      "position": {
+                        "type": "string",
+                        "title": "Position",
+                        "description": "Preset position on screen",
+                        "enum": [
+                          "top-left",
+                          "top-center",
+                          "top-right",
+                          "center-left",
+                          "center-center",
+                          "center-right",
+                          "bottom-left",
+                          "bottom-center",
+                          "bottom-right",
+                          "custom"
+                        ],
+                        "enumNames": [
+                          "Top Left",
+                          "Top Center",
+                          "Top Right",
+                          "Center Left",
+                          "Center",
+                          "Center Right",
+                          "Bottom Left",
+                          "Bottom Center",
+                          "Bottom Right",
+                          "Custom"
+                        ],
+                        "default": "custom",
+                        "ui": {
+                          "order": 20,
+                          "group": "layout",
+                          "show_when": {
+                            "type": [
+                              "video",
+                              "image",
+                              "text",
+                              "html",
+                              "component",
+                              "audiogram"
+                            ]
+                          }
+                        }
+                      },
+                      "x": {
+                        "type": "number",
+                        "title": "X Position",
+                        "description": "Horizontal position in pixels",
+                        "ui": {
+                          "order": 21,
+                          "group": "layout",
+                          "show_when": {
+                            "position": "custom"
+                          }
+                        }
+                      },
+                      "y": {
+                        "type": "number",
+                        "title": "Y Position",
+                        "description": "Vertical position in pixels",
+                        "ui": {
+                          "order": 22,
+                          "group": "layout",
+                          "show_when": {
+                            "position": "custom"
+                          }
+                        }
+                      },
+                      "z_index": {
+                        "type": "integer",
+                        "title": "Z-Index (Layer)",
+                        "description": "Layer order (-99 to 99, higher = on top)",
+                        "minimum": -99,
+                        "maximum": 99,
+                        "ui": {
+                          "order": 23,
+                          "group": "layout",
+                          "show_when": {
+                            "type": [
+                              "video",
+                              "image",
+                              "text",
+                              "html",
+                              "component",
+                              "audiogram"
+                            ]
+                          }
+                        }
+                      },
+                      "width": {
+                        "type": "number",
+                        "title": "Width",
+                        "description": "Element width in pixels (-1=auto)",
+                        "default": -1,
+                        "ui": {
+                          "order": 24,
+                          "group": "layout",
+                          "show_when": {
+                            "type": [
+                              "video",
+                              "image",
+                              "text",
+                              "html",
+                              "component",
+                              "audiogram"
+                            ]
+                          }
+                        }
+                      },
+                      "height": {
+                        "type": "number",
+                        "title": "Height",
+                        "description": "Element height in pixels (-1=auto)",
+                        "default": -1,
+                        "ui": {
+                          "order": 25,
+                          "group": "layout",
+                          "show_when": {
+                            "type": [
+                              "video",
+                              "image",
+                              "text",
+                              "html",
+                              "component",
+                              "audiogram"
+                            ]
+                          }
+                        }
+                      },
+                      "resize": {
+                        "type": "string",
+                        "title": "Resize Mode",
+                        "description": "How to resize element to fit dimensions",
+                        "enum": [
+                          "natural",
+                          "cover",
+                          "contain",
+                          "fill",
+                          "fit"
+                        ],
+                        "enumNames": [
+                          "Natural Size",
+                          "Cover (fill and crop)",
+                          "Contain (fit inside)",
+                          "Fill (stretch)",
+                          "Fit (scale down only)"
+                        ],
+                        "default": "cover",
+                        "ui": {
+                          "order": 26,
+                          "group": "layout",
+                          "show_when": {
+                            "type": [
+                              "video",
+                              "image",
+                              "html",
+                              "component",
+                              "audiogram"
+                            ]
+                          }
+                        }
+                      },
+                      "volume": {
+                        "type": "number",
+                        "title": "Volume",
+                        "description": "Volume level (0=mute, 1=normal, 10=max)",
+                        "default": 1,
+                        "minimum": 0,
+                        "maximum": 10,
+                        "ui": {
+                          "order": 30,
+                          "group": "audio_controls",
+                          "show_when": {
+                            "type": [
+                              "video",
+                              "audio",
+                              "voice"
+                            ]
+                          }
+                        }
+                      },
+                      "muted": {
+                        "type": "boolean",
+                        "title": "Muted",
+                        "description": "Mute audio track",
+                        "default": false,
+                        "ui": {
+                          "order": 31,
+                          "group": "audio_controls",
+                          "show_when": {
+                            "type": [
+                              "video",
+                              "audio",
+                              "voice"
+                            ]
+                          }
+                        }
+                      },
+                      "seek": {
+                        "type": "number",
+                        "title": "Seek (Start Offset)",
+                        "description": "Start offset within file (seconds)",
+                        "default": 0,
+                        "ui": {
+                          "order": 32,
+                          "group": "audio_controls",
+                          "show_when": {
+                            "type": [
+                              "video",
+                              "audio"
+                            ]
+                          }
+                        }
+                      },
+                      "loop": {
+                        "type": "number",
+                        "title": "Loop Count",
+                        "description": "Loop count (-1=infinite, >0=repeat N times). Leave empty for single playback.",
+                        "ui": {
+                          "order": 33,
+                          "group": "audio_controls",
+                          "show_when": {
+                            "type": [
+                              "video",
+                              "audio"
+                            ]
+                          }
+                        }
+                      },
+                      "voice": {
+                        "type": "string",
+                        "title": "Voice ID",
+                        "description": "TTS voice identifier (e.g., en-US-AriaNeural)",
+                        "default": "en-US-AriaNeural",
+                        "ui": {
+                          "order": 40,
+                          "group": "voice_settings",
+                          "show_when": {
+                            "type": [
+                              "voice"
+                            ]
+                          }
+                        }
+                      },
+                      "model": {
+                        "type": "string",
+                        "title": "TTS Model",
+                        "description": "Text-to-speech model provider",
+                        "enum": [
+                          "azure",
+                          "elevenlabs",
+                          "elevenlabs-flash-v2-5"
+                        ],
+                        "enumNames": [
+                          "Azure Cognitive Services",
+                          "ElevenLabs",
+                          "ElevenLabs Flash v2.5"
+                        ],
+                        "default": "azure",
+                        "ui": {
+                          "order": 41,
+                          "group": "voice_settings",
+                          "show_when": {
+                            "type": [
+                              "voice"
+                            ]
+                          }
+                        }
+                      },
+                      "connection": {
+                        "type": "string",
+                        "title": "Voice Connection",
+                        "description": "Connection ID for custom TTS API key",
+                        "ui": {
+                          "order": 42,
+                          "group": "voice_settings",
+                          "show_when": {
+                            "type": [
+                              "voice"
+                            ]
+                          }
+                        }
+                      },
+                      "ai_model": {
+                        "type": "string",
+                        "title": "AI Model",
+                        "description": "AI image generation model",
+                        "enum": [
+                          "flux-pro",
+                          "flux-schnell",
+                          "freepik-classic"
+                        ],
+                        "enumNames": [
+                          "Flux Pro (High Quality)",
+                          "Flux Schnell (Fast)",
+                          "Freepik Classic"
+                        ],
+                        "default": "flux-schnell",
+                        "ui": {
+                          "order": 50,
+                          "group": "ai_image",
+                          "show_when": {
+                            "type": [
+                              "image"
+                            ]
+                          }
+                        }
+                      },
+                      "aspect_ratio": {
+                        "type": "string",
+                        "title": "Aspect Ratio",
+                        "description": "AI image generation aspect ratio",
+                        "enum": [
+                          "horizontal",
+                          "vertical",
+                          "squared"
+                        ],
+                        "enumNames": [
+                          "Horizontal",
+                          "Vertical",
+                          "Square"
+                        ],
+                        "default": "horizontal",
+                        "ui": {
+                          "order": 51,
+                          "group": "ai_image",
+                          "show_when": {
+                            "type": [
+                              "image"
+                            ]
+                          }
+                        }
+                      },
+                      "ai_connection": {
+                        "type": "string",
+                        "title": "AI Connection",
+                        "description": "Connection ID for custom AI API key",
+                        "ui": {
+                          "order": 52,
+                          "group": "ai_image",
+                          "show_when": {
+                            "type": [
+                              "image"
+                            ]
+                          }
+                        }
+                      },
+                      "model_settings": {
+                        "type": "object",
+                        "title": "Model Settings",
+                        "description": "AI model-specific settings (JSON)",
+                        "additionalProperties": true,
+                        "ui": {
+                          "order": 53,
+                          "group": "ai_image",
+                          "show_when": {
+                            "type": [
+                              "image"
+                            ]
+                          }
+                        }
+                      },
+                      "pan": {
+                        "type": "string",
+                        "title": "Pan Direction",
+                        "description": "Ken Burns pan effect direction",
+                        "enum": [
+                          "",
+                          "left",
+                          "right",
+                          "top",
+                          "bottom",
+                          "top-left",
+                          "top-right",
+                          "bottom-left",
+                          "bottom-right"
+                        ],
+                        "enumNames": [
+                          "None",
+                          "Left",
+                          "Right",
+                          "Top",
+                          "Bottom",
+                          "Top Left",
+                          "Top Right",
+                          "Bottom Left",
+                          "Bottom Right"
+                        ],
+                        "ui": {
+                          "order": 60,
+                          "group": "visual_effects",
+                          "show_when": {
+                            "type": [
+                              "video",
+                              "image",
+                              "html",
+                              "component",
+                              "audiogram"
+                            ]
+                          }
+                        }
+                      },
+                      "pan_distance": {
+                        "type": "number",
+                        "title": "Pan Distance",
+                        "description": "Pan distance (0.01-0.5)",
+                        "default": 0.1,
+                        "minimum": 0.01,
+                        "maximum": 0.5,
+                        "ui": {
+                          "order": 61,
+                          "group": "visual_effects",
+                          "show_when": {
+                            "type": [
+                              "video",
+                              "image",
+                              "html",
+                              "component",
+                              "audiogram"
+                            ]
+                          }
+                        }
+                      },
+                      "pan_crop": {
+                        "type": "boolean",
+                        "title": "Pan Crop",
+                        "description": "Stretch during pan animation",
+                        "default": true,
+                        "ui": {
+                          "order": 62,
+                          "group": "visual_effects",
+                          "show_when": {
+                            "type": [
+                              "video",
+                              "image",
+                              "html",
+                              "component",
+                              "audiogram"
+                            ]
+                          }
+                        }
+                      },
+                      "zoom": {
+                        "type": "number",
+                        "title": "Zoom",
+                        "description": "Zoom level (-10 to 10). Leave empty for no zoom.",
+                        "minimum": -10,
+                        "maximum": 10,
+                        "ui": {
+                          "order": 63,
+                          "group": "visual_effects",
+                          "show_when": {
+                            "type": [
+                              "video",
+                              "image",
+                              "html",
+                              "component",
+                              "audiogram"
+                            ]
+                          }
+                        }
+                      },
+                      "flip_horizontal": {
+                        "type": "boolean",
+                        "title": "Flip Horizontal",
+                        "description": "Flip element horizontally",
+                        "default": false,
+                        "ui": {
+                          "order": 64,
+                          "group": "visual_effects",
+                          "show_when": {
+                            "type": [
+                              "video",
+                              "image",
+                              "html",
+                              "component",
+                              "audiogram"
+                            ]
+                          }
+                        }
+                      },
+                      "flip_vertical": {
+                        "type": "boolean",
+                        "title": "Flip Vertical",
+                        "description": "Flip element vertically",
+                        "default": false,
+                        "ui": {
+                          "order": 65,
+                          "group": "visual_effects",
+                          "show_when": {
+                            "type": [
+                              "video",
+                              "image",
+                              "html",
+                              "component",
+                              "audiogram"
+                            ]
+                          }
+                        }
+                      },
+                      "mask": {
+                        "type": "string",
+                        "format": "uri",
+                        "title": "Mask URL",
+                        "description": "Mask image URL for transparency effects",
+                        "ui": {
+                          "order": 66,
+                          "group": "visual_effects",
+                          "show_when": {
+                            "type": [
+                              "video",
+                              "image",
+                              "html",
+                              "component",
+                              "audiogram"
+                            ]
+                          }
+                        }
+                      },
+                      "crop": {
+                        "type": "object",
+                        "title": "Crop Settings",
+                        "description": "Crop area settings (JSON)",
+                        "additionalProperties": true,
+                        "ui": {
+                          "order": 67,
+                          "group": "visual_effects",
+                          "show_when": {
+                            "type": [
+                              "video",
+                              "image",
+                              "html",
+                              "component",
+                              "audiogram"
+                            ]
+                          }
+                        }
+                      },
+                      "rotate": {
+                        "type": "object",
+                        "title": "Rotation Settings",
+                        "description": "Rotation settings (JSON with angle, speed)",
+                        "additionalProperties": true,
+                        "ui": {
+                          "order": 68,
+                          "group": "visual_effects",
+                          "show_when": {
+                            "type": [
+                              "video",
+                              "image",
+                              "html",
+                              "component",
+                              "audiogram"
+                            ]
+                          }
+                        }
+                      },
+                      "chroma_key": {
+                        "type": "object",
+                        "title": "Chroma Key Settings",
+                        "description": "Green screen settings (JSON with color, tolerance)",
+                        "additionalProperties": true,
+                        "ui": {
+                          "order": 69,
+                          "group": "visual_effects",
+                          "show_when": {
+                            "type": [
+                              "video",
+                              "image",
+                              "html",
+                              "component",
+                              "audiogram"
+                            ]
+                          }
+                        }
+                      },
+                      "correction": {
+                        "type": "object",
+                        "title": "Color Correction",
+                        "description": "Color correction (JSON with brightness, contrast, etc.)",
+                        "additionalProperties": true,
+                        "ui": {
+                          "order": 70,
+                          "group": "visual_effects",
+                          "show_when": {
+                            "type": [
+                              "video",
+                              "image",
+                              "html",
+                              "component",
+                              "audiogram"
+                            ]
+                          }
+                        }
+                      },
+                      "tailwindcss": {
+                        "type": "boolean",
+                        "title": "Enable TailwindCSS",
+                        "description": "Enable TailwindCSS framework for HTML snippet",
+                        "default": false,
+                        "ui": {
+                          "order": 80,
+                          "group": "html_settings",
+                          "show_when": {
+                            "type": [
+                              "html"
+                            ]
+                          }
+                        }
+                      },
+                      "wait": {
+                        "type": "number",
+                        "title": "Wait Time (seconds)",
+                        "description": "Time to wait before taking screenshot (0-5)",
+                        "default": 2,
+                        "minimum": 0,
+                        "maximum": 5,
+                        "ui": {
+                          "order": 81,
+                          "group": "html_settings",
+                          "show_when": {
+                            "type": [
+                              "html"
+                            ]
+                          }
+                        }
+                      },
+                      "color": {
+                        "type": "string",
+                        "format": "color",
+                        "title": "Wave Color",
+                        "description": "Audio waveform color (hex)",
+                        "default": "#ffffff",
+                        "ui": {
+                          "order": 90,
+                          "group": "audiogram_settings",
+                          "show_when": {
+                            "type": [
+                              "audiogram"
+                            ]
+                          }
+                        }
+                      },
+                      "opacity": {
+                        "type": "number",
+                        "title": "Wave Opacity",
+                        "description": "Waveform opacity (0=transparent, 1=opaque)",
+                        "default": 0.5,
+                        "minimum": 0,
+                        "maximum": 1,
+                        "ui": {
+                          "order": 91,
+                          "group": "audiogram_settings",
+                          "show_when": {
+                            "type": [
+                              "audiogram"
+                            ]
+                          }
+                        }
+                      },
+                      "amplitude": {
+                        "type": "number",
+                        "title": "Wave Amplitude",
+                        "description": "Wave amplitude scaling (0-10)",
+                        "default": 5,
+                        "minimum": 0,
+                        "maximum": 10,
+                        "ui": {
+                          "order": 92,
+                          "group": "audiogram_settings",
+                          "show_when": {
+                            "type": [
+                              "audiogram"
+                            ]
+                          }
+                        }
+                      },
+                      "id": {
+                        "type": "string",
+                        "title": "Element ID",
+                        "description": "Unique identifier for this element",
+                        "ui": {
+                          "order": 100,
+                          "group": "advanced"
+                        }
+                      },
+                      "comment": {
+                        "type": "string",
+                        "title": "Comment",
+                        "description": "Internal note about this element",
+                        "ui": {
+                          "order": 101,
+                          "group": "advanced"
+                        }
+                      },
+                      "condition": {
+                        "type": "string",
+                        "title": "Condition",
+                        "description": "Expression for conditional rendering (e.g., '{{ show_logo == true }}')",
+                        "ui": {
+                          "order": 102,
+                          "group": "advanced"
+                        }
+                      },
+                      "variables": {
+                        "type": "object",
+                        "title": "Variables",
+                        "description": "Element-level variables (JSON)",
+                        "additionalProperties": true,
+                        "ui": {
+                          "order": 103,
+                          "group": "advanced"
+                        }
+                      },
+                      "cache": {
+                        "type": "boolean",
+                        "title": "Cache",
+                        "description": "Use cached render if available",
+                        "default": true,
+                        "ui": {
+                          "order": 104,
+                          "group": "advanced"
+                        }
+                      }
+                    },
+                    "additionalProperties": true
+                  }
+                }
+              }
+            },
+            "ui": {
+              "section": "scenes",
+              "order": 1
+            }
+          },
+          "width": {
+            "type": "integer",
+            "title": "Output Width",
+            "description": "Video width in pixels",
+            "minimum": 50,
+            "maximum": 3840,
+            "default": 640,
+            "ui": {
+              "section": "output",
+              "order": 1
+            }
+          },
+          "height": {
+            "type": "integer",
+            "title": "Output Height",
+            "description": "Video height in pixels",
+            "minimum": 50,
+            "maximum": 3840,
+            "default": 360,
+            "ui": {
+              "section": "output",
+              "order": 2
+            }
+          },
+          "quality": {
+            "type": "string",
+            "title": "Quality",
+            "description": "Video encoding quality",
+            "enum": [
+              "low",
+              "medium",
+              "high",
+              "very_high"
+            ],
+            "enumNames": [
+              "Low",
+              "Medium",
+              "High",
+              "Very High"
+            ],
+            "default": "high",
+            "ui": {
+              "section": "output",
+              "order": 3
+            }
+          },
+          "cache": {
+            "type": "boolean",
+            "title": "Cache",
+            "description": "Enable caching for faster re-renders of unchanged content",
+            "default": true,
+            "ui": {
+              "section": "output",
+              "order": 4
+            }
+          },
+          "draft": {
+            "type": "boolean",
+            "title": "Draft Mode",
+            "description": "Render low-quality preview (faster, no credits consumed)",
+            "default": false,
+            "ui": {
+              "section": "output",
+              "order": 5
+            }
+          },
+          "exports": {
+            "type": "array",
+            "title": "Export Destinations",
+            "description": "Where to deliver the completed video",
+            "items": {
+              "type": "object",
+              "title": "Destination",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "title": "Destination Type",
+                  "enum": [
+                    "webhook",
+                    "ftp",
+                    "email"
+                  ],
+                  "enumNames": [
+                    "Webhook Callback",
+                    "FTP Upload",
+                    "Email Delivery"
+                  ],
+                  "description": "Type of export destination",
+                  "default": "webhook"
+                },
+                "endpoint": {
+                  "type": "string",
+                  "title": "Webhook URL (optional)",
+                  "description": "Leave blank to auto-generate URL.",
+                  "ui": {
+                    "show_when": {
+                      "type": "webhook"
+                    }
+                  }
+                },
+                "host": {
+                  "type": "string",
+                  "title": "FTP Host",
+                  "description": "FTP server hostname",
+                  "ui": {
+                    "show_when": {
+                      "type": "ftp"
+                    }
+                  }
+                },
+                "port": {
+                  "type": "integer",
+                  "title": "FTP Port",
+                  "description": "FTP server port",
+                  "ui": {
+                    "show_when": {
+                      "type": "ftp"
+                    }
+                  }
+                },
+                "username": {
+                  "type": "string",
+                  "title": "FTP Username",
+                  "ui": {
+                    "show_when": {
+                      "type": "ftp"
+                    }
+                  }
+                },
+                "password": {
+                  "type": "string",
+                  "title": "FTP Password",
+                  "format": "password",
+                  "ui": {
+                    "show_when": {
+                      "type": "ftp"
+                    }
+                  }
+                },
+                "remote-path": {
+                  "type": "string",
+                  "title": "FTP Path",
+                  "description": "Remote directory path",
+                  "ui": {
+                    "show_when": {
+                      "type": "ftp"
+                    }
+                  }
+                },
+                "file": {
+                  "type": "string",
+                  "title": "Output Filename",
+                  "description": "Remote filename (supports macros like __random__.mp4)",
+                  "ui": {
+                    "show_when": {
+                      "type": "ftp"
+                    }
+                  }
+                },
+                "to": {
+                  "type": "string",
+                  "title": "Email To",
+                  "description": "Recipient email address",
+                  "format": "email",
+                  "ui": {
+                    "show_when": {
+                      "type": "email"
+                    }
+                  }
+                },
+                "subject": {
+                  "type": "string",
+                  "title": "Email Subject",
+                  "ui": {
+                    "show_when": {
+                      "type": "email"
+                    }
+                  }
+                },
+                "message": {
+                  "type": "string",
+                  "title": "Email Message",
+                  "description": "Email body text",
+                  "ui": {
+                    "widget": "textarea",
+                    "show_when": {
+                      "type": "email"
+                    }
+                  }
+                }
+              }
+            },
+            "ui": {
+              "section": "export",
+              "order": 1
+            }
+          }
+        }
+      },
+      "request_transform": {
+        "body": {
+          "id": "{{ parameters.movie_id | default('__omit__') }}",
+          "comment": "{{ parameters.comment | default('__omit__') }}",
+          "variables": "{{ parameters.variables | default({}) }}",
+          "client-data": "{{ parameters.client_data | default({}) }}",
+          "cache": "{{ parameters.cache | default(true) }}",
+          "draft": "{{ parameters.draft | default(false) }}",
+          "width": "{{ parameters.width | default(640) }}",
+          "height": "{{ parameters.height | default(360) }}",
+          "quality": "{{ parameters.quality | default('high') }}",
+          "scenes": "{{ parameters.scenes | default([]) }}",
+          "exports": "{{ ([{'destinations': ((parameters.exports | default([]) | rejectattr('type', 'equalto', 'webhook') | list) + (parameters.exports | default([]) | selectattr('type', 'equalto', 'webhook') | selectattr('endpoint', 'defined') | list) + ([{'type': 'webhook', 'endpoint': system.callback_url, 'content-type': 'json'}] if system.callback_url else []))}] if ((parameters.exports | default([]) | rejectattr('type', 'equalto', 'webhook') | list) + (parameters.exports | default([]) | selectattr('type', 'equalto', 'webhook') | selectattr('endpoint', 'defined') | list) + ([1] if system.callback_url else [])) else []) }}",
+          "elements": [
+            {
+              "type": "subtitles",
+              "language": "{{ parameters.elements[0].language | default('auto') }}",
+              "model": "{{ parameters.elements[0].model | default('default') }}",
+              "captions": "{{ parameters.elements[0].captions | default('__omit__') }}",
+              "comment": "{{ parameters.elements[0].comment | default('__omit__') }}",
+              "settings": {
+                "style": "{{ parameters.elements[0].style | default('classic') }}",
+                "position": "{{ parameters.elements[0].position | default('bottom-center') }}",
+                "x": "{{ parameters.elements[0].x | default(0) }}",
+                "y": "{{ parameters.elements[0].y | default(0) }}",
+                "font-family": "{{ parameters.elements[0].font_family | default('Arial') }}",
+                "font-size": "{{ parameters.elements[0].font_size | default('__omit__') }}",
+                "font-weight": "{{ parameters.elements[0].font_weight | default('__omit__') }}",
+                "font-url": "{{ parameters.elements[0].font_url | default('__omit__') }}",
+                "all-caps": "{{ parameters.elements[0].all_caps | default(false) }}",
+                "line-color": "{{ parameters.elements[0].line_color | default('#FFFFFF') }}",
+                "word-color": "{{ parameters.elements[0].word_color | default('#FFFF00') }}",
+                "box-color": "{{ parameters.elements[0].box_color | default('#000000') }}",
+                "outline-color": "{{ parameters.elements[0].outline_color | default('#000000') }}",
+                "outline-width": "{{ parameters.elements[0].outline_width | default(0) }}",
+                "shadow-color": "{{ parameters.elements[0].shadow_color | default('#000000') }}",
+                "shadow-offset": "{{ parameters.elements[0].shadow_offset | default(0) }}",
+                "max-words-per-line": "{{ parameters.elements[0].max_words_per_line | default(4) }}",
+                "keywords": "{{ parameters.elements[0].keywords | default('__omit__', true) }}",
+                "replace": "{{ parameters.elements[0].replacements | default('__omit__', true) }}"
+              }
+            }
+          ]
+        }
+      },
+      "result_schema": {
+        "type": "object",
+        "description": "Completed movie after polling: download URL and render metadata.",
+        "properties": {
+          "status": {
+            "type": "string",
+            "description": "Job status (done when complete)"
+          },
+          "url": {
+            "type": "string",
+            "description": "Video download URL"
+          },
+          "ass": {
+            "type": "string",
+            "description": "Subtitles download URL (ASS format), if generated"
+          },
+          "project": {
+            "type": "string",
+            "description": "Project ID"
+          },
+          "message": {
+            "type": "string",
+            "description": "Status or error message"
+          },
+          "downloaded_files": {
+            "type": "array",
+            "description": "Locally downloaded video file(s)"
+          }
+        }
+      },
+      "output_view": {
+        "type": "media_grid",
+        "source": "downloaded_files",
+        "media_type": "video",
+        "download_field": "virtual_path",
+        "filename_field": "filename",
+        "fields": [
+          {
+            "key": "status",
+            "label": "Status"
+          },
+          {
+            "key": "url",
+            "label": "Video URL"
+          },
+          {
+            "key": "project",
+            "label": "Project ID"
+          }
+        ]
+      },
+      "post_processing": {
+        "download_files": {
+          "source_path": "$.url",
+          "filename_pattern": "json2video_{index}.mp4",
+          "timeout_seconds": 120,
+          "max_file_size_mb": 500
+        }
+      },
+      "polling": {
+        "enabled": true,
+        "generation_id_path": "$.project",
+        "status_endpoint": "/movies?project={generationId}",
+        "status_path": "$.movie.status",
+        "complete_when": "done",
+        "fail_values": [
+          "error"
+        ],
+        "result_path": "$.movie",
+        "interval_ms": 5000,
+        "max_attempts": 120,
+        "timeout_seconds": 600
+      },
+      "completion_modes": [
+        "get",
+        "webhook"
+      ],
+      "webhook_completion": {
+        "routing": "execution_token",
+        "result_callback_path": "$.url"
+      },
+      "example_parameters": {
+        "movie_id": "my-video-001",
+        "elements": [
+          {
+            "type": "subtitles",
+            "language": "en",
+            "model": "whisper",
+            "style": "classic",
+            "position": "bottom-center",
+            "font_family": "Luckiest Guy",
+            "font_size": 80,
+            "line_color": "#FFFFFF",
+            "outline_color": "#000000",
+            "outline_width": 2,
+            "keywords": [
+              "TypeScript",
+              "Kubernetes"
+            ],
+            "replacements": {
+              "type script": "TypeScript",
+              "typescript": "TypeScript"
+            }
+          }
+        ],
+        "scenes": [
+          {
+            "duration": 5,
+            "background-color": "#000000",
+            "elements": [
+              {
+                "type": "text",
+                "text": "Hello World",
+                "style": "001",
+                "position": "center-center"
+              }
+            ]
+          }
+        ]
+      },
+      "ui_hints": {
+        "color": "#3b82f6",
+        "icon": "video",
+        "sections": {
+          "basic": {
+            "title": "Basic",
+            "collapsed": false,
+            "order": 1
+          },
+          "movie_settings": {
+            "title": "Movie Settings",
+            "description": "Configure movie-level options",
+            "collapsed": true,
+            "order": 2
+          },
+          "movie_elements": {
+            "title": "Movie Elements",
+            "description": "Subtitles element applied to the entire movie (max 1).",
+            "collapsed": true,
+            "order": 3
+          },
+          "scenes": {
+            "title": "Scenes & Elements",
+            "description": "Build your video with scenes and elements",
+            "collapsed": true,
+            "order": 4
+          },
+          "output": {
+            "title": "Output Settings",
+            "description": "Resolution and quality options",
+            "collapsed": true,
+            "order": 5
+          },
+          "export": {
+            "title": "Export Destinations",
+            "description": "Where to deliver completed videos (webhook, FTP, email)",
+            "collapsed": true,
+            "order": 6
+          }
+        },
+        "categories": [
+          "ai"
+        ]
+      }
+    },
+    "j2v_get_video": {
+      "display_name": "Get Video",
+      "description": "Get the status and details of a rendered video. Returns download URL, subtitles, dimensions, and rendering metadata when complete.",
+      "service_type": "AI",
+      "path": "/movies",
+      "method": "GET",
+      "requires_credentials": true,
+      "parameter_schema": {
+        "type": "object",
+        "required": [
+          "project"
+        ],
+        "properties": {
+          "project": {
+            "type": "string",
+            "title": "Project ID",
+            "description": "The project ID returned from the Generate Video service",
+            "ui": {
+              "section": "basic",
+              "order": 1,
+              "placeholder": "Enter project ID from render response"
+            }
+          }
+        }
+      },
+      "result_schema": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "Whether the API request was successful"
+          },
+          "movie": {
+            "type": "object",
+            "description": "Video render job details",
+            "properties": {
+              "success": {
+                "type": "boolean",
+                "description": "Whether the video rendering was successful"
+              },
+              "status": {
+                "type": "string",
+                "description": "Job status: pending (queued), running (rendering), done (complete), error (failed)",
+                "enum": [
+                  "pending",
+                  "running",
+                  "done",
+                  "error"
+                ]
+              },
+              "message": {
+                "type": "string",
+                "description": "Status message or error details (check this when status is 'error')"
+              },
+              "project": {
+                "type": "string",
+                "description": "Project ID"
+              },
+              "url": {
+                "type": "string",
+                "description": "Video download URL (only present when status is 'done')"
+              },
+              "ass": {
+                "type": "string",
+                "description": "Subtitles download URL in ASS format (only present when status is 'done' and subtitles were generated)"
+              },
+              "created_at": {
+                "type": "string",
+                "format": "date-time",
+                "description": "When the render job was initiated"
+              },
+              "ended_at": {
+                "type": "string",
+                "format": "date-time",
+                "description": "When the render job completed (null if still processing)"
+              },
+              "duration": {
+                "type": "number",
+                "description": "Video duration in seconds"
+              },
+              "size": {
+                "type": "integer",
+                "description": "Video file size in bytes"
+              },
+              "width": {
+                "type": "integer",
+                "description": "Video width in pixels"
+              },
+              "height": {
+                "type": "integer",
+                "description": "Video height in pixels"
+              },
+              "rendering_time": {
+                "type": "number",
+                "description": "Time taken to render the video in seconds"
+              },
+              "consumed_credits": {
+                "type": "number",
+                "description": "Render-time credits consumed by this job (subtracted from `remaining_quota.time`)."
+              },
+              "json": {
+                "type": "object",
+                "description": "Echo of the rendered movie spec (the JSON body submitted to /movies). Useful for replay and audit; opaque to projection.",
+                "additionalProperties": true
+              }
+            }
+          },
+          "remaining_quota": {
+            "type": "object",
+            "description": "Your account's remaining API credits",
+            "properties": {
+              "time": {
+                "type": "number",
+                "description": "Remaining render time credits in seconds"
+              }
+            }
+          }
+        }
+      },
+      "output_view": {
+        "type": "key_value",
+        "fields": [
+          {
+            "key": "movie.status",
+            "label": "Status"
+          },
+          {
+            "key": "movie.project",
+            "label": "Project ID"
+          },
+          {
+            "key": "movie.url",
+            "label": "Video URL"
+          },
+          {
+            "key": "movie.duration",
+            "label": "Duration (s)"
+          },
+          {
+            "key": "movie.rendering_time",
+            "label": "Render Time (s)"
+          }
+        ]
+      },
+      "post_processing": {
+        "download_files": {
+          "source_path": "$.movie.url",
+          "filename_pattern": "json2video_{index}.mp4",
+          "timeout_seconds": 120,
+          "max_file_size_mb": 500
+        }
+      },
+      "example_parameters": {
+        "project": "abc123def456"
+      },
+      "ui_hints": {
+        "color": "#3b82f6",
+        "icon": "download",
+        "sections": {
+          "basic": {
+            "title": "Video Lookup",
+            "collapsed": false,
+            "order": 1
+          }
+        },
+        "categories": [
+          "ai"
+        ]
+      }
+    }
+  },
+  "default_queue": "step_jobs"
+}

@@ -1,0 +1,102 @@
+{
+  "id": "shs/youtube-metadata",
+  "display_name": "Youtube Metadata",
+  "version": "1.0.0",
+  "tier": "community",
+  "category": "classification",
+  "description": "Generate optimized YouTube metadata (title, description, tags) from video story content. Enhances user-provided metadata or creates it from scratch when blank.",
+  "author": "SelfHostHub",
+  "chunks": [
+    {
+      "text": "You are a YouTube metadata specialist for video content.\n\nYour job is to create optimized YouTube metadata that maximizes discoverability and click-through rate while accurately representing the video content.\n\nToday's date is {{ today_date }}.",
+      "variable": null,
+      "order": 0,
+      "role": "system"
+    },
+    {
+      "text": "Based on the story below, generate YouTube metadata for this video.\n\nCONTEXT:\nStory: {{ story_text }}\n\nUSER-PROVIDED METADATA (may be blank):\nTitle: {{ video_title }}\nDescription: {{ video_description }}\nTags: {{ video_tags }}\n\nRULES:\nIf the user provided a value, refine and enhance it — keep their intent but optimize for YouTube SEO. If blank, generate from scratch.\n\nTITLE:\n- 60-70 characters max\n- Front-load the most compelling keyword or hook\n- No clickbait that misrepresents the content\n- Include a number, question, or power word when natural\n\nDESCRIPTION:\n- First 150 characters are critical — this is the preview text. Lead with the hook, not \"In this video...\"\n- 500-1000 characters total\n- Include 2-3 natural keyword phrases from the story\n- End with a brief one-line call to action\n- Write in {{ metadata_language | language_name }}\n\nTAGS:\n- 8-15 tags ordered by relevance\n- Mix broad terms (1-2 words) with specific long-tail phrases (3-5 words)\n- Include the primary topic, related topics, and any names/places from the story\n\nDo not wrap in markdown code fences.\n\nReturn JSON only:\n{\"title\": \"...\", \"description\": \"...\", \"tags\": [\"...\", \"...\"]}",
+      "variable": "story_text",
+      "order": 1,
+      "role": "user"
+    }
+  ],
+  "variables": [
+    {
+      "name": "story_text",
+      "label": "Story",
+      "type": "string",
+      "options": null,
+      "default": null,
+      "required": true
+    },
+    {
+      "name": "video_title",
+      "label": "Title (optional)",
+      "type": "string",
+      "options": null,
+      "default": ""
+    },
+    {
+      "name": "video_description",
+      "label": "Description (optional)",
+      "type": "string",
+      "options": null,
+      "default": ""
+    },
+    {
+      "name": "video_tags",
+      "label": "Tags (optional)",
+      "type": "string",
+      "options": null,
+      "default": ""
+    },
+    {
+      "name": "metadata_language",
+      "label": "Metadata Language",
+      "type": "enum",
+      "options": [
+        "en",
+        "es",
+        "fr",
+        "de",
+        "it",
+        "pt",
+        "nl",
+        "pl",
+        "ru",
+        "zh",
+        "ja",
+        "ko",
+        "ar",
+        "hi",
+        "tr",
+        "sv",
+        "da",
+        "no",
+        "fi"
+      ],
+      "option_labels": [
+        "English",
+        "Spanish",
+        "French",
+        "German",
+        "Italian",
+        "Portuguese",
+        "Dutch",
+        "Polish",
+        "Russian",
+        "Chinese",
+        "Japanese",
+        "Korean",
+        "Arabic",
+        "Hindi",
+        "Turkish",
+        "Swedish",
+        "Danish",
+        "Norwegian",
+        "Finnish"
+      ],
+      "default": "en"
+    }
+  ]
+}

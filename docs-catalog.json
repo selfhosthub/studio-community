@@ -1,0 +1,79 @@
+{
+  "version": "1.0.0",
+  "updated_at": "2026-06-23T00:00:00Z",
+  "workflows": [
+    {
+      "id": "shs/item-groups",
+      "title": "Run Once Per Item",
+      "description": "How list inputs are paired and iterated across step runs",
+      "icon": "repeat",
+      "public": true,
+      "file": "workflows/shs/item-groups.md"
+    }
+  ],
+  "docs": {
+    "user": {
+      "title": "User Guide",
+      "description": "Using workflows, templates, instances, and the visual editor",
+      "file": "user.md",
+      "icon": "book-open",
+      "public": true
+    },
+    "admin": {
+      "title": "Admin Guide",
+      "description": "Managing users, organizations, credentials, and billing",
+      "file": "admin.md",
+      "icon": "settings",
+      "public": false
+    },
+    "super-admin": {
+      "title": "Super Admin Guide",
+      "description": "Deployment, infrastructure, networking, and system configuration",
+      "file": "super-admin.md",
+      "icon": "server",
+      "public": false
+    }
+  },
+  "providers": [
+    {
+      "title": "Core Provider",
+      "description": "Built-in workflow utilities for control flow, data transformation, HTTP requests, and human-in-the-loop steps.",
+      "file": "providers/shs/core.md",
+      "icon": "box",
+      "public": true,
+      "id": "shs/core"
+    },
+    {
+      "title": "JSON2Video Provider",
+      "description": "Create videos programmatically using JSON definitions.",
+      "file": "providers/shs/json2video.md",
+      "icon": "box",
+      "public": true,
+      "id": "shs/json2video"
+    },
+    {
+      "title": "Leonardo AI Provider",
+      "description": "Generate high-quality AI images using Leonardo.ai's models.",
+      "file": "providers/shs/leonardo.md",
+      "icon": "box",
+      "public": true,
+      "id": "shs/leonardo"
+    },
+    {
+      "title": "OpenAI Provider",
+      "description": "Connect to OpenAI's GPT models for chat completion, embeddings, and DALL-E image generation.",
+      "file": "providers/shs/openai.md",
+      "icon": "box",
+      "public": true,
+      "id": "shs/openai"
+    },
+    {
+      "title": "YouTube Provider",
+      "description": "Upload, manage, and search YouTube videos, playlists, and comments.",
+      "file": "providers/shs/youtube.md",
+      "icon": "box",
+      "public": true,
+      "id": "shs/youtube"
+    }
+  ]
+}

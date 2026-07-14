@@ -1,0 +1,85 @@
+{
+  "$schema": "https://raw.githubusercontent.com/selfhosthub/studio-community/main/schemas/workflows-catalog.schema.json",
+  "version": "1.0.0",
+  "workflows": [
+    {
+      "id": "shs/faceless-video-api",
+      "display_name": "Faceless Video (API)",
+      "version": "1.0.0",
+      "tier": "plus",
+      "category": "video",
+      "description": "Turn a news article into a narrated video using Leonardo AI images, OpenAI TTS narration, and JSON2Video rendering then upload to Youtube.",
+      "requires": [
+        "shs/openai",
+        "shs/leonardo",
+        "shs/json2video",
+        "shs/core",
+        "shs/youtube"
+      ],
+      "author": "SelfHostHub",
+      "download_url": "https://raw.githubusercontent.com/selfhosthub/studio-plus/main/workflows/shs/faceless-video-api.json",
+      "path": "workflows/shs/faceless-video-api.json",
+      "prompts": [
+        {
+          "marketplace_slug": "shs/story-generator"
+        },
+        {
+          "marketplace_slug": "shs/scene-designer"
+        }
+      ]
+    },
+    {
+      "id": "shs/faceless-video-api-webhook",
+      "display_name": "Faceless Video (API + Webhook)",
+      "version": "1.0.0",
+      "tier": "plus",
+      "category": "video",
+      "description": "Turn a news article into a narrated video using Leonardo AI images, OpenAI TTS narration, and JSON2Video rendering with webhook completion (no poll/get steps) then upload to Youtube.",
+      "requires": [
+        "shs/openai",
+        "shs/leonardo",
+        "shs/json2video",
+        "shs/core",
+        "shs/youtube"
+      ],
+      "author": "SelfHostHub",
+      "download_url": "https://raw.githubusercontent.com/selfhosthub/studio-plus/main/workflows/shs/faceless-video-api-webhook.json",
+      "path": "workflows/shs/faceless-video-api-webhook.json",
+      "prompts": [
+        {
+          "marketplace_slug": "shs/story-generator"
+        },
+        {
+          "marketplace_slug": "shs/scene-designer"
+        }
+      ]
+    },
+    {
+      "id": "shs/faceless-video-pipeline",
+      "display_name": "Faceless Video (Self-Host Studio)",
+      "version": "1.0.0",
+      "tier": "community",
+      "category": "video",
+      "description": "Turn a news article into a narrated video with AI-generated images, TTS audio, per-image zoom effects, and subtitles.",
+      "requires": [
+        "shs/openai",
+        "shs/comfyui",
+        "shs/video",
+        "shs/core",
+        "shs/youtube",
+        "shs/tiktok"
+      ],
+      "author": "SelfHostHub",
+      "download_url": "https://raw.githubusercontent.com/selfhosthub/studio-community/main/workflows/shs/faceless-video-pipeline.json",
+      "path": "workflows/shs/faceless-video-pipeline.json",
+      "prompts": [
+        {
+          "marketplace_slug": "shs/story-generator"
+        },
+        {
+          "marketplace_slug": "shs/scene-designer"
+        }
+      ]
+    }
+  ]
+}

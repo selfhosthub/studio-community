@@ -1,0 +1,92 @@
+{
+  "$schema": "https://raw.githubusercontent.com/selfhosthub/studio-community/main/schemas/providers-catalog.schema.json",
+  "version": "1.0.0",
+  "packages": [
+    {
+      "id": "shs/core",
+      "display_name": "Core",
+      "version": "1.0.0",
+      "tier": "community",
+      "category": "flow",
+      "description": "Built-in workflow utilities for data transformation, control flow, HTTP requests, notifications, and logging",
+      "services_preview": [
+        "Set Fields",
+        "Call Webhook",
+        "Wait for Approval",
+        "Wait for Webhook",
+        "Send Notification",
+        "Log Message"
+      ],
+      "requires_token": false,
+      "path": "shs/core",
+      "download_url": "https://raw.githubusercontent.com/selfhosthub/studio-community/main/providers/shs/core.json"
+    },
+    {
+      "id": "shs/openai",
+      "display_name": "OpenAI",
+      "version": "1.0.0",
+      "tier": "community",
+      "category": "ai",
+      "description": "AI models for chat completion, embeddings, and image generation",
+      "services_preview": [
+        "Chat Completion",
+        "Embeddings",
+        "Image Generation"
+      ],
+      "requires_token": false,
+      "path": "shs/openai",
+      "download_url": "https://raw.githubusercontent.com/selfhosthub/studio-community/main/providers/shs/openai.json"
+    },
+    {
+      "id": "shs/leonardo",
+      "display_name": "Leonardo",
+      "version": "1.0.0",
+      "tier": "community",
+      "category": "ai",
+      "description": "AI-powered image generation with Leonardo",
+      "services_preview": [
+        "Text to Image"
+      ],
+      "requires_token": false,
+      "path": "shs/leonardo",
+      "download_url": "https://raw.githubusercontent.com/selfhosthub/studio-community/main/providers/shs/leonardo.json"
+    },
+    {
+      "id": "shs/json2video",
+      "display_name": "JSON2Video",
+      "version": "1.0.0",
+      "tier": "community",
+      "category": "ai",
+      "description": "Programmatic video generation with JSON2Video API",
+      "services_preview": [
+        "Generate Video",
+        "Check Render Status"
+      ],
+      "requires_token": false,
+      "path": "shs/json2video",
+      "download_url": "https://raw.githubusercontent.com/selfhosthub/studio-community/main/providers/shs/json2video.json"
+    },
+    {
+      "id": "shs/youtube",
+      "display_name": "YouTube",
+      "version": "1.0.0",
+      "tier": "community",
+      "category": "social_media",
+      "description": "YouTube integration for video management, search, playlists, comments, and analytics",
+      "services_preview": [
+        "List Videos",
+        "Get Video",
+        "Search",
+        "Upload Video",
+        "Update Video",
+        "Delete Video",
+        "Playlists",
+        "Comments",
+        "Reply"
+      ],
+      "requires_token": false,
+      "path": "shs/youtube",
+      "download_url": "https://raw.githubusercontent.com/selfhosthub/studio-community/main/providers/shs/youtube.json"
+    }
+  ]
+}

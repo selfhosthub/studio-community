@@ -1,0 +1,550 @@
+{
+  "name": "Faceless Video (Self-Host Studio)",
+  "description": "Turn a news article into a narrated video with AI-generated images, TTS audio, per-image zoom effects, and subtitles.",
+  "version": "1.0.0",
+  "author": "SelfHostHub",
+  "requires": [
+    "shs/openai",
+    "shs/comfyui",
+    "shs/video",
+    "shs/core",
+    "shs/youtube",
+    "shs/tiktok"
+  ],
+  "prompts": [
+    {
+      "marketplace_slug": "shs/story-generator",
+      "used_by_step": "generate_story"
+    },
+    {
+      "marketplace_slug": "shs/scene-designer",
+      "used_by_step": "generate_scene_content"
+    }
+  ],
+  "steps": {
+    "generate_story": {
+      "name": "Generate Story",
+      "description": "Generate a narrated story from the article (via prompt template)",
+      "type": "task",
+      "depends_on": [],
+      "ui_config": {
+        "position": {
+          "x": 100,
+          "y": 138
+        }
+      },
+      "job": {
+        "service_type": "ai",
+        "provider_id": "shs/openai",
+        "service_id": "shs/openai.openai_chat",
+        "parameters": {
+          "model": "gpt-4o",
+          "messages": [],
+          "temperature": 0.1,
+          "max_tokens": 1000
+        }
+      },
+      "input_mappings": {
+        "messages": {
+          "mappingType": "prompt",
+          "promptSlug": "shs/story-generator"
+        }
+      },
+      "timeout": 60,
+      "outputs": {
+        "response": {
+          "path": "choices[0].message.content",
+          "type": "string"
+        }
+      }
+    },
+    "generate_scene_content": {
+      "name": "Generate Scene Content",
+      "description": "Generate scenes with narration and image prompts (via prompt)",
+      "type": "task",
+      "depends_on": [
+        "generate_story"
+      ],
+      "ui_config": {
+        "position": {
+          "x": 400,
+          "y": 24
+        }
+      },
+      "job": {
+        "service_type": "ai",
+        "provider_id": "shs/openai",
+        "service_id": "shs/openai.openai_chat",
+        "parameters": {
+          "model": "gpt-4o",
+          "messages": [],
+          "temperature": 0.1,
+          "max_tokens": 4000,
+          "response_format": {
+            "type": "json_object"
+          }
+        }
+      },
+      "input_mappings": {
+        "messages": {
+          "mappingType": "prompt",
+          "promptSlug": "shs/scene-designer"
+        },
+        "_prompt_variable:story_text": {
+          "mappingType": "mapped",
+          "stepId": "generate_story",
+          "outputField": "response"
+        },
+        "_prompt_variable:language": {
+          "mappingType": "mapped",
+          "stepId": "__instance_form__",
+          "outputField": "language"
+        }
+      },
+      "timeout": 120,
+      "outputs": {
+        "scenes": {
+          "path": "choices[0].message.content.scenes",
+          "type": "array",
+          "description": "Array of scene objects with narration and image_prompts"
+        },
+        "image_prompts": {
+          "path": "choices[0].message.content.image_prompts",
+          "type": "array",
+          "description": "Flat array of all image prompts across all scenes"
+        },
+        "narrations": {
+          "path": "choices[0].message.content.narrations",
+          "type": "array",
+          "description": "Flat array of all narration texts, one per scene"
+        },
+        "repeat": {
+          "path": "choices[0].message.content.repeat",
+          "type": "number",
+          "description": "Number of scenes produced by the LLM"
+        }
+      }
+    },
+    "generate_images": {
+      "name": "Generate Images",
+      "description": "Generate illustrations for each image prompt",
+      "type": "task",
+      "depends_on": [
+        "generate_scene_content"
+      ],
+      "ui_config": {
+        "position": {
+          "x": 700,
+          "y": -240
+        }
+      },
+      "iteration_config": {
+        "enabled": true,
+        "source_step_id": "generate_scene_content",
+        "source_output_field": "image_prompts",
+        "target_parameter": "prompt",
+        "execution_mode": "sequential"
+      },
+      "job": {
+        "service_type": "ai",
+        "provider_id": "shs/comfyui",
+        "service_id": "shs/comfyui.comfyui_txt2img",
+        "parameters": {
+          "prompt": "{{ generate_scene_content.image_prompts[*] }}",
+          "negative_prompt": "text, speech bubbles, captions, words, letters, writing, dialogue, subtitles, watermark, signature, blurry, distorted",
+          "model": "flux1-schnell-q4",
+          "output_width": 1024,
+          "output_height": 576,
+          "upscale": true,
+          "steps": 1,
+          "seed": -1,
+          "batch_size": 1,
+          "styles": [
+            "sai-comic book"
+          ]
+        }
+      },
+      "input_mappings": {
+        "prompt": {
+          "mappingType": "mapped",
+          "stepId": "generate_scene_content",
+          "outputField": "image_prompts"
+        },
+        "batch_size": {
+          "mappingType": "form",
+          "formField": "batch_size"
+        },
+        "styles": {
+          "mappingType": "form",
+          "formField": "styles"
+        },
+        "output_width": {
+          "mappingType": "form",
+          "formField": "output_width"
+        },
+        "output_height": {
+          "mappingType": "form",
+          "formField": "output_height"
+        },
+        "steps": {
+          "mappingType": "form",
+          "formField": "steps"
+        }
+      },
+      "config": {
+        "secret_id": null,
+        "parameter_ui_state": {
+          "collapsedSections": {
+            "basic": false,
+            "dimensions": false,
+            "advanced": true
+          }
+        }
+      },
+      "timeout": 300,
+      "outputs": {
+        "downloaded_files": {
+          "path": "downloaded_files",
+          "type": "array"
+        }
+      },
+      "output_forwarding": {
+        "enabled": true,
+        "mode": "selected",
+        "selected_fields": [
+          "prompts_per_scene"
+        ]
+      }
+    },
+    "generate_narration": {
+      "name": "Generate Narration (OpenAI TTS)",
+      "description": "Generate TTS audio for each scene narration using OpenAI",
+      "type": "task",
+      "depends_on": [
+        "generate_scene_content"
+      ],
+      "ui_config": {
+        "position": {
+          "x": 700,
+          "y": -52
+        }
+      },
+      "iteration_config": {
+        "enabled": true,
+        "source_step_id": "generate_scene_content",
+        "source_output_field": "narrations",
+        "target_parameter": "input",
+        "execution_mode": "sequential"
+      },
+      "job": {
+        "service_type": "ai",
+        "provider_id": "shs/openai",
+        "service_id": "shs/openai.openai_tts",
+        "parameters": {
+          "input": "{{ generate_scene_content.narrations[*] }}",
+          "model": "gpt-4o-mini-tts",
+          "voice": "cedar",
+          "instructions": "Speak in a clear, engaging news narrator voice. Maintain a steady, informative tone."
+        }
+      },
+      "input_mappings": {
+        "input": {
+          "mappingType": "mapped",
+          "stepId": "generate_scene_content",
+          "outputField": "narrations"
+        },
+        "language": {
+          "mappingType": "mapped",
+          "stepId": "__instance_form__",
+          "outputField": "language"
+        }
+      },
+      "timeout": 300,
+      "outputs": {
+        "duration_seconds": {
+          "path": "duration_seconds",
+          "type": "number"
+        },
+        "storage_url": {
+          "path": "storage_url",
+          "type": "string"
+        }
+      }
+    },
+    "set_zoom_fields": {
+      "name": "Set Zoom Fields",
+      "description": "Define zoom_start and zoom_end arrays for per-image zoom effects",
+      "type": "task",
+      "depends_on": [
+        "generate_story"
+      ],
+      "ui_config": {
+        "position": {
+          "x": 400,
+          "y": 252
+        }
+      },
+      "job": {
+        "service_type": "transform",
+        "provider_id": "shs/core",
+        "service_id": "shs/core.set_fields",
+        "parameters": {
+          "fields": [
+            {
+              "name": "zoom_start",
+              "type": "array",
+              "value": [
+                1.0,
+                1.0,
+                1.5
+              ],
+              "is_expression": false
+            },
+            {
+              "name": "zoom_end",
+              "type": "array",
+              "value": [
+                1.5,
+                1.5,
+                1.0
+              ],
+              "is_expression": false
+            }
+          ]
+        }
+      },
+      "input_mappings": {},
+      "timeout": 86400,
+      "outputs": {
+        "zoom_start": {
+          "path": "zoom_start",
+          "type": "array"
+        },
+        "zoom_end": {
+          "path": "zoom_end",
+          "type": "array"
+        }
+      }
+    },
+    "assemble_video": {
+      "name": "Assemble Video",
+      "description": "Assemble images with narration audio into a video (with per-image zoom)",
+      "type": "task",
+      "depends_on": [
+        "generate_images",
+        "generate_narration",
+        "set_zoom_fields",
+        "generate_scene_content"
+      ],
+      "ui_config": {
+        "position": {
+          "x": 1000,
+          "y": 138
+        }
+      },
+      "job": {
+        "service_type": "ai",
+        "provider_id": "shs/video",
+        "service_id": "shs/video.shs_create_video",
+        "parameters": {
+          "scenes": [
+            {
+              "type": "item_group",
+              "repeat": 5,
+              "subtitles_source": "auto",
+              "elements": [
+                {
+                  "type": "image",
+                  "src": "{{ generate_images.downloaded_files }}",
+                  "count": "{{ generate_images.prompts_per_scene }}",
+                  "duration": -1,
+                  "zoom_start": "{{ set_zoom_fields.zoom_start }}",
+                  "zoom_end": "{{ set_zoom_fields.zoom_end }}",
+                  "horizontal_position": "center",
+                  "vertical_position": "top",
+                  "resize": "contain"
+                },
+                {
+                  "type": "audio",
+                  "src": "{{ generate_narration.storage_url }}",
+                  "durations": "{{ generate_narration.duration_seconds }}",
+                  "count": 1,
+                  "volume": 1.0
+                }
+              ]
+            }
+          ],
+          "output_per_group": false,
+          "subtitles_source": "auto",
+          "subtitles_model": "small",
+          "subtitles_language": "en",
+          "subtitles_font_family": "Luckiest Guy",
+          "subtitles_font_size": 24,
+          "subtitles_all_caps": false,
+          "subtitles_max_words_per_phrase": 5,
+          "width": 1920,
+          "height": 1080,
+          "framerate": 24,
+          "quality": "medium",
+          "default_duration": 5,
+          "default_zoom_start": 1.0,
+          "default_zoom_end": 1.3,
+          "smoothness": 3
+        }
+      },
+      "input_mappings": {
+        "scenes[0].repeat": {
+          "mappingType": "mapped",
+          "stepId": "generate_scene_content",
+          "outputField": "repeat"
+        },
+        "scenes[0].subtitles_narration_texts": {
+          "mappingType": "mapped",
+          "stepId": "generate_scene_content",
+          "outputField": "narrations"
+        },
+        "scenes[0].elements[0].src": {
+          "mappingType": "mapped",
+          "stepId": "generate_images",
+          "outputField": "downloaded_files"
+        },
+        "scenes[0].elements[0].zoom_start": {
+          "mappingType": "mapped",
+          "stepId": "set_zoom_fields",
+          "outputField": "zoom_start"
+        },
+        "scenes[0].elements[0].zoom_end": {
+          "mappingType": "mapped",
+          "stepId": "set_zoom_fields",
+          "outputField": "zoom_end"
+        },
+        "scenes[0].elements[0].count": {
+          "mappingType": "mapped",
+          "stepId": "generate_images",
+          "outputField": "prompts_per_scene"
+        },
+        "scenes[0].elements[1].src": {
+          "mappingType": "mapped",
+          "stepId": "generate_narration",
+          "outputField": "storage_url"
+        },
+        "scenes[0].elements[1].durations": {
+          "mappingType": "mapped",
+          "stepId": "generate_narration",
+          "outputField": "duration_seconds"
+        },
+        "subtitles_language": {
+          "mappingType": "mapped",
+          "stepId": "__instance_form__",
+          "outputField": "language"
+        }
+      },
+      "timeout": 600,
+      "outputs": {
+        "storage_url": {
+          "path": "storage_url",
+          "type": "string"
+        }
+      }
+    },
+    "upload_to_youtube": {
+      "name": "Upload to YouTube",
+      "description": "Upload the assembled video to YouTube (resumable upload)",
+      "type": "task",
+      "trigger_type": "manual",
+      "execution_mode": "skip",
+      "depends_on": [
+        "assemble_video"
+      ],
+      "ui_config": {
+        "position": {
+          "x": 1300,
+          "y": 24
+        }
+      },
+      "job": {
+        "service_type": "SOCIAL_MEDIA",
+        "provider_id": "shs/youtube",
+        "service_id": "shs/youtube.youtube_upload_video",
+        "parameters": {
+          "title": "",
+          "description": "",
+          "categoryId": "22",
+          "privacyStatus": "private",
+          "madeForKids": false,
+          "body_source_url": "{{ assemble_video.storage_url }}",
+          "content_type": "video/mp4"
+        }
+      },
+      "input_mappings": {
+        "title": {
+          "mappingType": "form",
+          "formField": "title"
+        },
+        "body_source_url": {
+          "mappingType": "mapped",
+          "stepId": "assemble_video",
+          "outputField": "storage_url"
+        }
+      },
+      "timeout": 600,
+      "outputs": {
+        "video_id": {
+          "path": "response_body.id",
+          "type": "string"
+        },
+        "upload_status": {
+          "path": "response_body.status.uploadStatus",
+          "type": "string"
+        }
+      }
+    },
+    "publish_to_tiktok": {
+      "name": "Publish to TikTok",
+      "description": "Publish the assembled video to TikTok via Pull URL",
+      "type": "task",
+      "trigger_type": "manual",
+      "execution_mode": "skip",
+      "depends_on": [
+        "assemble_video"
+      ],
+      "ui_config": {
+        "position": {
+          "x": 1300,
+          "y": 252
+        }
+      },
+      "job": {
+        "service_type": "SOCIAL_MEDIA",
+        "provider_id": "shs/tiktok",
+        "service_id": "shs/tiktok.tiktok_publish_video",
+        "parameters": {
+          "title": "",
+          "video_url": "{{ assemble_video.storage_url }}",
+          "privacy_level": "SELF_ONLY",
+          "disable_duet": false,
+          "disable_stitch": false,
+          "disable_comment": false
+        }
+      },
+      "input_mappings": {
+        "title": {
+          "mappingType": "form",
+          "formField": "title"
+        },
+        "video_url": {
+          "mappingType": "mapped",
+          "stepId": "assemble_video",
+          "outputField": "storage_url"
+        }
+      },
+      "timeout": 600,
+      "outputs": {
+        "publish_id": {
+          "path": "data.publish_id",
+          "type": "string"
+        }
+      }
+    }
+  }
+}

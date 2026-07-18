@@ -18,7 +18,7 @@
         "Log Message"
       ],
       "requires_token": false,
-      "path": "shs/core",
+      "path": "providers/shs/core.json",
       "download_url": "https://raw.githubusercontent.com/selfhosthub/studio-community/main/providers/shs/core.json"
     },
     {
@@ -34,7 +34,7 @@
         "Image Generation"
       ],
       "requires_token": false,
-      "path": "shs/openai",
+      "path": "providers/shs/openai.json",
       "download_url": "https://raw.githubusercontent.com/selfhosthub/studio-community/main/providers/shs/openai.json"
     },
     {
@@ -48,7 +48,7 @@
         "Text to Image"
       ],
       "requires_token": false,
-      "path": "shs/leonardo",
+      "path": "providers/shs/leonardo.json",
       "download_url": "https://raw.githubusercontent.com/selfhosthub/studio-community/main/providers/shs/leonardo.json"
     },
     {
@@ -63,7 +63,7 @@
         "Check Render Status"
       ],
       "requires_token": false,
-      "path": "shs/json2video",
+      "path": "providers/shs/json2video.json",
       "download_url": "https://raw.githubusercontent.com/selfhosthub/studio-community/main/providers/shs/json2video.json"
     },
     {
@@ -85,8 +85,72 @@
         "Reply"
       ],
       "requires_token": false,
-      "path": "shs/youtube",
+      "path": "providers/shs/youtube.json",
       "download_url": "https://raw.githubusercontent.com/selfhosthub/studio-community/main/providers/shs/youtube.json"
+    },
+    {
+      "id": "shs/comfyui",
+      "display_name": "Self-Host Studio ComfyUI",
+      "version": "1.0.0",
+      "tier": "community",
+      "category": "ai",
+      "description": "Self-hosted AI image generation with ComfyUI (Flux, SDXL, SD1.5)",
+      "services_preview": [
+        "Text to Image",
+        "Image Edit"
+      ],
+      "requires_token": true,
+      "path": "providers/shs/comfyui.json",
+      "download_url": "https://raw.githubusercontent.com/selfhosthub/studio-community/main/providers/shs/comfyui.json"
+    },
+    {
+      "id": "shs/video",
+      "display_name": "Self-Host Studio Video",
+      "version": "1.0.0",
+      "tier": "community",
+      "category": "ai",
+      "description": "Self-hosted video processing with FFmpeg and Whisper STT",
+      "services_preview": [
+        "Create Video"
+      ],
+      "requires_token": true,
+      "path": "providers/shs/video.json",
+      "download_url": "https://raw.githubusercontent.com/selfhosthub/studio-community/main/providers/shs/video.json"
+    },
+    {
+      "id": "shs/audio",
+      "display_name": "Self-Host Studio Audio",
+      "version": "1.0.0",
+      "tier": "community",
+      "category": "ai",
+      "description": "Self-hosted text-to-speech with Chatterbox TTS and voice cloning",
+      "services_preview": [
+        "Text to Speech",
+        "Text to Speech (Turbo)"
+      ],
+      "requires_token": true,
+      "path": "providers/shs/audio.json",
+      "download_url": "https://raw.githubusercontent.com/selfhosthub/studio-community/main/providers/shs/audio.json"
+    },
+    {
+      "id": "shs/tiktok",
+      "display_name": "TikTok",
+      "version": "1.0.0",
+      "tier": "community",
+      "category": "social_media",
+      "description": "TikTok integration for video/photo publishing, comments, and analytics",
+      "services_preview": [
+        "Publish Video",
+        "Publish Photo",
+        "List Videos",
+        "Video Stats",
+        "Comments",
+        "Reply",
+        "Creator Info"
+      ],
+      "requires_token": false,
+      "path": "providers/shs/tiktok.json",
+      "download_url": "https://raw.githubusercontent.com/selfhosthub/studio-community/main/providers/shs/tiktok.json"
     }
   ]
 }

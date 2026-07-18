@@ -1,0 +1,908 @@
+{
+  "$schema": "https://raw.githubusercontent.com/selfhosthub/studio-community/main/schemas/provider.schema.json",
+  "slug": "shs/comfyui",
+  "version": "1.1.0",
+  "name": "Self-Host Studio ComfyUI",
+  "description": "Self-hosted AI image generation with ComfyUI (Flux Schnell)",
+  "provider_type": "INTERNAL",
+  "category": "ai",
+  "status": "ACTIVE",
+  "tier": "community",
+  "icon_url": "/providers/shs-comfyui.svg",
+  "services_preview": [
+    "Text to Image",
+    "Image Edit"
+  ],
+  "credential_schema": null,
+  "base_url": null,
+  "local_worker": {
+    "enabled": true,
+    "queue": "comfyui_image_jobs"
+  },
+  "services": {
+    "comfyui_txt2img": {
+      "display_name": "Text to Image",
+      "description": "AI image generation with Flux models (Schnell for speed, Klein 4B for quality)",
+      "service_type": "AI",
+      "path": null,
+      "method": "POST",
+      "requires_credentials": false,
+      "supports_image_presets": true,
+      "parameter_schema": {
+        "type": "object",
+        "required": [
+          "prompt"
+        ],
+        "properties": {
+          "model": {
+            "type": "string",
+            "title": "Model",
+            "description": "Which Flux model to use for generation",
+            "default": "flux1-schnell-q4",
+            "enum": [
+              "flux1-schnell",
+              "flux1-schnell-fp8",
+              "flux1-schnell-q4",
+              "flux-2-klein-4b",
+              "flux-2-klein-9b"
+            ],
+            "enumNames": [
+              "Flux.1 Schnell (fast, 4 steps)",
+              "Flux.1 Schnell FP8",
+              "Flux.1 Schnell Q4 (low memory, 4 steps)",
+              "Flux 2 Klein 4B (quality, 8 steps)",
+              "Flux 2 Klein 9B (best quality, 8 steps)"
+            ],
+            "ui": {
+              "section": "basic",
+              "order": 0.1
+            }
+          },
+          "styles": {
+            "type": "array",
+            "title": "Style Presets",
+            "description": "Select one or more Image styles to apply (styles chain in order)",
+            "default": [
+              "sai-comic book"
+            ],
+            "items": {
+              "type": "string",
+              "enum": [
+                "ads-advertising",
+                "ads-automotive",
+                "ads-corporate",
+                "ads-fashion editorial",
+                "ads-food photography",
+                "ads-luxury",
+                "ads-real estate",
+                "ads-retail",
+                "artstyle-abstract",
+                "artstyle-abstract expressionism",
+                "artstyle-art deco",
+                "artstyle-art nouveau",
+                "artstyle-constructivist",
+                "artstyle-cubist",
+                "artstyle-expressionist",
+                "artstyle-graffiti",
+                "artstyle-hyperrealism",
+                "artstyle-impressionist",
+                "artstyle-pointillism",
+                "artstyle-pop art",
+                "artstyle-psychedelic",
+                "artstyle-renaissance",
+                "artstyle-steampunk",
+                "artstyle-surrealist",
+                "artstyle-typography",
+                "artstyle-watercolor",
+                "cinematic-default",
+                "cinematic-diva",
+                "futuristic-biomechanical",
+                "futuristic-biomechanical cyberpunk",
+                "futuristic-cybernetic",
+                "futuristic-cybernetic robot",
+                "futuristic-cyberpunk cityscape",
+                "futuristic-futuristic",
+                "futuristic-retro cyberpunk",
+                "futuristic-retro futurism",
+                "futuristic-sci-fi",
+                "futuristic-vaporwave",
+                "game-bubble bobble",
+                "game-cyberpunk game",
+                "game-fighting game",
+                "game-gta",
+                "game-mario",
+                "game-minecraft",
+                "game-pokemon",
+                "game-retro arcade",
+                "game-retro game",
+                "game-rpg fantasy game",
+                "game-strategy game",
+                "game-streetfighter",
+                "game-zelda",
+                "misc-architectural",
+                "misc-disco",
+                "misc-dreamscape",
+                "misc-dystopian",
+                "misc-fairy tale",
+                "misc-gothic",
+                "misc-grunge",
+                "misc-horror",
+                "misc-kawaii",
+                "misc-lovecraftian",
+                "misc-macabre",
+                "misc-manga",
+                "misc-metropolis",
+                "misc-minimalist",
+                "misc-monochrome",
+                "misc-nautical",
+                "misc-space",
+                "misc-stained glass",
+                "misc-techwear fashion",
+                "misc-tribal",
+                "misc-zentangle",
+                "Abstract Expressionism",
+                "Academia",
+                "Action Figure",
+                "Adorable 3D Character",
+                "Adorable Kawaii",
+                "Art Deco",
+                "Art Nouveau",
+                "Astral Aura",
+                "Avant-garde",
+                "Baroque",
+                "Bauhaus-Style Poster",
+                "Blueprint Schematic Drawing",
+                "Caricature",
+                "Cel Shaded Art",
+                "Character Design Sheet",
+                "Classicism Art",
+                "Color Field Painting",
+                "Colored Pencil Art",
+                "Conceptual Art",
+                "Constructivism",
+                "Cubism",
+                "DMT Art Style",
+                "Dadaism",
+                "Dark Fantasy",
+                "Dark Moody Atmosphere",
+                "Doodle Art",
+                "Double Exposure",
+                "Dripping Paint Splatter Art",
+                "Expressionism",
+                "Faded Polaroid Photo",
+                "Fauvism",
+                "Flat 2D Art",
+                "Fortnite Art Style",
+                "Futurism",
+                "Glitchcore",
+                "Glo-fi",
+                "Googie Art Style",
+                "Graffiti Art",
+                "Harlem Renaissance Art",
+                "High Fashion",
+                "Idyllic",
+                "Impressionism",
+                "Infographic Drawing",
+                "Ink Dripping Drawing",
+                "Japanese Ink Drawing",
+                "Knolling Photography",
+                "Light Cheery Atmosphere",
+                "Logo Design",
+                "Luxurious Elegance",
+                "Macro Photography",
+                "Mandola Art",
+                "Marker Drawing",
+                "Medievalism",
+                "Minimalism",
+                "Neo-Baroque",
+                "Neo-Byzantine",
+                "Neo-Futurism",
+                "Neo-Impressionism",
+                "Neo-Rococo",
+                "Neoclassicism",
+                "Op Art",
+                "Ornate and Intricate",
+                "Pencil Sketch Drawing",
+                "Pop Art 2",
+                "Rococo",
+                "Silhouette Art",
+                "Simple Vector Art",
+                "Sketchup",
+                "Steampunk 2",
+                "Sticker Designs",
+                "Suprematism",
+                "Surrealism",
+                "Terragen",
+                "Tranquil Relaxing Atmosphere",
+                "Vibrant Rim Light",
+                "Volumetric Lighting",
+                "Watercolor 2",
+                "Whimsical and Playful",
+                "papercraft-collage",
+                "papercraft-flat papercut",
+                "papercraft-kirigami",
+                "papercraft-paper mache",
+                "papercraft-paper quilling",
+                "papercraft-papercut collage",
+                "papercraft-papercut shadow box",
+                "papercraft-stacked papercut",
+                "papercraft-thick layered papercut",
+                "photo-alien",
+                "photo-film noir",
+                "photo-hdr",
+                "photo-long exposure",
+                "photo-neon noir",
+                "photo-silhouette",
+                "photo-tilt-shift",
+                "sai-3d-model",
+                "sai-analog film",
+                "sai-anime",
+                "sai-cinematic",
+                "sai-comic book",
+                "sai-craft clay",
+                "sai-digital art",
+                "sai-enhance",
+                "sai-fantasy art",
+                "sai-isometric",
+                "sai-line art",
+                "sai-lowpoly",
+                "sai-neonpunk",
+                "sai-origami",
+                "sai-photographic",
+                "sai-pixel art",
+                "sai-texture"
+              ],
+              "enumNames": [
+                "Ads Advertising",
+                "Ads Automotive",
+                "Ads Corporate",
+                "Ads Fashion Editorial",
+                "Ads Food Photography",
+                "Ads Luxury",
+                "Ads Real Estate",
+                "Ads Retail",
+                "Artstyle Abstract",
+                "Artstyle Abstract Expressionism",
+                "Artstyle Art Deco",
+                "Artstyle Art Nouveau",
+                "Artstyle Constructivist",
+                "Artstyle Cubist",
+                "Artstyle Expressionist",
+                "Artstyle Graffiti",
+                "Artstyle Hyperrealism",
+                "Artstyle Impressionist",
+                "Artstyle Pointillism",
+                "Artstyle Pop Art",
+                "Artstyle Psychedelic",
+                "Artstyle Renaissance",
+                "Artstyle Steampunk",
+                "Artstyle Surrealist",
+                "Artstyle Typography",
+                "Artstyle Watercolor",
+                "Cinematic Default",
+                "Cinematic Diva",
+                "Futuristic Biomechanical",
+                "Futuristic Biomechanical Cyberpunk",
+                "Futuristic Cybernetic",
+                "Futuristic Cybernetic Robot",
+                "Futuristic Cyberpunk Cityscape",
+                "Futuristic Futuristic",
+                "Futuristic Retro Cyberpunk",
+                "Futuristic Retro Futurism",
+                "Futuristic Sci Fi",
+                "Futuristic Vaporwave",
+                "Game Bubble Bobble",
+                "Game Cyberpunk Game",
+                "Game Fighting Game",
+                "Game Gta",
+                "Game Mario",
+                "Game Minecraft",
+                "Game Pokemon",
+                "Game Retro Arcade",
+                "Game Retro Game",
+                "Game Rpg Fantasy Game",
+                "Game Strategy Game",
+                "Game Streetfighter",
+                "Game Zelda",
+                "Misc Architectural",
+                "Misc Disco",
+                "Misc Dreamscape",
+                "Misc Dystopian",
+                "Misc Fairy Tale",
+                "Misc Gothic",
+                "Misc Grunge",
+                "Misc Horror",
+                "Misc Kawaii",
+                "Misc Lovecraftian",
+                "Misc Macabre",
+                "Misc Manga",
+                "Misc Metropolis",
+                "Misc Minimalist",
+                "Misc Monochrome",
+                "Misc Nautical",
+                "Misc Space",
+                "Misc Stained Glass",
+                "Misc Techwear Fashion",
+                "Misc Tribal",
+                "Misc Zentangle",
+                "Abstract Expressionism",
+                "Academia",
+                "Action Figure",
+                "Adorable 3D Character",
+                "Adorable Kawaii",
+                "Art Deco",
+                "Art Nouveau",
+                "Astral Aura",
+                "Avant-garde",
+                "Baroque",
+                "Bauhaus-Style Poster",
+                "Blueprint Schematic Drawing",
+                "Caricature",
+                "Cel Shaded Art",
+                "Character Design Sheet",
+                "Classicism Art",
+                "Color Field Painting",
+                "Colored Pencil Art",
+                "Conceptual Art",
+                "Constructivism",
+                "Cubism",
+                "DMT Art Style",
+                "Dadaism",
+                "Dark Fantasy",
+                "Dark Moody Atmosphere",
+                "Doodle Art",
+                "Double Exposure",
+                "Dripping Paint Splatter Art",
+                "Expressionism",
+                "Faded Polaroid Photo",
+                "Fauvism",
+                "Flat 2D Art",
+                "Fortnite Art Style",
+                "Futurism",
+                "Glitchcore",
+                "Glo-fi",
+                "Googie Art Style",
+                "Graffiti Art",
+                "Harlem Renaissance Art",
+                "High Fashion",
+                "Idyllic",
+                "Impressionism",
+                "Infographic Drawing",
+                "Ink Dripping Drawing",
+                "Japanese Ink Drawing",
+                "Knolling Photography",
+                "Light Cheery Atmosphere",
+                "Logo Design",
+                "Luxurious Elegance",
+                "Macro Photography",
+                "Mandola Art",
+                "Marker Drawing",
+                "Medievalism",
+                "Minimalism",
+                "Neo-Baroque",
+                "Neo-Byzantine",
+                "Neo-Futurism",
+                "Neo-Impressionism",
+                "Neo-Rococo",
+                "Neoclassicism",
+                "Op Art",
+                "Ornate and Intricate",
+                "Pencil Sketch Drawing",
+                "Pop Art 2",
+                "Rococo",
+                "Silhouette Art",
+                "Simple Vector Art",
+                "Sketchup",
+                "Steampunk 2",
+                "Sticker Designs",
+                "Suprematism",
+                "Surrealism",
+                "Terragen",
+                "Tranquil Relaxing Atmosphere",
+                "Vibrant Rim Light",
+                "Volumetric Lighting",
+                "Watercolor 2",
+                "Whimsical and Playful",
+                "Papercraft Collage",
+                "Papercraft Flat Papercut",
+                "Papercraft Kirigami",
+                "Papercraft Paper Mache",
+                "Papercraft Paper Quilling",
+                "Papercraft Papercut Collage",
+                "Papercraft Papercut Shadow Box",
+                "Papercraft Stacked Papercut",
+                "Papercraft Thick Layered Papercut",
+                "Photo Alien",
+                "Photo Film Noir",
+                "Photo Hdr",
+                "Photo Long Exposure",
+                "Photo Neon Noir",
+                "Photo Silhouette",
+                "Photo Tilt Shift",
+                "Sai 3D Model",
+                "Sai Analog Film",
+                "Sai Anime",
+                "Sai Cinematic",
+                "Sai Comic Book",
+                "Sai Craft Clay",
+                "Sai Digital Art",
+                "Sai Enhance",
+                "Sai Fantasy Art",
+                "Sai Isometric",
+                "Sai Line Art",
+                "Sai Lowpoly",
+                "Sai Neonpunk",
+                "Sai Origami",
+                "Sai Photographic",
+                "Sai Pixel Art",
+                "Sai Texture"
+              ]
+            },
+            "ui": {
+              "section": "basic",
+              "order": 0.5,
+              "widget": "multiselect"
+            }
+          },
+          "style_merge": {
+            "type": "string",
+            "title": "Style Merge",
+            "description": "How to combine multiple style presets",
+            "default": "nested",
+            "enum": [
+              "nested",
+              "stacked",
+              "blended",
+              "minimal"
+            ],
+            "enumNames": [
+              "Nested (last style dominant)",
+              "Stacked (first style dominant)",
+              "Blended (all equal)",
+              "Minimal (no style negatives)"
+            ],
+            "ui": {
+              "section": "basic",
+              "order": 0.6,
+              "inlineWith": "styles",
+              "visibleWhen": {
+                "field": "styles",
+                "condition": "lengthGreaterThan",
+                "value": 1
+              }
+            }
+          },
+          "prompt": {
+            "type": "string",
+            "title": "Prompt",
+            "description": "Text description of the image to generate",
+            "ui": {
+              "section": "basic",
+              "order": 1,
+              "widget": "textarea",
+              "rows": 4,
+              "placeholder": "a beautiful landscape with mountains and a lake at sunset"
+            }
+          },
+          "negative_prompt": {
+            "type": "string",
+            "title": "Negative Prompt",
+            "description": "What to avoid in the image (optional)",
+            "ui": {
+              "section": "basic",
+              "order": 2,
+              "widget": "textarea",
+              "rows": 2,
+              "placeholder": "blurry, low quality, distorted"
+            }
+          },
+          "seed": {
+            "type": "integer",
+            "title": "Seed",
+            "description": "Random seed for reproducibility (-1 for random)",
+            "default": -1,
+            "ui": {
+              "section": "advanced",
+              "order": 1,
+              "placeholder": "-1 for random"
+            }
+          },
+          "steps": {
+            "type": "integer",
+            "title": "Steps",
+            "description": "Number of diffusion steps",
+            "default": 1,
+            "minimum": 1,
+            "maximum": 8,
+            "ui": {
+              "section": "advanced",
+              "order": 2
+            }
+          },
+          "batch_size": {
+            "type": "integer",
+            "title": "Batch Size",
+            "description": "Number of images to generate",
+            "default": 1,
+            "minimum": 1,
+            "maximum": 4,
+            "ui": {
+              "section": "advanced",
+              "order": 3
+            }
+          },
+          "output_width": {
+            "type": "integer",
+            "title": "Width",
+            "description": "Final output width in pixels",
+            "default": 1920,
+            "ui": {
+              "section": "output",
+              "order": 1,
+              "visibleWhen": {
+                "field": "upscale",
+                "condition": "equals",
+                "value": true
+              }
+            }
+          },
+          "output_height": {
+            "type": "integer",
+            "title": "Height",
+            "description": "Final output height in pixels",
+            "default": 1080,
+            "ui": {
+              "section": "output",
+              "order": 2,
+              "visibleWhen": {
+                "field": "upscale",
+                "condition": "equals",
+                "value": true
+              }
+            }
+          },
+          "upscale": {
+            "type": "boolean",
+            "title": "Fast Mode",
+            "description": "Generate a small image then upscale to output dimensions (faster, slightly less detail)",
+            "default": true,
+            "ui": {
+              "section": "output",
+              "order": 3
+            }
+          },
+          "upscale_method": {
+            "type": "string",
+            "title": "Method",
+            "default": "lanczos",
+            "enum": [
+              "lanczos",
+              "bicubic",
+              "bilinear",
+              "nearest-exact",
+              "area"
+            ],
+            "ui": {
+              "section": "output",
+              "order": 4,
+              "inlineWith": "upscale",
+              "hint": "Interpolation algorithm. Lanczos = sharpest, bilinear = smoothest.",
+              "visibleWhen": {
+                "field": "upscale",
+                "condition": "equals",
+                "value": true
+              }
+            }
+          }
+        }
+      },
+      "result_schema": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "Whether generation succeeded"
+          },
+          "downloaded_files": {
+            "type": "array",
+            "description": "Generated images",
+            "items": {
+              "type": "object",
+              "properties": {
+                "filename": {
+                  "type": "string"
+                },
+                "virtual_path": {
+                  "type": "string"
+                },
+                "file_size": {
+                  "type": "integer"
+                },
+                "display_name": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "image_count": {
+            "type": "integer",
+            "description": "Number of images generated"
+          },
+          "seed_used": {
+            "type": "integer",
+            "description": "Actual seed used (useful if -1 was specified)"
+          },
+          "prompt_id": {
+            "type": "string",
+            "description": "ComfyUI execution ID"
+          }
+        }
+      },
+      "output_view": {
+        "type": "media_grid",
+        "source": "downloaded_files",
+        "media_type": "image",
+        "thumbnail_field": "virtual_path",
+        "download_field": "virtual_path",
+        "filename_field": "filename"
+      },
+      "example_parameters": {
+        "prompt": "A majestic mountain landscape at golden hour, with a crystal clear lake reflecting snow-capped peaks",
+        "model": "flux1-schnell-q4",
+        "styles": [
+          "sai-photographic"
+        ],
+        "steps": 4,
+        "batch_size": 1,
+        "output_width": 1920,
+        "output_height": 1080,
+        "upscale": true
+      },
+      "ui_hints": {
+        "color": "#8b5cf6",
+        "icon": "image",
+        "sections": {
+          "basic": {
+            "title": "Prompt",
+            "collapsed": false,
+            "order": 1
+          },
+          "output": {
+            "title": "Output",
+            "collapsed": false,
+            "order": 2
+          },
+          "advanced": {
+            "title": "Advanced",
+            "collapsed": false,
+            "order": 3
+          }
+        },
+        "categories": [
+          "ai"
+        ]
+      }
+    },
+    "comfyui_imgedit": {
+      "display_name": "Image Edit",
+      "description": "Edit and transform images using Flux.2 Klein 4B model with text prompts",
+      "service_type": "AI",
+      "path": null,
+      "method": "POST",
+      "requires_credentials": false,
+      "queue": "comfyui_image_edit_jobs",
+      "parameter_schema": {
+        "type": "object",
+        "required": [
+          "image",
+          "prompt"
+        ],
+        "properties": {
+          "image": {
+            "type": "string",
+            "title": "Source Image",
+            "description": "URL or path to the image to edit. Map from a previous step's output or enter a URL.",
+            "format": "uri",
+            "ui": {
+              "section": "basic",
+              "order": 1,
+              "placeholder": "https://example.com/image.png or map from previous step"
+            }
+          },
+          "prompt": {
+            "type": "string",
+            "title": "Edit Prompt",
+            "description": "Describe how to transform the image",
+            "ui": {
+              "section": "basic",
+              "order": 2,
+              "widget": "textarea",
+              "rows": 3,
+              "placeholder": "realistic, riding a surfboard, on a wave"
+            }
+          },
+          "negative_prompt": {
+            "type": "string",
+            "title": "Negative Prompt",
+            "description": "What to avoid in the output (optional)",
+            "ui": {
+              "section": "basic",
+              "order": 3,
+              "widget": "textarea",
+              "rows": 2,
+              "placeholder": "blurry, low quality, distorted, artifacts"
+            }
+          },
+          "seed": {
+            "type": "integer",
+            "title": "Seed",
+            "description": "Random seed for reproducibility (-1 for random)",
+            "default": -1,
+            "ui": {
+              "section": "advanced",
+              "order": 1,
+              "placeholder": "-1 for random"
+            }
+          },
+          "steps": {
+            "type": "integer",
+            "title": "Steps",
+            "description": "Number of diffusion steps",
+            "default": 1,
+            "minimum": 1,
+            "maximum": 20,
+            "ui": {
+              "section": "advanced",
+              "order": 2
+            }
+          },
+          "output_width": {
+            "type": "integer",
+            "title": "Width",
+            "description": "Final output width in pixels",
+            "default": 1920,
+            "ui": {
+              "section": "output",
+              "order": 1,
+              "visibleWhen": {
+                "field": "upscale",
+                "condition": "equals",
+                "value": true
+              }
+            }
+          },
+          "output_height": {
+            "type": "integer",
+            "title": "Height",
+            "description": "Final output height in pixels",
+            "default": 1080,
+            "ui": {
+              "section": "output",
+              "order": 2,
+              "visibleWhen": {
+                "field": "upscale",
+                "condition": "equals",
+                "value": true
+              }
+            }
+          },
+          "upscale": {
+            "type": "boolean",
+            "title": "Fast Mode",
+            "description": "Generate a small image then upscale to output dimensions (faster, slightly less detail)",
+            "default": true,
+            "ui": {
+              "section": "output",
+              "order": 3
+            }
+          },
+          "upscale_method": {
+            "type": "string",
+            "title": "Method",
+            "default": "lanczos",
+            "enum": [
+              "lanczos",
+              "bicubic",
+              "bilinear",
+              "nearest-exact",
+              "area"
+            ],
+            "ui": {
+              "section": "output",
+              "order": 4,
+              "inlineWith": "upscale",
+              "hint": "Interpolation algorithm. Lanczos = sharpest, bilinear = smoothest.",
+              "visibleWhen": {
+                "field": "upscale",
+                "condition": "equals",
+                "value": true
+              }
+            }
+          }
+        }
+      },
+      "result_schema": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "Whether generation succeeded"
+          },
+          "downloaded_files": {
+            "type": "array",
+            "description": "Edited images",
+            "items": {
+              "type": "object",
+              "properties": {
+                "filename": {
+                  "type": "string"
+                },
+                "virtual_path": {
+                  "type": "string"
+                },
+                "file_size": {
+                  "type": "integer"
+                },
+                "display_name": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "image_count": {
+            "type": "integer",
+            "description": "Number of images generated"
+          },
+          "seed_used": {
+            "type": "integer",
+            "description": "Actual seed used (useful if -1 was specified)"
+          },
+          "prompt_id": {
+            "type": "string",
+            "description": "ComfyUI execution ID"
+          }
+        }
+      },
+      "output_view": {
+        "type": "media_grid",
+        "source": "downloaded_files",
+        "media_type": "image",
+        "thumbnail_field": "virtual_path",
+        "download_field": "virtual_path",
+        "filename_field": "filename"
+      },
+      "example_parameters": {
+        "image": "https://example.com/photo.jpg",
+        "prompt": "realistic, riding a surfboard, on a wave",
+        "steps": 8,
+        "output_width": 1920,
+        "output_height": 1080,
+        "upscale": true
+      },
+      "ui_hints": {
+        "color": "#8b5cf6",
+        "icon": "image-edit",
+        "sections": {
+          "basic": {
+            "title": "Edit Settings",
+            "collapsed": false,
+            "order": 1
+          },
+          "output": {
+            "title": "Output",
+            "collapsed": false,
+            "order": 2
+          },
+          "advanced": {
+            "title": "Advanced",
+            "collapsed": false,
+            "order": 3
+          }
+        },
+        "categories": [
+          "ai"
+        ]
+      }
+    }
+  }
+}

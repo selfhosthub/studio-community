@@ -74,6 +74,38 @@
       "icon": "box",
       "public": true,
       "id": "shs/youtube"
+    },
+    {
+      "title": "Self-Host Studio Audio Provider",
+      "description": "Generate speech audio locally using Chatterbox TTS with voice cloning support.",
+      "file": "providers/shs/audio.md",
+      "icon": "box",
+      "public": true,
+      "id": "shs/audio"
+    },
+    {
+      "title": "Self-Host Studio ComfyUI Provider",
+      "description": "Generate AI images locally using ComfyUI with Flux and Stable Diffusion models.",
+      "file": "providers/shs/comfyui.md",
+      "icon": "box",
+      "public": true,
+      "id": "shs/comfyui"
+    },
+    {
+      "title": "Self-Host Studio Video Provider",
+      "description": "Create videos locally using FFmpeg with AI-powered subtitles via Whisper.",
+      "file": "providers/shs/video.md",
+      "icon": "box",
+      "public": true,
+      "id": "shs/video"
+    },
+    {
+      "title": "TikTok Provider",
+      "description": "Publish videos and photos, manage comments, and retrieve analytics from TikTok.",
+      "file": "providers/shs/tiktok.md",
+      "icon": "box",
+      "public": true,
+      "id": "shs/tiktok"
     }
   ]
 }

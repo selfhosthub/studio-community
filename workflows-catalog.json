@@ -82,6 +82,34 @@
           "marketplace_slug": "shs/scene-designer"
         }
       ]
+    },
+    {
+      "id": "shs/text-to-speech",
+      "display_name": "Text to Speech",
+      "version": "1.0.0",
+      "tier": "community",
+      "category": "ai",
+      "description": "Convert text to natural-sounding speech audio using the SHS Audio TTS service.",
+      "requires": [
+        "shs/audio"
+      ],
+      "author": "SelfHostHub",
+      "download_url": "https://raw.githubusercontent.com/selfhosthub/studio-community/main/workflows/shs/text-to-speech.json",
+      "path": "workflows/shs/text-to-speech.json"
+    },
+    {
+      "id": "shs/image-generator",
+      "display_name": "AI Image Generator",
+      "version": "1.0.0",
+      "tier": "community",
+      "category": "ai",
+      "description": "Generate AI images from text prompts using ComfyUI with customizable styles and batch sizes.",
+      "requires": [
+        "shs/comfyui"
+      ],
+      "author": "SelfHostHub",
+      "download_url": "https://raw.githubusercontent.com/selfhosthub/studio-community/main/workflows/shs/image-generator.json",
+      "path": "workflows/shs/image-generator.json"
     }
   ]
 }

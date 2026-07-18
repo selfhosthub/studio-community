@@ -1,0 +1,252 @@
+{
+  "$schema": "https://raw.githubusercontent.com/selfhosthub/studio-community/main/schemas/provider.schema.json",
+  "slug": "shs/audio",
+  "version": "1.0.0",
+  "name": "Self-Host Studio Audio",
+  "description": "Self-hosted text-to-speech with Chatterbox TTS and voice cloning",
+  "provider_type": "INTERNAL",
+  "category": "ai",
+  "status": "ACTIVE",
+  "tier": "community",
+  "icon_url": "/providers/shs-audio.svg",
+  "services_preview": [
+    "Text to Speech",
+    "Text to Speech (Turbo)"
+  ],
+  "credential_schema": null,
+  "base_url": null,
+  "local_worker": {
+    "enabled": true,
+    "queue": "audio_jobs"
+  },
+  "services": {
+    "tts": {
+      "display_name": "Text to Speech",
+      "description": "Generate speech audio from text using Chatterbox TTS. Supports voice cloning from a ~10s reference audio clip.",
+      "service_type": "AI",
+      "path": null,
+      "method": "POST",
+      "requires_credentials": false,
+      "parameter_schema": {
+        "type": "object",
+        "required": [
+          "text"
+        ],
+        "properties": {
+          "text": {
+            "type": "string",
+            "title": "Text",
+            "description": "The text to convert to speech",
+            "ui": {
+              "section": "basic",
+              "order": 1,
+              "widget": "textarea",
+              "rows": 4,
+              "placeholder": "Enter the text you want to convert to speech..."
+            }
+          },
+          "audio_prompt_path": {
+            "type": "string",
+            "format": "uri",
+            "title": "Voice Reference Audio",
+            "description": "Path to a ~10s reference audio clip for voice cloning. Leave empty to use the default voice.",
+            "ui": {
+              "section": "basic",
+              "order": 2,
+              "placeholder": "Upload or browse for a reference audio clip..."
+            }
+          },
+          "exaggeration": {
+            "type": "number",
+            "title": "Exaggeration",
+            "description": "Controls expressiveness of the generated speech. 0 = neutral, 1 = highly expressive.",
+            "default": 0.5,
+            "minimum": 0,
+            "maximum": 1,
+            "ui": {
+              "section": "generation",
+              "order": 1,
+              "widget": "slider"
+            }
+          },
+          "cfg_weight": {
+            "type": "number",
+            "title": "CFG Weight",
+            "description": "Classifier-free guidance weight. Higher values follow the text prompt more closely.",
+            "default": 0.5,
+            "minimum": 0,
+            "maximum": 1,
+            "ui": {
+              "section": "generation",
+              "order": 2,
+              "widget": "slider"
+            }
+          }
+        }
+      },
+      "result_schema": {
+        "type": "object",
+        "properties": {
+          "audio_file": {
+            "type": "string"
+          },
+          "sample_rate": {
+            "type": "integer"
+          },
+          "duration_seconds": {
+            "type": "number"
+          },
+          "storage_url": {
+            "type": "string"
+          }
+        }
+      },
+      "output_view": {
+        "type": "media_grid",
+        "source": null,
+        "media_type": "audio",
+        "url_field": "storage_url",
+        "download_field": "storage_url"
+      },
+      "example_parameters": {
+        "text": "Welcome to Self-Host Studio. This is a text-to-speech demo with voice cloning support.",
+        "exaggeration": 0.5,
+        "cfg_weight": 0.5
+      },
+      "ui_hints": {
+        "color": "#8b5cf6",
+        "icon": "volume-2",
+        "sections": {
+          "basic": {
+            "title": "Basic",
+            "collapsed": false,
+            "order": 1
+          },
+          "generation": {
+            "title": "Generation Parameters",
+            "description": "Fine-tune the speech generation",
+            "collapsed": true,
+            "order": 2
+          }
+        },
+        "categories": [
+          "ai"
+        ]
+      }
+    },
+    "tts_turbo": {
+      "display_name": "Text to Speech (Turbo)",
+      "description": "Faster TTS with the 350M parameter turbo model. Supports paralinguistic tags: [laugh], [chuckle], [cough], [sigh], [gasp], [groan], [yawn].",
+      "service_type": "AI",
+      "path": null,
+      "method": "POST",
+      "requires_credentials": false,
+      "parameter_schema": {
+        "type": "object",
+        "required": [
+          "text"
+        ],
+        "properties": {
+          "text": {
+            "type": "string",
+            "title": "Text",
+            "description": "The text to convert to speech. Supports paralinguistic tags like [laugh], [chuckle], [cough], [sigh], [gasp], [groan], [yawn].",
+            "ui": {
+              "section": "basic",
+              "order": 1,
+              "widget": "textarea",
+              "rows": 4,
+              "placeholder": "Hello! [laugh] That was a great joke."
+            }
+          },
+          "audio_prompt_path": {
+            "type": "string",
+            "format": "uri",
+            "title": "Voice Reference Audio",
+            "description": "Path to a ~10s reference audio clip for voice cloning. Leave empty to use the default voice.",
+            "ui": {
+              "section": "basic",
+              "order": 2,
+              "placeholder": "Upload or browse for a reference audio clip..."
+            }
+          },
+          "exaggeration": {
+            "type": "number",
+            "title": "Exaggeration",
+            "description": "Controls expressiveness of the generated speech. 0 = neutral, 1 = highly expressive.",
+            "default": 0.5,
+            "minimum": 0,
+            "maximum": 1,
+            "ui": {
+              "section": "generation",
+              "order": 1,
+              "widget": "slider"
+            }
+          },
+          "cfg_weight": {
+            "type": "number",
+            "title": "CFG Weight",
+            "description": "Classifier-free guidance weight. Higher values follow the text prompt more closely.",
+            "default": 0.5,
+            "minimum": 0,
+            "maximum": 1,
+            "ui": {
+              "section": "generation",
+              "order": 2,
+              "widget": "slider"
+            }
+          }
+        }
+      },
+      "result_schema": {
+        "type": "object",
+        "properties": {
+          "audio_file": {
+            "type": "string"
+          },
+          "sample_rate": {
+            "type": "integer"
+          },
+          "duration_seconds": {
+            "type": "number"
+          },
+          "storage_url": {
+            "type": "string"
+          }
+        }
+      },
+      "output_view": {
+        "type": "media_grid",
+        "source": null,
+        "media_type": "audio",
+        "url_field": "storage_url",
+        "download_field": "storage_url"
+      },
+      "example_parameters": {
+        "text": "Hello! [laugh] That was a great joke. Let me tell you another one.",
+        "exaggeration": 0.6,
+        "cfg_weight": 0.5
+      },
+      "ui_hints": {
+        "color": "#8b5cf6",
+        "icon": "zap",
+        "sections": {
+          "basic": {
+            "title": "Basic",
+            "collapsed": false,
+            "order": 1
+          },
+          "generation": {
+            "title": "Generation Parameters",
+            "description": "Fine-tune the speech generation",
+            "collapsed": true,
+            "order": 2
+          }
+        },
+        "categories": [
+          "ai"
+        ]
+      }
+    }
+  }
+}

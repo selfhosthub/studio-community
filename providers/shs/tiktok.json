@@ -1,0 +1,1366 @@
+{
+  "$schema": "https://raw.githubusercontent.com/selfhosthub/studio-community/main/schemas/provider.schema.json",
+  "slug": "shs/tiktok",
+  "version": "1.0.0",
+  "name": "TikTok",
+  "description": "TikTok integration for video management, comments, and analytics. Requires an approved TikTok developer app.",
+  "provider_type": "API",
+  "category": "social_media",
+  "status": "ACTIVE",
+  "tier": "community",
+  "credential_provider": "shs/tiktok",
+  "requires": [],
+  "services_preview": [
+    "Publish Video",
+    "Publish Photo",
+    "List Videos",
+    "Video Stats",
+    "Comments",
+    "Reply",
+    "Creator Info"
+  ],
+  "credential_schema": {
+    "type": "object",
+    "required": [
+      "client_id",
+      "client_secret"
+    ],
+    "properties": {
+      "client_id": {
+        "type": "string",
+        "title": "TikTok Client Key",
+        "description": "Your TikTok App Client Key from TikTok for Developers",
+        "ui": {
+          "order": 1,
+          "help_url": "https://developers.tiktok.com/apps/"
+        }
+      },
+      "client_secret": {
+        "type": "string",
+        "title": "TikTok Client Secret",
+        "description": "Your TikTok App Client Secret",
+        "format": "password",
+        "ui": {
+          "order": 2
+        }
+      },
+      "access_token": {
+        "type": "string",
+        "title": "Access Token",
+        "description": "OAuth access token (populated automatically after authorization)",
+        "format": "password",
+        "ui": {
+          "order": 3,
+          "readonly": true,
+          "hidden": true
+        }
+      },
+      "refresh_token": {
+        "type": "string",
+        "title": "Refresh Token",
+        "description": "OAuth refresh token (populated automatically after authorization)",
+        "format": "password",
+        "ui": {
+          "order": 4,
+          "readonly": true,
+          "hidden": true
+        }
+      }
+    }
+  },
+  "base_url": null,
+  "icon_url": "/providers/tiktok.svg",
+  "auth": {
+    "type": "oauth2",
+    "config": {
+      "oauth_provider": "tiktok",
+      "token_field": "access_token"
+    }
+  },
+  "oauth": {
+    "oauth_provider": "tiktok",
+    "authorization_url": "https://www.tiktok.com/v2/auth/authorize",
+    "token_url": "https://open.tiktokapis.com/v2/oauth/token/",
+    "scopes": [
+      "user.info.basic",
+      "video.publish",
+      "video.upload",
+      "video.list"
+    ],
+    "client_id_env": "SHS_TIKTOK_CLIENT_ID",
+    "client_secret_env": "SHS_TIKTOK_CLIENT_SECRET",
+    "client_id_param": "client_key",
+    "scope_delimiter": ","
+  },
+  "services": {
+    "tiktok_publish_video": {
+      "display_name": "Publish Video (Pull URL)",
+      "description": "Publish a video to TikTok by providing a URL. TikTok downloads the video from the URL. Use check_publish_status to poll completion.",
+      "service_type": "SOCIAL_MEDIA",
+      "endpoint_url": "https://open.tiktokapis.com/v2/post/publish/video/init/",
+      "method": "POST",
+      "requires_credentials": true,
+      "request_body_template": {
+        "post_info": {
+          "title": "{{ parameters.title }}",
+          "privacy_level": "{{ parameters.privacy_level }}",
+          "disable_duet": "{{ parameters.disable_duet }}",
+          "disable_stitch": "{{ parameters.disable_stitch }}",
+          "disable_comment": "{{ parameters.disable_comment }}",
+          "brand_content_toggle": false,
+          "brand_organic_toggle": false
+        },
+        "source_info": {
+          "source": "PULL_FROM_URL",
+          "video_url": "{{ parameters.video_url }}"
+        }
+      },
+      "parameter_schema": {
+        "type": "object",
+        "required": [
+          "video_url",
+          "title",
+          "privacy_level"
+        ],
+        "properties": {
+          "video_url": {
+            "type": "string",
+            "format": "uri",
+            "title": "Video URL",
+            "description": "Publicly accessible URL of the video file (MP4/WebM, 3s-10min, max 4GB)",
+            "ui": {
+              "section": "basic",
+              "order": 1,
+              "placeholder": "https://example.com/video.mp4"
+            }
+          },
+          "title": {
+            "type": "string",
+            "title": "Title/Caption",
+            "description": "Video caption (max 150 characters). Supports hashtags.",
+            "maxLength": 150,
+            "ui": {
+              "section": "basic",
+              "order": 2,
+              "widget": "textarea"
+            }
+          },
+          "privacy_level": {
+            "type": "string",
+            "title": "Privacy Level",
+            "description": "Who can view this video. Use get_creator_info to check available levels.",
+            "enum": [
+              "PUBLIC_TO_EVERYONE",
+              "MUTUAL_FOLLOW_FRIENDS",
+              "FOLLOWER_OF_CREATOR",
+              "SELF_ONLY"
+            ],
+            "enumNames": [
+              "Public to Everyone",
+              "Mutual Follow Friends",
+              "Followers Only",
+              "Private (Only Me)"
+            ],
+            "default": "SELF_ONLY",
+            "ui": {
+              "section": "basic",
+              "order": 3
+            }
+          },
+          "disable_duet": {
+            "type": "boolean",
+            "title": "Disable Duet",
+            "description": "Prevent others from creating duets with this video",
+            "default": false,
+            "ui": {
+              "section": "options",
+              "order": 1
+            }
+          },
+          "disable_stitch": {
+            "type": "boolean",
+            "title": "Disable Stitch",
+            "description": "Prevent others from stitching this video",
+            "default": false,
+            "ui": {
+              "section": "options",
+              "order": 2
+            }
+          },
+          "disable_comment": {
+            "type": "boolean",
+            "title": "Disable Comments",
+            "description": "Turn off comments for this video",
+            "default": false,
+            "ui": {
+              "section": "options",
+              "order": 3
+            }
+          }
+        }
+      },
+      "result_schema": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object",
+            "properties": {
+              "publish_id": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "example_parameters": {
+        "video_url": "https://example.com/video.mp4",
+        "title": "Check out this awesome clip! #fyp #viral",
+        "privacy_level": "SELF_ONLY"
+      },
+      "ui_hints": {
+        "color": "#000000",
+        "icon": "upload",
+        "sections": {
+          "basic": {
+            "title": "Basic",
+            "collapsed": false,
+            "order": 1
+          },
+          "options": {
+            "title": "Options",
+            "collapsed": true,
+            "order": 2
+          }
+        },
+        "categories": [
+          "social_media"
+        ]
+      }
+    },
+    "tiktok_init_video_upload": {
+      "display_name": "Init Video Upload (File)",
+      "description": "Initialize a file-based video upload for non-public URLs. Returns an upload_url for chunk uploads. Requires adapter enhancement.",
+      "service_type": "SOCIAL_MEDIA",
+      "endpoint_url": "https://open.tiktokapis.com/v2/post/publish/video/init/",
+      "method": "POST",
+      "requires_credentials": true,
+      "is_active": false,
+      "request_body_template": {
+        "post_info": {
+          "title": "{{ parameters.title }}",
+          "privacy_level": "{{ parameters.privacy_level }}"
+        },
+        "source_info": {
+          "source": "FILE_UPLOAD",
+          "video_size": "{{ parameters.video_size }}",
+          "chunk_size": "{{ parameters.chunk_size }}",
+          "total_chunk_count": "{{ parameters.total_chunk_count }}"
+        }
+      },
+      "parameter_schema": {
+        "type": "object",
+        "required": [
+          "title",
+          "privacy_level",
+          "video_size",
+          "chunk_size",
+          "total_chunk_count"
+        ],
+        "properties": {
+          "title": {
+            "type": "string",
+            "title": "Title/Caption",
+            "description": "Video caption (max 150 characters)",
+            "maxLength": 150,
+            "ui": {
+              "section": "basic",
+              "order": 1
+            }
+          },
+          "privacy_level": {
+            "type": "string",
+            "title": "Privacy Level",
+            "enum": [
+              "PUBLIC_TO_EVERYONE",
+              "MUTUAL_FOLLOW_FRIENDS",
+              "FOLLOWER_OF_CREATOR",
+              "SELF_ONLY"
+            ],
+            "enumNames": [
+              "Public to Everyone",
+              "Mutual Follow Friends",
+              "Followers Only",
+              "Private (Only Me)"
+            ],
+            "default": "SELF_ONLY",
+            "ui": {
+              "section": "basic",
+              "order": 2
+            }
+          },
+          "video_size": {
+            "type": "integer",
+            "title": "Video Size (bytes)",
+            "description": "Total size of the video file in bytes",
+            "ui": {
+              "section": "basic",
+              "order": 3
+            }
+          },
+          "chunk_size": {
+            "type": "integer",
+            "title": "Chunk Size (bytes)",
+            "description": "Size of each upload chunk in bytes",
+            "ui": {
+              "section": "basic",
+              "order": 4
+            }
+          },
+          "total_chunk_count": {
+            "type": "integer",
+            "title": "Total Chunk Count",
+            "description": "Number of chunks the file will be split into",
+            "ui": {
+              "section": "basic",
+              "order": 5
+            }
+          }
+        }
+      },
+      "result_schema": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object",
+            "properties": {
+              "publish_id": {
+                "type": "string"
+              },
+              "upload_url": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "ui_hints": {
+        "color": "#000000",
+        "icon": "upload-cloud",
+        "sections": {
+          "basic": {
+            "title": "Basic",
+            "collapsed": false,
+            "order": 1
+          }
+        },
+        "categories": [
+          "social_media"
+        ]
+      },
+      "example_parameters": {
+        "title": "My TikTok video #fyp",
+        "privacy_level": "SELF_ONLY",
+        "video_size": 5000000,
+        "chunk_size": 5000000,
+        "total_chunk_count": 1
+      }
+    },
+    "tiktok_upload_video_chunk": {
+      "display_name": "Upload Video Chunk",
+      "description": "Upload a video file chunk to the upload_url from init_video_upload. Requires adapter enhancement for binary body streaming.",
+      "service_type": "SOCIAL_MEDIA",
+      "endpoint_url": "{{ parameters.upload_url }}",
+      "method": "PUT",
+      "requires_credentials": true,
+      "is_active": false,
+      "parameter_mapping": {},
+      "parameter_schema": {
+        "type": "object",
+        "required": [
+          "upload_url",
+          "body_source_url",
+          "content_type",
+          "content_range"
+        ],
+        "properties": {
+          "upload_url": {
+            "type": "string",
+            "format": "uri",
+            "title": "Upload URL",
+            "description": "The upload URL from tiktok_init_video_upload response",
+            "ui": {
+              "section": "basic",
+              "order": 1
+            }
+          },
+          "body_source_url": {
+            "type": "string",
+            "format": "uri",
+            "title": "Chunk Source URL",
+            "description": "URL to the video chunk to stream as the request body",
+            "ui": {
+              "section": "basic",
+              "order": 2
+            }
+          },
+          "content_type": {
+            "type": "string",
+            "title": "Content Type",
+            "default": "video/mp4",
+            "ui": {
+              "section": "options",
+              "order": 1
+            }
+          },
+          "content_range": {
+            "type": "string",
+            "title": "Content-Range",
+            "description": "Byte range for this chunk, e.g. 'bytes 0-999999/5000000'",
+            "ui": {
+              "section": "basic",
+              "order": 3
+            }
+          }
+        }
+      },
+      "result_schema": {
+        "type": "object",
+        "properties": {}
+      },
+      "ui_hints": {
+        "color": "#000000",
+        "icon": "upload-cloud",
+        "sections": {
+          "basic": {
+            "title": "Basic",
+            "collapsed": false,
+            "order": 1
+          },
+          "options": {
+            "title": "Options",
+            "collapsed": true,
+            "order": 2
+          }
+        },
+        "categories": [
+          "social_media"
+        ]
+      },
+      "example_parameters": {
+        "upload_url": "https://open-upload.tiktokapis.com/video/?upload_id=abc123",
+        "body_source_url": "https://example.com/video_chunk_0.mp4",
+        "content_type": "video/mp4",
+        "content_range": "bytes 0-4999999/5000000"
+      }
+    },
+    "tiktok_publish_photo": {
+      "display_name": "Publish Photo Post",
+      "description": "Publish a photo post to TikTok with up to 35 images. TikTok downloads images from the provided URLs.",
+      "service_type": "SOCIAL_MEDIA",
+      "endpoint_url": "https://open.tiktokapis.com/v2/post/publish/content/init/",
+      "method": "POST",
+      "requires_credentials": true,
+      "request_body_template": {
+        "media_type": "PHOTO",
+        "post_info": {
+          "title": "{{ parameters.title }}",
+          "description": "{{ parameters.description }}",
+          "privacy_level": "{{ parameters.privacy_level }}",
+          "disable_comment": "{{ parameters.disable_comment }}",
+          "auto_add_music": "{{ parameters.auto_add_music }}"
+        },
+        "source_info": {
+          "source": "PULL_FROM_URL",
+          "photo_cover_index": "{{ parameters.photo_cover_index }}",
+          "photo_images": "{{ parameters.photo_images }}"
+        }
+      },
+      "parameter_schema": {
+        "type": "object",
+        "required": [
+          "photo_images",
+          "title",
+          "privacy_level"
+        ],
+        "properties": {
+          "photo_images": {
+            "type": "array",
+            "title": "Photo URLs",
+            "description": "Array of publicly accessible image URLs (max 35 images)",
+            "items": {
+              "type": "string",
+              "format": "uri"
+            },
+            "maxItems": 35,
+            "ui": {
+              "section": "basic",
+              "order": 1
+            }
+          },
+          "title": {
+            "type": "string",
+            "title": "Title",
+            "description": "Photo post title (max 90 characters)",
+            "maxLength": 90,
+            "ui": {
+              "section": "basic",
+              "order": 2
+            }
+          },
+          "description": {
+            "type": "string",
+            "title": "Description",
+            "description": "Photo post description (max 4000 characters)",
+            "maxLength": 4000,
+            "ui": {
+              "section": "basic",
+              "order": 3,
+              "widget": "textarea"
+            }
+          },
+          "privacy_level": {
+            "type": "string",
+            "title": "Privacy Level",
+            "enum": [
+              "PUBLIC_TO_EVERYONE",
+              "MUTUAL_FOLLOW_FRIENDS",
+              "FOLLOWER_OF_CREATOR",
+              "SELF_ONLY"
+            ],
+            "enumNames": [
+              "Public to Everyone",
+              "Mutual Follow Friends",
+              "Followers Only",
+              "Private (Only Me)"
+            ],
+            "default": "SELF_ONLY",
+            "ui": {
+              "section": "basic",
+              "order": 4
+            }
+          },
+          "photo_cover_index": {
+            "type": "integer",
+            "title": "Cover Photo Index",
+            "description": "Index of the image to use as cover (0-based)",
+            "default": 0,
+            "ui": {
+              "section": "options",
+              "order": 1
+            }
+          },
+          "disable_comment": {
+            "type": "boolean",
+            "title": "Disable Comments",
+            "default": false,
+            "ui": {
+              "section": "options",
+              "order": 2
+            }
+          },
+          "auto_add_music": {
+            "type": "boolean",
+            "title": "Auto Add Music",
+            "description": "Let TikTok automatically add background music",
+            "default": true,
+            "ui": {
+              "section": "options",
+              "order": 3
+            }
+          }
+        }
+      },
+      "result_schema": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object",
+            "properties": {
+              "publish_id": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "example_parameters": {
+        "photo_images": [
+          "https://example.com/photo1.jpg",
+          "https://example.com/photo2.jpg"
+        ],
+        "title": "Photo dump! #photography #fyp",
+        "privacy_level": "SELF_ONLY"
+      },
+      "ui_hints": {
+        "color": "#000000",
+        "icon": "image",
+        "sections": {
+          "basic": {
+            "title": "Basic",
+            "collapsed": false,
+            "order": 1
+          },
+          "options": {
+            "title": "Options",
+            "collapsed": true,
+            "order": 2
+          }
+        },
+        "categories": [
+          "social_media"
+        ]
+      }
+    },
+    "tiktok_check_publish_status": {
+      "display_name": "Check Publish Status",
+      "description": "Check the processing status of a video or photo publish. Poll until PUBLISH_COMPLETE or FAILED.",
+      "service_type": "SOCIAL_MEDIA",
+      "endpoint_url": "https://open.tiktokapis.com/v2/post/publish/status/fetch/",
+      "method": "POST",
+      "requires_credentials": true,
+      "parameter_mapping": {
+        "body": [
+          "publish_id"
+        ]
+      },
+      "parameter_schema": {
+        "type": "object",
+        "required": [
+          "publish_id"
+        ],
+        "properties": {
+          "publish_id": {
+            "type": "string",
+            "title": "Publish ID",
+            "description": "The publish_id from publish_video or publish_photo response",
+            "ui": {
+              "section": "basic",
+              "order": 1
+            }
+          }
+        }
+      },
+      "result_schema": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object",
+            "properties": {
+              "status": {
+                "type": "string"
+              },
+              "fail_reason": {
+                "type": "string"
+              },
+              "publicaly_available_post_id": {
+                "type": "array"
+              },
+              "uploaded_bytes": {
+                "type": "integer"
+              }
+            }
+          }
+        }
+      },
+      "example_parameters": {
+        "publish_id": "v_pub_url~v2.123456789"
+      },
+      "ui_hints": {
+        "color": "#000000",
+        "icon": "loader",
+        "sections": {
+          "basic": {
+            "title": "Basic",
+            "collapsed": false,
+            "order": 1
+          }
+        },
+        "categories": [
+          "social_media"
+        ]
+      }
+    },
+    "tiktok_cancel_publish": {
+      "display_name": "Cancel Publish",
+      "description": "Best-effort cancel of an in-progress publish operation",
+      "service_type": "SOCIAL_MEDIA",
+      "endpoint_url": "https://open.tiktokapis.com/v2/post/publish/cancel/",
+      "method": "POST",
+      "requires_credentials": true,
+      "parameter_mapping": {
+        "body": [
+          "publish_id"
+        ]
+      },
+      "parameter_schema": {
+        "type": "object",
+        "required": [
+          "publish_id"
+        ],
+        "properties": {
+          "publish_id": {
+            "type": "string",
+            "title": "Publish ID",
+            "description": "The publish_id of the operation to cancel",
+            "ui": {
+              "section": "basic",
+              "order": 1
+            }
+          }
+        }
+      },
+      "result_schema": {
+        "type": "object",
+        "properties": {}
+      },
+      "example_parameters": {
+        "publish_id": "v_pub_url~v2.123456789"
+      },
+      "ui_hints": {
+        "color": "#000000",
+        "icon": "x-circle",
+        "sections": {
+          "basic": {
+            "title": "Basic",
+            "collapsed": false,
+            "order": 1
+          }
+        },
+        "categories": [
+          "social_media"
+        ]
+      }
+    },
+    "tiktok_get_creator_info": {
+      "display_name": "Get Creator Info",
+      "description": "Get the authenticated creator's posting permissions, available privacy levels, max video duration, and other publish constraints. Call before publishing.",
+      "service_type": "SOCIAL_MEDIA",
+      "endpoint_url": "https://open.tiktokapis.com/v2/post/publish/creator_info/query/",
+      "method": "POST",
+      "requires_credentials": true,
+      "parameter_mapping": {},
+      "parameter_schema": {
+        "type": "object",
+        "properties": {}
+      },
+      "result_schema": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object",
+            "properties": {
+              "creator_avatar_url": {
+                "type": "string"
+              },
+              "creator_username": {
+                "type": "string"
+              },
+              "creator_nickname": {
+                "type": "string"
+              },
+              "privacy_level_options": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "comment_disabled": {
+                "type": "boolean"
+              },
+              "duet_disabled": {
+                "type": "boolean"
+              },
+              "stitch_disabled": {
+                "type": "boolean"
+              },
+              "max_video_post_duration_sec": {
+                "type": "integer"
+              }
+            }
+          }
+        }
+      },
+      "example_parameters": {},
+      "ui_hints": {
+        "color": "#000000",
+        "icon": "info",
+        "sections": {},
+        "categories": [
+          "social_media"
+        ]
+      }
+    },
+    "tiktok_get_user_info": {
+      "display_name": "Get User Profile",
+      "description": "Retrieve the authenticated TikTok user's profile information",
+      "service_type": "SOCIAL_MEDIA",
+      "endpoint_url": "https://open.tiktokapis.com/v2/user/info/",
+      "method": "GET",
+      "requires_credentials": true,
+      "parameter_mapping": {
+        "query": [
+          "fields"
+        ]
+      },
+      "parameter_schema": {
+        "type": "object",
+        "properties": {
+          "fields": {
+            "type": "string",
+            "title": "Fields",
+            "description": "Comma-separated list of user fields to return",
+            "default": "open_id,display_name,avatar_url,follower_count,following_count,likes_count,video_count,bio_description",
+            "ui": {
+              "section": "options",
+              "order": 1
+            }
+          }
+        }
+      },
+      "result_schema": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object",
+            "properties": {
+              "user": {
+                "type": "object",
+                "properties": {
+                  "open_id": {
+                    "type": "string"
+                  },
+                  "display_name": {
+                    "type": "string"
+                  },
+                  "avatar_url": {
+                    "type": "string"
+                  },
+                  "follower_count": {
+                    "type": "integer"
+                  },
+                  "following_count": {
+                    "type": "integer"
+                  },
+                  "likes_count": {
+                    "type": "integer"
+                  },
+                  "video_count": {
+                    "type": "integer"
+                  },
+                  "bio_description": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "example_parameters": {},
+      "ui_hints": {
+        "color": "#000000",
+        "icon": "user",
+        "sections": {
+          "options": {
+            "title": "Options",
+            "collapsed": true,
+            "order": 1
+          }
+        },
+        "categories": [
+          "social_media"
+        ]
+      }
+    },
+    "tiktok_list_videos": {
+      "display_name": "List My Videos",
+      "description": "List the authenticated user's TikTok videos with engagement metrics",
+      "service_type": "SOCIAL_MEDIA",
+      "endpoint_url": "https://open.tiktokapis.com/v2/video/list/",
+      "method": "POST",
+      "requires_credentials": true,
+      "parameter_mapping": {
+        "query": [
+          "fields"
+        ],
+        "body": [
+          "max_count",
+          "cursor"
+        ]
+      },
+      "parameter_schema": {
+        "type": "object",
+        "properties": {
+          "max_count": {
+            "type": "integer",
+            "title": "Max Count",
+            "description": "Number of videos to return (1-20)",
+            "minimum": 1,
+            "maximum": 20,
+            "default": 10,
+            "ui": {
+              "section": "basic",
+              "order": 1
+            }
+          },
+          "cursor": {
+            "type": "integer",
+            "title": "Cursor",
+            "description": "Pagination cursor for the next page",
+            "ui": {
+              "section": "options",
+              "order": 1
+            }
+          },
+          "fields": {
+            "type": "string",
+            "title": "Fields",
+            "description": "Comma-separated list of video fields to return",
+            "default": "id,title,create_time,cover_image_url,share_url,like_count,comment_count,share_count,view_count,duration",
+            "ui": {
+              "section": "options",
+              "order": 2
+            }
+          }
+        }
+      },
+      "result_schema": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object",
+            "properties": {
+              "videos": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "create_time": {
+                      "type": "integer"
+                    },
+                    "cover_image_url": {
+                      "type": "string"
+                    },
+                    "share_url": {
+                      "type": "string"
+                    },
+                    "like_count": {
+                      "type": "integer"
+                    },
+                    "comment_count": {
+                      "type": "integer"
+                    },
+                    "share_count": {
+                      "type": "integer"
+                    },
+                    "view_count": {
+                      "type": "integer"
+                    },
+                    "duration": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              },
+              "cursor": {
+                "type": "integer"
+              },
+              "has_more": {
+                "type": "boolean"
+              }
+            }
+          }
+        }
+      },
+      "output_view": {
+        "type": "table",
+        "source": "data.videos",
+        "columns": [
+          "title",
+          "view_count",
+          "like_count",
+          "comment_count",
+          "create_time"
+        ]
+      },
+      "example_parameters": {
+        "max_count": 10
+      },
+      "ui_hints": {
+        "color": "#000000",
+        "icon": "list",
+        "sections": {
+          "basic": {
+            "title": "Basic",
+            "collapsed": false,
+            "order": 1
+          },
+          "options": {
+            "title": "Options",
+            "collapsed": true,
+            "order": 2
+          }
+        },
+        "categories": [
+          "social_media"
+        ]
+      }
+    },
+    "tiktok_get_video_info": {
+      "display_name": "Get Video Details",
+      "description": "Retrieve detailed information and statistics for specific TikTok videos (up to 20 at once)",
+      "service_type": "SOCIAL_MEDIA",
+      "endpoint_url": "https://open.tiktokapis.com/v2/video/query/",
+      "method": "POST",
+      "requires_credentials": true,
+      "parameter_mapping": {
+        "query": [
+          "fields"
+        ]
+      },
+      "request_body_template": {
+        "filters": {
+          "video_ids": "{{ parameters.video_ids }}"
+        }
+      },
+      "parameter_schema": {
+        "type": "object",
+        "required": [
+          "video_ids"
+        ],
+        "properties": {
+          "video_ids": {
+            "type": "array",
+            "title": "Video IDs",
+            "description": "List of TikTok video IDs to query (max 20)",
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 20,
+            "ui": {
+              "section": "basic",
+              "order": 1
+            }
+          },
+          "fields": {
+            "type": "string",
+            "title": "Fields",
+            "description": "Comma-separated list of video fields to return",
+            "default": "id,title,create_time,cover_image_url,share_url,like_count,comment_count,share_count,view_count,duration",
+            "ui": {
+              "section": "options",
+              "order": 1
+            }
+          }
+        }
+      },
+      "result_schema": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object",
+            "properties": {
+              "videos": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "create_time": {
+                      "type": "integer"
+                    },
+                    "cover_image_url": {
+                      "type": "string"
+                    },
+                    "share_url": {
+                      "type": "string"
+                    },
+                    "like_count": {
+                      "type": "integer"
+                    },
+                    "comment_count": {
+                      "type": "integer"
+                    },
+                    "share_count": {
+                      "type": "integer"
+                    },
+                    "view_count": {
+                      "type": "integer"
+                    },
+                    "duration": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "output_view": {
+        "type": "table",
+        "source": "data.videos",
+        "columns": [
+          "title",
+          "view_count",
+          "like_count",
+          "comment_count"
+        ]
+      },
+      "example_parameters": {
+        "video_ids": [
+          "7123456789012345678"
+        ]
+      },
+      "ui_hints": {
+        "color": "#000000",
+        "icon": "bar-chart-2",
+        "sections": {
+          "basic": {
+            "title": "Basic",
+            "collapsed": false,
+            "order": 1
+          },
+          "options": {
+            "title": "Options",
+            "collapsed": true,
+            "order": 2
+          }
+        },
+        "categories": [
+          "social_media"
+        ]
+      }
+    },
+    "tiktok_list_comments": {
+      "display_name": "List Video Comments",
+      "description": "Retrieve comments on a TikTok video",
+      "service_type": "SOCIAL_MEDIA",
+      "endpoint_url": "https://open.tiktokapis.com/v2/comment/list/",
+      "method": "POST",
+      "requires_credentials": true,
+      "parameter_mapping": {
+        "query": [
+          "fields"
+        ],
+        "body": [
+          "video_id",
+          "max_count",
+          "cursor"
+        ]
+      },
+      "parameter_schema": {
+        "type": "object",
+        "required": [
+          "video_id"
+        ],
+        "properties": {
+          "video_id": {
+            "type": "string",
+            "title": "Video ID",
+            "description": "The TikTok video ID to get comments for",
+            "ui": {
+              "section": "basic",
+              "order": 1
+            }
+          },
+          "max_count": {
+            "type": "integer",
+            "title": "Max Count",
+            "description": "Number of comments to return (1-50)",
+            "minimum": 1,
+            "maximum": 50,
+            "default": 20,
+            "ui": {
+              "section": "basic",
+              "order": 2
+            }
+          },
+          "cursor": {
+            "type": "integer",
+            "title": "Cursor",
+            "description": "Pagination cursor for the next page",
+            "ui": {
+              "section": "options",
+              "order": 1
+            }
+          },
+          "fields": {
+            "type": "string",
+            "title": "Fields",
+            "description": "Comma-separated list of comment fields to return",
+            "default": "id,text,create_time,like_count,parent_comment_id",
+            "ui": {
+              "section": "options",
+              "order": 2
+            }
+          }
+        }
+      },
+      "result_schema": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object",
+            "properties": {
+              "comments": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "text": {
+                      "type": "string"
+                    },
+                    "create_time": {
+                      "type": "integer"
+                    },
+                    "like_count": {
+                      "type": "integer"
+                    },
+                    "parent_comment_id": {
+                      "type": "string"
+                    }
+                  }
+                }
+              },
+              "cursor": {
+                "type": "integer"
+              },
+              "has_more": {
+                "type": "boolean"
+              }
+            }
+          }
+        }
+      },
+      "output_view": {
+        "type": "list",
+        "source": "data.comments"
+      },
+      "example_parameters": {
+        "video_id": "7123456789012345678",
+        "max_count": 20
+      },
+      "ui_hints": {
+        "color": "#000000",
+        "icon": "message-circle",
+        "sections": {
+          "basic": {
+            "title": "Basic",
+            "collapsed": false,
+            "order": 1
+          },
+          "options": {
+            "title": "Options",
+            "collapsed": true,
+            "order": 2
+          }
+        },
+        "categories": [
+          "social_media"
+        ]
+      }
+    },
+    "tiktok_reply_to_comment": {
+      "display_name": "Reply to Comment",
+      "description": "Post a reply to an existing comment on a TikTok video (max 150 characters)",
+      "service_type": "SOCIAL_MEDIA",
+      "endpoint_url": "https://open.tiktokapis.com/v2/comment/reply/",
+      "method": "POST",
+      "requires_credentials": true,
+      "parameter_mapping": {
+        "body": [
+          "video_id",
+          "comment_id",
+          "text"
+        ]
+      },
+      "parameter_schema": {
+        "type": "object",
+        "required": [
+          "video_id",
+          "comment_id",
+          "text"
+        ],
+        "properties": {
+          "video_id": {
+            "type": "string",
+            "title": "Video ID",
+            "description": "The TikTok video ID containing the comment",
+            "ui": {
+              "section": "basic",
+              "order": 1
+            }
+          },
+          "comment_id": {
+            "type": "string",
+            "title": "Comment ID",
+            "description": "The ID of the comment to reply to",
+            "ui": {
+              "section": "basic",
+              "order": 2
+            }
+          },
+          "text": {
+            "type": "string",
+            "title": "Reply Text",
+            "description": "The text of the reply (max 150 characters)",
+            "maxLength": 150,
+            "ui": {
+              "section": "basic",
+              "order": 3,
+              "widget": "textarea"
+            }
+          }
+        }
+      },
+      "result_schema": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object",
+            "properties": {
+              "comment_id": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "example_parameters": {
+        "video_id": "7123456789012345678",
+        "comment_id": "7123456789012345679",
+        "text": "Thanks for watching!"
+      },
+      "ui_hints": {
+        "color": "#000000",
+        "icon": "corner-down-right",
+        "sections": {
+          "basic": {
+            "title": "Basic",
+            "collapsed": false,
+            "order": 1
+          }
+        },
+        "categories": [
+          "social_media"
+        ]
+      }
+    }
+  },
+  "default_queue": "step_jobs"
+}

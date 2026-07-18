@@ -129,8 +129,7 @@
         },
         "path": {
           "type": "string",
-          "description": "Local path relative to PROVIDERS_DIR for directory-based install. Matches the provider slug.",
-          "pattern": "^[a-z][a-z0-9-]*/[a-z][a-z0-9-]*$"
+          "description": "Relative path to the provider JSON file within the catalog repository."
         },
         "download_url": {
           "type": "string",

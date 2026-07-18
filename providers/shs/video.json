@@ -1,0 +1,2030 @@
+{
+  "$schema": "https://raw.githubusercontent.com/selfhosthub/studio-community/main/schemas/provider.schema.json",
+  "slug": "shs/video",
+  "version": "1.0.0",
+  "name": "Self-Host Studio Video",
+  "description": "Self-hosted video processing with FFmpeg and Whisper STT",
+  "provider_type": "INTERNAL",
+  "category": "ai",
+  "status": "ACTIVE",
+  "tier": "community",
+  "icon_url": "/providers/shs-video.svg",
+  "services_preview": [
+    "Create Video"
+  ],
+  "credential_schema": null,
+  "base_url": null,
+  "local_worker": {
+    "enabled": true,
+    "queue": "video_jobs"
+  },
+  "services": {
+    "shs_create_video": {
+      "display_name": "Create Video",
+      "description": "Create video from scenes containing images, video clips, and audio tracks. Supports Ken Burns effects, Whisper-powered subtitles, and scene grouping to pair images with audio per scene (audio drives duration).",
+      "service_type": "AI",
+      "path": null,
+      "method": "POST",
+      "requires_credentials": false,
+      "iterable": false,
+      "parameter_schema": {
+        "type": "object",
+        "required": [
+          "scenes"
+        ],
+        "properties": {
+          "record_id": {
+            "type": "string",
+            "title": "Record ID",
+            "description": "Custom ID to track this job (returned in webhook callback)",
+            "ui": {
+              "section": "basic",
+              "order": 1,
+              "placeholder": "my-video-001"
+            }
+          },
+          "movie_id": {
+            "type": "string",
+            "title": "Movie ID",
+            "description": "Custom identifier for this video project",
+            "ui": {
+              "section": "movie_settings",
+              "order": 1
+            }
+          },
+          "comment": {
+            "type": "string",
+            "title": "Comment",
+            "description": "Internal note for this project",
+            "ui": {
+              "section": "movie_settings",
+              "order": 2
+            }
+          },
+          "variables": {
+            "type": "object",
+            "title": "Variables",
+            "description": "Global variables (future: template support)",
+            "additionalProperties": true,
+            "ui": {
+              "section": "movie_settings",
+              "order": 3,
+              "widget": "json-editor",
+              "rows": 4,
+              "coming_soon": true
+            }
+          },
+          "client_data": {
+            "type": "object",
+            "title": "Client Data",
+            "description": "Custom data returned in webhook callback",
+            "additionalProperties": true,
+            "ui": {
+              "section": "movie_settings",
+              "order": 4,
+              "widget": "json-editor",
+              "rows": 3
+            }
+          },
+          "subtitles_source": {
+            "type": "string",
+            "title": "Subtitle Source",
+            "description": "How to provide subtitle content",
+            "enum": [
+              "",
+              "auto",
+              "captions",
+              "src",
+              "text"
+            ],
+            "enumNames": [
+              "None",
+              "Auto-generate (Whisper)",
+              "Manual Captions",
+              "SRT/VTT File",
+              "Plain Text"
+            ],
+            "default": "",
+            "ui": {
+              "section": "defaults",
+              "group": "subtitles",
+              "order": 1
+            }
+          },
+          "subtitles_captions": {
+            "type": "array",
+            "title": "Captions",
+            "description": "Array of timed captions with start, end, and text",
+            "items": {
+              "type": "object",
+              "title": "Caption",
+              "properties": {
+                "start": {
+                  "type": "number",
+                  "title": "Start (seconds)",
+                  "description": "When this caption appears"
+                },
+                "end": {
+                  "type": "number",
+                  "title": "End (seconds)",
+                  "description": "When this caption disappears"
+                },
+                "text": {
+                  "type": "string",
+                  "title": "Text",
+                  "description": "Caption text to display"
+                }
+              },
+              "required": [
+                "start",
+                "end",
+                "text"
+              ]
+            },
+            "ui": {
+              "section": "defaults",
+              "group": "subtitles",
+              "order": 2,
+              "show_when": {
+                "subtitles_source": [
+                  "captions"
+                ]
+              }
+            }
+          },
+          "subtitles_src": {
+            "type": "string",
+            "title": "Subtitle File URL",
+            "description": "URL to SRT or VTT subtitle file",
+            "format": "uri",
+            "ui": {
+              "section": "defaults",
+              "group": "subtitles",
+              "order": 2,
+              "show_when": {
+                "subtitles_source": [
+                  "src"
+                ]
+              }
+            }
+          },
+          "subtitles_text": {
+            "type": "string",
+            "title": "Subtitle Text",
+            "description": "Plain text to display as subtitles (auto-timed to audio duration)",
+            "ui": {
+              "section": "defaults",
+              "group": "subtitles",
+              "order": 2,
+              "widget": "textarea",
+              "rows": 4,
+              "show_when": {
+                "subtitles_source": [
+                  "text"
+                ]
+              }
+            }
+          },
+          "subtitles_model": {
+            "type": "string",
+            "title": "Transcription Model",
+            "description": "Whisper model for speech recognition. Larger models are more accurate but slower.",
+            "enum": [
+              "tiny",
+              "base",
+              "small",
+              "medium",
+              "large",
+              "turbo"
+            ],
+            "enumNames": [
+              "Tiny (fastest)",
+              "Base",
+              "Small",
+              "Medium",
+              "Large (most accurate)",
+              "Turbo"
+            ],
+            "default": "base",
+            "ui": {
+              "section": "defaults",
+              "group": "subtitles",
+              "order": 2,
+              "show_when": {
+                "subtitles_source": [
+                  "auto"
+                ]
+              }
+            }
+          },
+          "subtitles_backend": {
+            "type": "string",
+            "title": "Transcription Engine",
+            "description": "Whisper backend. Faster-Whisper is ~4-5x quicker; OpenAI is the original.",
+            "enum": [
+              "openai",
+              "faster"
+            ],
+            "enumNames": [
+              "OpenAI Whisper",
+              "Faster-Whisper"
+            ],
+            "default": "openai",
+            "ui": {
+              "section": "defaults",
+              "group": "subtitles",
+              "order": 3,
+              "show_when": {
+                "subtitles_source": [
+                  "auto"
+                ]
+              }
+            }
+          },
+          "subtitles_language": {
+            "type": "string",
+            "title": "Language",
+            "description": "Language for speech recognition",
+            "enum": [
+              "en",
+              "es",
+              "fr",
+              "de",
+              "it",
+              "pt",
+              "nl",
+              "pl",
+              "ru",
+              "ja",
+              "ko",
+              "zh"
+            ],
+            "enumNames": [
+              "English",
+              "Spanish",
+              "French",
+              "German",
+              "Italian",
+              "Portuguese",
+              "Dutch",
+              "Polish",
+              "Russian",
+              "Japanese",
+              "Korean",
+              "Chinese"
+            ],
+            "default": "en",
+            "ui": {
+              "section": "defaults",
+              "group": "subtitles",
+              "order": 3,
+              "show_when": {
+                "subtitles_source": [
+                  "auto",
+                  "captions",
+                  "src",
+                  "text"
+                ]
+              }
+            }
+          },
+          "subtitles_style": {
+            "type": "string",
+            "title": "Style",
+            "description": "Visual style for subtitles",
+            "enum": [
+              "standard",
+              "karaoke"
+            ],
+            "enumNames": [
+              "Standard",
+              "Karaoke (word highlighting)"
+            ],
+            "default": "standard",
+            "ui": {
+              "section": "defaults",
+              "group": "subtitles",
+              "order": 7,
+              "show_when": {
+                "subtitles_source": [
+                  "auto",
+                  "captions",
+                  "src",
+                  "text"
+                ]
+              }
+            }
+          },
+          "subtitles_font_family": {
+            "type": "string",
+            "title": "Font Family",
+            "description": "Font for subtitles",
+            "enum": [
+              "Luckiest Guy",
+              "Roboto",
+              "Comic Neue",
+              "Lobster",
+              "Oswald",
+              "Pacifico",
+              "Permanent Marker",
+              "Nunito",
+              "Libre Baskerville",
+              "Fredericka the Great",
+              "Shrikhand",
+              "Nanum Pen Script",
+              "Noto Sans KR",
+              "Noto Sans SC",
+              "Noto Sans TC"
+            ],
+            "enumNames": [
+              "Luckiest Guy (Bold Display)",
+              "Roboto (Clean Sans)",
+              "Comic Neue (Casual)",
+              "Lobster (Script)",
+              "Oswald (Condensed)",
+              "Pacifico (Brush Script)",
+              "Permanent Marker (Handwritten)",
+              "Nunito (Rounded Sans)",
+              "Libre Baskerville (Serif)",
+              "Fredericka the Great (Display)",
+              "Shrikhand (Bold Display)",
+              "Nanum Pen Script (Korean)",
+              "Noto Sans KR (Korean)",
+              "Noto Sans SC (Chinese Simplified)",
+              "Noto Sans TC (Chinese Traditional)"
+            ],
+            "default": "Luckiest Guy",
+            "ui": {
+              "section": "defaults",
+              "group": "subtitles",
+              "order": 4,
+              "show_when": {
+                "subtitles_source": [
+                  "auto",
+                  "captions",
+                  "src",
+                  "text"
+                ]
+              }
+            }
+          },
+          "subtitles_font_size": {
+            "type": "integer",
+            "title": "Font Size",
+            "description": "Subtitle font size in pixels",
+            "default": 24,
+            "minimum": 12,
+            "maximum": 72,
+            "ui": {
+              "section": "defaults",
+              "group": "subtitles",
+              "order": 5,
+              "show_when": {
+                "subtitles_source": [
+                  "auto",
+                  "captions",
+                  "src",
+                  "text"
+                ]
+              }
+            }
+          },
+          "subtitles_font_color": {
+            "type": "string",
+            "title": "Font Color",
+            "description": "Subtitle text color. Use color name (white, yellow) or hex (#FFFFFF).",
+            "default": "FFFFFF",
+            "format": "color",
+            "ui": {
+              "section": "defaults",
+              "group": "subtitles",
+              "order": 8,
+              "show_when": {
+                "subtitles_source": [
+                  "auto",
+                  "captions",
+                  "src",
+                  "text"
+                ]
+              }
+            }
+          },
+          "subtitles_background_color": {
+            "type": "string",
+            "title": "Background Color",
+            "description": "Subtitle background color. Use hex with alpha (#00000080 for semi-transparent black).",
+            "default": "00000080",
+            "format": "color",
+            "ui": {
+              "section": "defaults",
+              "group": "subtitles",
+              "order": 9,
+              "show_when": {
+                "subtitles_source": [
+                  "auto",
+                  "captions",
+                  "src",
+                  "text"
+                ]
+              }
+            }
+          },
+          "subtitles_all_caps": {
+            "type": "boolean",
+            "title": "All Caps",
+            "description": "Display subtitles in uppercase",
+            "default": false,
+            "ui": {
+              "section": "defaults",
+              "group": "subtitles",
+              "order": 3,
+              "show_when": {
+                "subtitles_source": [
+                  "auto",
+                  "captions",
+                  "src",
+                  "text"
+                ]
+              }
+            }
+          },
+          "subtitles_position": {
+            "type": "string",
+            "title": "Position",
+            "description": "Subtitle position on screen",
+            "enum": [
+              "top",
+              "center",
+              "bottom"
+            ],
+            "enumNames": [
+              "Top",
+              "Center",
+              "Bottom"
+            ],
+            "default": "bottom",
+            "ui": {
+              "section": "defaults",
+              "group": "subtitles",
+              "order": 4,
+              "show_when": {
+                "subtitles_source": [
+                  "auto",
+                  "captions",
+                  "src",
+                  "text"
+                ]
+              }
+            }
+          },
+          "subtitles_highlight_color": {
+            "type": "string",
+            "title": "Highlight Color",
+            "description": "Word highlight color for karaoke style. Use color name (yellow) or hex (#FFFF00).",
+            "default": "FFFF00",
+            "format": "color",
+            "ui": {
+              "section": "defaults",
+              "group": "subtitles",
+              "order": 10,
+              "show_when": {
+                "subtitles_source": [
+                  "auto",
+                  "captions",
+                  "src",
+                  "text"
+                ],
+                "subtitles_style": [
+                  "karaoke"
+                ]
+              }
+            }
+          },
+          "subtitles_outline_color": {
+            "type": "string",
+            "title": "Outline Color",
+            "description": "Text outline color. Use color name (black) or hex (#000000).",
+            "default": "000000",
+            "format": "color",
+            "ui": {
+              "section": "defaults",
+              "group": "subtitles",
+              "order": 11,
+              "show_when": {
+                "subtitles_source": [
+                  "auto",
+                  "captions",
+                  "src",
+                  "text"
+                ]
+              }
+            }
+          },
+          "subtitles_outline_width": {
+            "type": "integer",
+            "title": "Outline Width",
+            "description": "Text outline thickness in pixels",
+            "default": 2,
+            "minimum": 0,
+            "maximum": 10,
+            "ui": {
+              "section": "defaults",
+              "group": "subtitles",
+              "order": 6,
+              "show_when": {
+                "subtitles_source": [
+                  "auto",
+                  "captions",
+                  "src",
+                  "text"
+                ]
+              }
+            }
+          },
+          "subtitles_shadow_offset": {
+            "type": "integer",
+            "title": "Shadow Offset",
+            "description": "Drop shadow distance in pixels",
+            "default": 1,
+            "minimum": 0,
+            "maximum": 10,
+            "ui": {
+              "section": "defaults",
+              "group": "subtitles",
+              "order": 13,
+              "show_when": {
+                "subtitles_source": [
+                  "auto",
+                  "captions",
+                  "src",
+                  "text"
+                ]
+              }
+            }
+          },
+          "subtitles_max_words_per_phrase": {
+            "type": "integer",
+            "title": "Max Words Per Line",
+            "description": "Maximum words shown per subtitle line",
+            "default": 5,
+            "minimum": 1,
+            "maximum": 15,
+            "ui": {
+              "section": "defaults",
+              "group": "subtitles",
+              "order": 14,
+              "show_when": {
+                "subtitles_source": [
+                  "auto",
+                  "captions",
+                  "src",
+                  "text"
+                ]
+              }
+            }
+          },
+          "subtitles_edge_padding": {
+            "type": "integer",
+            "title": "Edge Padding",
+            "description": "Screen margin from edge in pixels",
+            "default": 20,
+            "minimum": 0,
+            "maximum": 100,
+            "ui": {
+              "section": "defaults",
+              "group": "subtitles",
+              "order": 15,
+              "show_when": {
+                "subtitles_source": [
+                  "auto",
+                  "captions",
+                  "src",
+                  "text"
+                ]
+              }
+            }
+          },
+          "scenes": {
+            "type": "array",
+            "title": "Scenes",
+            "description": "Video scenes containing visual and audio elements",
+            "reorderable": true,
+            "items": {
+              "type": "object",
+              "title": "Scene",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "title": "Name",
+                  "description": "Optional label for this scene (e.g. Intro, Main Content, Outro)",
+                  "default": "",
+                  "ui": {
+                    "order": -1
+                  }
+                },
+                "type": {
+                  "type": "string",
+                  "title": "Scene Type",
+                  "enum": [
+                    "scene",
+                    "item_group"
+                  ],
+                  "enumNames": [
+                    "Static Scene",
+                    "Scene Group"
+                  ],
+                  "default": "scene",
+                  "description": "Static scene renders as-is. Scene group expands via circular stacks.",
+                  "ui": {
+                    "order": 0
+                  }
+                },
+                "repeat": {
+                  "type": "integer",
+                  "title": "Scene Count",
+                  "description": "Number of scene groups to produce. Each iteration pulls 'count' items from each element's src array.",
+                  "default": 1,
+                  "minimum": 1,
+                  "ui": {
+                    "order": 1,
+                    "show_when": {
+                      "type": [
+                        "item_group"
+                      ]
+                    }
+                  }
+                },
+                "subtitles_source": {
+                  "type": "string",
+                  "title": "Subtitle Source",
+                  "enum": [
+                    "",
+                    "auto",
+                    "captions",
+                    "src",
+                    "text"
+                  ],
+                  "enumNames": [
+                    "Use Default",
+                    "Auto (Whisper)",
+                    "Captions",
+                    "External File",
+                    "Plain Text"
+                  ],
+                  "default": "",
+                  "ui": {
+                    "order": 50,
+                    "group": "subtitles"
+                  }
+                },
+                "subtitles_narration_texts": {
+                  "type": "array",
+                  "title": "Narration Texts",
+                  "description": "Reference text per item_group iteration for Whisper forced alignment. Worker pulls 1 per group via circular stack.",
+                  "items": {
+                    "type": "string"
+                  },
+                  "ui": {
+                    "order": 51,
+                    "group": "subtitles",
+                    "show_when": {
+                      "subtitles_source": [
+                        "auto"
+                      ]
+                    }
+                  }
+                },
+                "subtitles_model": {
+                  "type": "string",
+                  "title": "Whisper Model",
+                  "enum": [
+                    "",
+                    "tiny",
+                    "base",
+                    "small",
+                    "medium",
+                    "large",
+                    "turbo"
+                  ],
+                  "enumNames": [
+                    "Use Default",
+                    "Tiny (fastest)",
+                    "Base",
+                    "Small",
+                    "Medium",
+                    "Large (most accurate)",
+                    "Turbo"
+                  ],
+                  "default": "",
+                  "ui": {
+                    "order": 52,
+                    "group": "subtitles",
+                    "show_when": {
+                      "subtitles_source": [
+                        "auto"
+                      ]
+                    }
+                  }
+                },
+                "subtitles_language": {
+                  "type": "string",
+                  "title": "Language",
+                  "enum": [
+                    "",
+                    "en",
+                    "es",
+                    "fr",
+                    "de",
+                    "it",
+                    "pt",
+                    "nl",
+                    "pl",
+                    "ru",
+                    "ja",
+                    "ko",
+                    "zh"
+                  ],
+                  "enumNames": [
+                    "Use Default",
+                    "English",
+                    "Spanish",
+                    "French",
+                    "German",
+                    "Italian",
+                    "Portuguese",
+                    "Dutch",
+                    "Polish",
+                    "Russian",
+                    "Japanese",
+                    "Korean",
+                    "Chinese"
+                  ],
+                  "default": "",
+                  "ui": {
+                    "order": 53,
+                    "group": "subtitles",
+                    "show_when": {
+                      "subtitles_source": [
+                        "auto",
+                        "captions",
+                        "src",
+                        "text"
+                      ]
+                    }
+                  }
+                },
+                "subtitles_font_family": {
+                  "type": "string",
+                  "title": "Font Family",
+                  "enum": [
+                    "",
+                    "Luckiest Guy",
+                    "Roboto",
+                    "Comic Neue",
+                    "Lobster",
+                    "Oswald",
+                    "Pacifico",
+                    "Permanent Marker",
+                    "Nunito",
+                    "Libre Baskerville",
+                    "Fredericka the Great",
+                    "Shrikhand",
+                    "Nanum Pen Script",
+                    "Noto Sans KR",
+                    "Noto Sans SC",
+                    "Noto Sans TC"
+                  ],
+                  "enumNames": [
+                    "Use Default",
+                    "Luckiest Guy (Bold Display)",
+                    "Roboto (Clean Sans)",
+                    "Comic Neue (Casual)",
+                    "Lobster (Script)",
+                    "Oswald (Condensed)",
+                    "Pacifico (Brush Script)",
+                    "Permanent Marker (Handwritten)",
+                    "Nunito (Rounded Sans)",
+                    "Libre Baskerville (Serif)",
+                    "Fredericka the Great (Display)",
+                    "Shrikhand (Bold Display)",
+                    "Nanum Pen Script (Korean)",
+                    "Noto Sans KR (Korean)",
+                    "Noto Sans SC (Chinese Simplified)",
+                    "Noto Sans TC (Chinese Traditional)"
+                  ],
+                  "default": "",
+                  "description": "Override default subtitle font. Leave empty to use default.",
+                  "ui": {
+                    "order": 54,
+                    "group": "subtitles",
+                    "show_when": {
+                      "subtitles_source": [
+                        "auto",
+                        "captions",
+                        "src",
+                        "text"
+                      ]
+                    }
+                  }
+                },
+                "subtitles_font_size": {
+                  "type": "integer",
+                  "title": "Font Size",
+                  "description": "Override default font size. 0 = use default.",
+                  "default": 0,
+                  "minimum": 0,
+                  "maximum": 72,
+                  "ui": {
+                    "order": 55,
+                    "group": "subtitles",
+                    "show_when": {
+                      "subtitles_source": [
+                        "auto",
+                        "captions",
+                        "src",
+                        "text"
+                      ]
+                    }
+                  }
+                },
+                "subtitles_all_caps": {
+                  "type": "string",
+                  "title": "All Caps",
+                  "enum": [
+                    "",
+                    "true",
+                    "false"
+                  ],
+                  "enumNames": [
+                    "Use Default",
+                    "Yes",
+                    "No"
+                  ],
+                  "default": "",
+                  "ui": {
+                    "order": 56,
+                    "group": "subtitles",
+                    "show_when": {
+                      "subtitles_source": [
+                        "auto",
+                        "captions",
+                        "src",
+                        "text"
+                      ]
+                    }
+                  }
+                },
+                "subtitles_position": {
+                  "type": "string",
+                  "title": "Position",
+                  "enum": [
+                    "",
+                    "top",
+                    "center",
+                    "bottom"
+                  ],
+                  "enumNames": [
+                    "Use Default",
+                    "Top",
+                    "Center",
+                    "Bottom"
+                  ],
+                  "default": "",
+                  "ui": {
+                    "order": 57,
+                    "group": "subtitles",
+                    "show_when": {
+                      "subtitles_source": [
+                        "auto",
+                        "captions",
+                        "src",
+                        "text"
+                      ]
+                    }
+                  }
+                },
+                "subtitles_style": {
+                  "type": "string",
+                  "title": "Style",
+                  "enum": [
+                    "",
+                    "standard",
+                    "karaoke"
+                  ],
+                  "enumNames": [
+                    "Use Default",
+                    "Standard",
+                    "Karaoke (word highlighting)"
+                  ],
+                  "default": "",
+                  "ui": {
+                    "order": 58,
+                    "group": "subtitles",
+                    "show_when": {
+                      "subtitles_source": [
+                        "auto",
+                        "captions",
+                        "src",
+                        "text"
+                      ]
+                    }
+                  }
+                },
+                "subtitles_font_color": {
+                  "type": "string",
+                  "title": "Font Color",
+                  "description": "Override default font color. Leave empty for default.",
+                  "default": "",
+                  "format": "color",
+                  "ui": {
+                    "order": 59,
+                    "group": "subtitles",
+                    "show_when": {
+                      "subtitles_source": [
+                        "auto",
+                        "captions",
+                        "src",
+                        "text"
+                      ]
+                    }
+                  }
+                },
+                "subtitles_background_color": {
+                  "type": "string",
+                  "title": "Background Color",
+                  "description": "Override default background color. Leave empty for default.",
+                  "default": "",
+                  "format": "color",
+                  "ui": {
+                    "order": 60,
+                    "group": "subtitles",
+                    "show_when": {
+                      "subtitles_source": [
+                        "auto",
+                        "captions",
+                        "src",
+                        "text"
+                      ]
+                    }
+                  }
+                },
+                "subtitles_highlight_color": {
+                  "type": "string",
+                  "title": "Highlight Color",
+                  "description": "Override default highlight color. Leave empty for default.",
+                  "default": "",
+                  "format": "color",
+                  "ui": {
+                    "order": 61,
+                    "group": "subtitles",
+                    "show_when": {
+                      "subtitles_source": [
+                        "auto",
+                        "captions",
+                        "src",
+                        "text"
+                      ],
+                      "subtitles_style": [
+                        "karaoke"
+                      ]
+                    }
+                  }
+                },
+                "subtitles_outline_color": {
+                  "type": "string",
+                  "title": "Outline Color",
+                  "description": "Override default outline color. Leave empty for default.",
+                  "default": "",
+                  "format": "color",
+                  "ui": {
+                    "order": 62,
+                    "group": "subtitles",
+                    "show_when": {
+                      "subtitles_source": [
+                        "auto",
+                        "captions",
+                        "src",
+                        "text"
+                      ]
+                    }
+                  }
+                },
+                "subtitles_outline_width": {
+                  "type": "integer",
+                  "title": "Outline Width",
+                  "description": "Override default outline width. 0 = use default.",
+                  "default": 0,
+                  "minimum": 0,
+                  "maximum": 10,
+                  "ui": {
+                    "order": 63,
+                    "group": "subtitles",
+                    "show_when": {
+                      "subtitles_source": [
+                        "auto",
+                        "captions",
+                        "src",
+                        "text"
+                      ]
+                    }
+                  }
+                },
+                "subtitles_shadow_offset": {
+                  "type": "integer",
+                  "title": "Shadow Offset",
+                  "description": "Override default shadow offset. -1 = use default.",
+                  "default": -1,
+                  "minimum": -1,
+                  "maximum": 10,
+                  "ui": {
+                    "order": 64,
+                    "group": "subtitles",
+                    "show_when": {
+                      "subtitles_source": [
+                        "auto",
+                        "captions",
+                        "src",
+                        "text"
+                      ]
+                    }
+                  }
+                },
+                "subtitles_max_words_per_phrase": {
+                  "type": "integer",
+                  "title": "Max Words Per Line",
+                  "description": "Override default max words per line. 0 = use default.",
+                  "default": 0,
+                  "minimum": 0,
+                  "maximum": 15,
+                  "ui": {
+                    "order": 65,
+                    "group": "subtitles",
+                    "show_when": {
+                      "subtitles_source": [
+                        "auto",
+                        "captions",
+                        "src",
+                        "text"
+                      ]
+                    }
+                  }
+                },
+                "subtitles_edge_padding": {
+                  "type": "integer",
+                  "title": "Edge Padding",
+                  "description": "Override default edge padding. -1 = use default.",
+                  "default": -1,
+                  "minimum": -1,
+                  "maximum": 100,
+                  "ui": {
+                    "order": 66,
+                    "group": "subtitles",
+                    "show_when": {
+                      "subtitles_source": [
+                        "auto",
+                        "captions",
+                        "src",
+                        "text"
+                      ]
+                    }
+                  }
+                },
+                "duration": {
+                  "type": "number",
+                  "title": "Duration (seconds)",
+                  "description": "Scene duration. Use -1 for auto (sum of element durations)",
+                  "default": -1
+                },
+                "comment": {
+                  "type": "string",
+                  "title": "Comment",
+                  "description": "Internal note for this scene"
+                },
+                "transition": {
+                  "type": "object",
+                  "title": "Transition (coming soon)",
+                  "description": "Transition effect to next scene",
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "title": "Type",
+                      "enum": [
+                        "fade",
+                        "wipe-left",
+                        "wipe-right",
+                        "slide-left",
+                        "slide-right"
+                      ],
+                      "enumNames": [
+                        "Fade",
+                        "Wipe Left",
+                        "Wipe Right",
+                        "Slide Left",
+                        "Slide Right"
+                      ],
+                      "default": "fade"
+                    },
+                    "duration": {
+                      "type": "number",
+                      "title": "Duration",
+                      "default": 0.5
+                    }
+                  },
+                  "ui": {
+                    "coming_soon": true
+                  }
+                },
+                "elements": {
+                  "type": "array",
+                  "title": "Elements",
+                  "description": "Visual and audio elements in this scene",
+                  "ui": {
+                    "group": "elements",
+                    "order": 1
+                  },
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "type",
+                      "src"
+                    ],
+                    "title": "Element",
+                    "properties": {
+                      "type": {
+                        "type": "string",
+                        "title": "Element Type",
+                        "enum": [
+                          "image",
+                          "video",
+                          "audio"
+                        ],
+                        "enumNames": [
+                          "Image",
+                          "Video Clip",
+                          "Audio Track"
+                        ],
+                        "description": "Type of element",
+                        "default": "image",
+                        "ui": {
+                          "order": 1
+                        }
+                      },
+                      "src": {
+                        "type": "string",
+                        "title": "Source URL",
+                        "description": "URL to the file. Supports http/https URLs. For images: jpg, png, webp. For video: mp4, webm. For audio: mp3, wav, m4a.",
+                        "format": "uri",
+                        "ui": {
+                          "order": 2
+                        }
+                      },
+                      "duration": {
+                        "type": "number",
+                        "title": "Duration (seconds)",
+                        "description": "Element duration. -1=use default, -2=match scene duration",
+                        "default": -1,
+                        "ui": {
+                          "order": 10,
+                          "group": "timing"
+                        }
+                      },
+                      "start": {
+                        "type": "number",
+                        "title": "Start Time (seconds)",
+                        "description": "When element appears in scene (coming soon)",
+                        "default": 0,
+                        "ui": {
+                          "order": 11,
+                          "group": "timing",
+                          "coming_soon": true
+                        }
+                      },
+                      "fade_in": {
+                        "type": "number",
+                        "title": "Fade In (seconds)",
+                        "description": "Fade in duration",
+                        "default": 0,
+                        "minimum": 0,
+                        "maximum": 10,
+                        "ui": {
+                          "order": 12,
+                          "group": "timing",
+                          "show_when": {
+                            "type": [
+                              "image",
+                              "video"
+                            ]
+                          }
+                        }
+                      },
+                      "fade_out": {
+                        "type": "number",
+                        "title": "Fade Out (seconds)",
+                        "description": "Fade out duration",
+                        "default": 0,
+                        "minimum": 0,
+                        "maximum": 10,
+                        "ui": {
+                          "order": 13,
+                          "group": "timing",
+                          "show_when": {
+                            "type": [
+                              "image",
+                              "video"
+                            ]
+                          }
+                        }
+                      },
+                      "horizontal_position": {
+                        "type": "string",
+                        "title": "Horizontal Position",
+                        "description": "Horizontal placement when padding. Default: center",
+                        "enum": [
+                          "",
+                          "left",
+                          "center_left",
+                          "center",
+                          "center_right",
+                          "right"
+                        ],
+                        "enumNames": [
+                          "Default",
+                          "Left",
+                          "Center-Left",
+                          "Center",
+                          "Center-Right",
+                          "Right"
+                        ],
+                        "ui": {
+                          "order": 20,
+                          "group": "layout",
+                          "show_when": {
+                            "type": [
+                              "image",
+                              "video"
+                            ]
+                          }
+                        }
+                      },
+                      "vertical_position": {
+                        "type": "string",
+                        "title": "Vertical Position",
+                        "description": "Vertical placement when padding. Default: middle",
+                        "enum": [
+                          "",
+                          "top",
+                          "middle_top",
+                          "middle",
+                          "middle_bottom",
+                          "bottom"
+                        ],
+                        "enumNames": [
+                          "Default",
+                          "Top",
+                          "Middle-Top",
+                          "Middle",
+                          "Middle-Bottom",
+                          "Bottom"
+                        ],
+                        "ui": {
+                          "order": 21,
+                          "group": "layout",
+                          "show_when": {
+                            "type": [
+                              "image",
+                              "video"
+                            ]
+                          }
+                        }
+                      },
+                      "width": {
+                        "type": "number",
+                        "title": "Width",
+                        "description": "Element width in pixels. Only used when resize=custom. Other modes auto-detect from source.",
+                        "default": -1,
+                        "ui": {
+                          "order": 22,
+                          "group": "layout",
+                          "show_when": {
+                            "type": [
+                              "image",
+                              "video"
+                            ]
+                          }
+                        }
+                      },
+                      "height": {
+                        "type": "number",
+                        "title": "Height",
+                        "description": "Element height in pixels. Only used when resize=custom. Other modes auto-detect from source.",
+                        "default": -1,
+                        "ui": {
+                          "order": 23,
+                          "group": "layout",
+                          "show_when": {
+                            "type": [
+                              "image",
+                              "video"
+                            ]
+                          }
+                        }
+                      },
+                      "resize": {
+                        "type": "string",
+                        "title": "Resize Mode",
+                        "description": "How to fit element in frame. Custom uses width/height; others auto-scale source to frame.",
+                        "enum": [
+                          "",
+                          "cover",
+                          "contain",
+                          "fill",
+                          "custom"
+                        ],
+                        "enumNames": [
+                          "Select...",
+                          "Cover (fill and crop)",
+                          "Contain (fit with padding)",
+                          "Fill (stretch)",
+                          "Custom (use width/height)"
+                        ],
+                        "ui": {
+                          "order": 24,
+                          "group": "layout",
+                          "show_when": {
+                            "type": [
+                              "image",
+                              "video"
+                            ]
+                          }
+                        }
+                      },
+                      "z_index": {
+                        "type": "integer",
+                        "title": "Layer (Z-Index)",
+                        "description": "Layer order (-99 to 99, higher = on top)",
+                        "minimum": -99,
+                        "maximum": 99,
+                        "default": 0,
+                        "ui": {
+                          "order": 25,
+                          "group": "layout",
+                          "show_when": {
+                            "type": [
+                              "image",
+                              "video"
+                            ]
+                          },
+                          "coming_soon": true
+                        }
+                      },
+                      "zoom_start": {
+                        "type": "number",
+                        "title": "Zoom Start",
+                        "description": "Starting zoom level. 1.0 = no zoom, >1 = zoomed in. Use with zoom_end for custom animations, or alone for static zoom (enables panning).",
+                        "minimum": 1.0,
+                        "maximum": 3.0,
+                        "default": 1.0,
+                        "ui": {
+                          "order": 30.1,
+                          "group": "visual_effects",
+                          "show_when": {
+                            "type": [
+                              "image",
+                              "video"
+                            ]
+                          }
+                        }
+                      },
+                      "zoom_end": {
+                        "type": "number",
+                        "title": "Zoom End",
+                        "description": "Ending zoom level. 1.0 = no zoom, >1 = zoomed in. Same as zoom_start for static zoom, different for animated zoom.",
+                        "minimum": 1.0,
+                        "maximum": 3.0,
+                        "default": 1.0,
+                        "ui": {
+                          "order": 30.2,
+                          "group": "visual_effects",
+                          "show_when": {
+                            "type": [
+                              "image",
+                              "video"
+                            ]
+                          }
+                        }
+                      },
+                      "pan": {
+                        "type": "string",
+                        "title": "Pan Direction",
+                        "description": "Ken Burns pan effect - camera pans in specified direction",
+                        "enum": [
+                          "",
+                          "left",
+                          "right",
+                          "up",
+                          "down",
+                          "top-left",
+                          "top-right",
+                          "bottom-left",
+                          "bottom-right"
+                        ],
+                        "enumNames": [
+                          "None",
+                          "Left",
+                          "Right",
+                          "Up",
+                          "Down",
+                          "Top Left",
+                          "Top Right",
+                          "Bottom Left",
+                          "Bottom Right"
+                        ],
+                        "default": "",
+                        "ui": {
+                          "order": 31,
+                          "group": "visual_effects",
+                          "show_when": {
+                            "type": [
+                              "image",
+                              "video"
+                            ]
+                          }
+                        }
+                      },
+                      "pan_distance": {
+                        "type": "number",
+                        "title": "Pan Distance",
+                        "description": "Pan distance (0.01-0.5)",
+                        "default": 0.1,
+                        "minimum": 0.01,
+                        "maximum": 0.5,
+                        "ui": {
+                          "order": 32,
+                          "group": "visual_effects",
+                          "show_when": {
+                            "type": [
+                              "image",
+                              "video"
+                            ]
+                          },
+                          "coming_soon": true
+                        }
+                      },
+                      "flip_horizontal": {
+                        "type": "boolean",
+                        "title": "Flip Horizontal",
+                        "description": "Mirror horizontally",
+                        "default": false,
+                        "ui": {
+                          "order": 33,
+                          "group": "visual_effects",
+                          "show_when": {
+                            "type": [
+                              "image",
+                              "video"
+                            ]
+                          }
+                        }
+                      },
+                      "flip_vertical": {
+                        "type": "boolean",
+                        "title": "Flip Vertical",
+                        "description": "Mirror vertically",
+                        "default": false,
+                        "ui": {
+                          "order": 34,
+                          "group": "visual_effects",
+                          "show_when": {
+                            "type": [
+                              "image",
+                              "video"
+                            ]
+                          }
+                        }
+                      },
+                      "rotate": {
+                        "type": "number",
+                        "title": "Rotation (degrees)",
+                        "description": "Rotate element by specified degrees",
+                        "default": 0,
+                        "ui": {
+                          "order": 35,
+                          "group": "visual_effects",
+                          "show_when": {
+                            "type": [
+                              "image",
+                              "video"
+                            ]
+                          }
+                        }
+                      },
+                      "correction": {
+                        "type": "object",
+                        "title": "Color Correction",
+                        "description": "Brightness, contrast, saturation (coming soon)",
+                        "properties": {
+                          "brightness": {
+                            "type": "number",
+                            "default": 0
+                          },
+                          "contrast": {
+                            "type": "number",
+                            "default": 1
+                          },
+                          "saturation": {
+                            "type": "number",
+                            "default": 1
+                          }
+                        },
+                        "ui": {
+                          "order": 36,
+                          "group": "visual_effects",
+                          "show_when": {
+                            "type": [
+                              "image",
+                              "video"
+                            ]
+                          },
+                          "coming_soon": true
+                        }
+                      },
+                      "volume": {
+                        "type": "number",
+                        "title": "Volume",
+                        "description": "Audio volume multiplier. 0 = mute, 1 = original level, 2 = double volume",
+                        "default": 1.0,
+                        "minimum": 0,
+                        "maximum": 10,
+                        "ui": {
+                          "order": 40,
+                          "group": "audio",
+                          "show_when": {
+                            "type": [
+                              "audio",
+                              "video"
+                            ]
+                          }
+                        }
+                      },
+                      "muted": {
+                        "type": "boolean",
+                        "title": "Muted",
+                        "description": "Mute audio track",
+                        "default": false,
+                        "ui": {
+                          "order": 41,
+                          "group": "audio",
+                          "show_when": {
+                            "type": [
+                              "audio",
+                              "video"
+                            ]
+                          }
+                        }
+                      },
+                      "seek": {
+                        "type": "number",
+                        "title": "Seek (Start Offset)",
+                        "description": "Start offset within file in seconds (coming soon)",
+                        "default": 0,
+                        "minimum": 0,
+                        "ui": {
+                          "order": 42,
+                          "group": "audio",
+                          "show_when": {
+                            "type": [
+                              "audio",
+                              "video"
+                            ]
+                          },
+                          "coming_soon": true
+                        }
+                      },
+                      "loop": {
+                        "type": "number",
+                        "title": "Loop Count",
+                        "description": "Loop count (-1=infinite, 0=no loop) (coming soon)",
+                        "default": 0,
+                        "ui": {
+                          "order": 43,
+                          "group": "audio",
+                          "show_when": {
+                            "type": [
+                              "audio",
+                              "video"
+                            ]
+                          },
+                          "coming_soon": true
+                        }
+                      },
+                      "count": {
+                        "type": "integer",
+                        "title": "Count per Group",
+                        "description": "Items to pull from src array per scene group iteration. Only used when parent scene is a item_group. Ignored for static scenes.",
+                        "default": 1,
+                        "minimum": 1,
+                        "ui": {
+                          "order": 3
+                        }
+                      },
+                      "durations": {
+                        "type": "array",
+                        "title": "Durations",
+                        "description": "Pre-computed durations in seconds, parallel to src array. Mapped from TTS step's duration_seconds output. If present, worker skips ffprobe. Circular-stacked alongside src.",
+                        "items": {
+                          "type": "number"
+                        },
+                        "ui": {
+                          "order": 4,
+                          "show_when": {
+                            "type": [
+                              "audio"
+                            ]
+                          }
+                        }
+                      },
+                      "id": {
+                        "type": "string",
+                        "title": "Element ID",
+                        "description": "Unique identifier for this element",
+                        "ui": {
+                          "order": 50,
+                          "group": "advanced"
+                        }
+                      },
+                      "element_comment": {
+                        "type": "string",
+                        "title": "Comment",
+                        "description": "Internal note about this element",
+                        "ui": {
+                          "order": 51,
+                          "group": "advanced"
+                        }
+                      }
+                    },
+                    "ui_groups": {
+                      "timing": {
+                        "title": "Timing",
+                        "order": 10
+                      },
+                      "layout": {
+                        "title": "Layout",
+                        "order": 20
+                      },
+                      "visual_effects": {
+                        "title": "Visual Effects",
+                        "order": 30
+                      },
+                      "audio": {
+                        "title": "Audio",
+                        "order": 40
+                      },
+                      "advanced": {
+                        "title": "Advanced",
+                        "order": 100
+                      }
+                    }
+                  }
+                }
+              },
+              "ui_groups": {
+                "elements": {
+                  "title": "Elements",
+                  "order": 10,
+                  "collapsed": false
+                },
+                "subtitles": {
+                  "title": "Subtitles",
+                  "order": 50,
+                  "collapsed": true
+                }
+              }
+            },
+            "ui": {
+              "section": "scenes",
+              "order": 1
+            }
+          },
+          "width": {
+            "type": "integer",
+            "title": "Resolution",
+            "description": "Video dimensions. Pick a preset or enter custom values.",
+            "minimum": 100,
+            "maximum": 3840,
+            "default": 1920,
+            "ui": {
+              "section": "output",
+              "order": 1,
+              "widget": "resolution-picker"
+            }
+          },
+          "height": {
+            "type": "integer",
+            "title": "Output Height",
+            "description": "Final video height in pixels",
+            "minimum": 100,
+            "maximum": 3840,
+            "default": 1080,
+            "ui": {
+              "section": "output",
+              "order": 2,
+              "hidden": true
+            }
+          },
+          "framerate": {
+            "type": "integer",
+            "title": "Frame Rate",
+            "description": "Frames per second. 24 = cinematic, 30 = standard, 60 = smooth motion",
+            "minimum": 15,
+            "maximum": 60,
+            "default": 24,
+            "ui": {
+              "section": "output",
+              "order": 3
+            }
+          },
+          "quality": {
+            "type": "string",
+            "title": "Quality",
+            "description": "Encoding quality. Higher = better quality but larger file and slower render",
+            "enum": [
+              "low",
+              "medium",
+              "high"
+            ],
+            "enumNames": [
+              "Low (fast render)",
+              "Medium (balanced)",
+              "High (best quality)"
+            ],
+            "default": "medium",
+            "ui": {
+              "section": "output",
+              "order": 4
+            }
+          },
+          "filename": {
+            "type": "string",
+            "title": "Output Filename",
+            "description": "Custom filename for the output video (without extension). Leave empty for auto-generated name.",
+            "ui": {
+              "section": "output",
+              "order": 5
+            }
+          },
+          "draft": {
+            "type": "boolean",
+            "title": "Draft Mode",
+            "description": "Quick low-quality preview. Use for testing before final render.",
+            "default": false,
+            "ui": {
+              "section": "output",
+              "order": 6,
+              "coming_soon": true
+            }
+          },
+          "default_duration": {
+            "type": "number",
+            "title": "Duration (fallback)",
+            "description": "Duration for elements that don't specify their own. Each element can override this.",
+            "default": 5,
+            "minimum": 1,
+            "maximum": 60,
+            "ui": {
+              "section": "defaults",
+              "group": "element_defaults",
+              "order": 1
+            }
+          },
+          "default_zoom_start": {
+            "type": "number",
+            "title": "Zoom Start (fallback)",
+            "description": "Default starting zoom level for elements. 1.0 = no zoom, >1 = zoomed in. Use >1 to provide pan headroom.",
+            "default": 1.0,
+            "minimum": 1.0,
+            "maximum": 3.0,
+            "ui": {
+              "section": "defaults",
+              "group": "element_defaults",
+              "order": 2
+            }
+          },
+          "default_zoom_end": {
+            "type": "number",
+            "title": "Zoom End (fallback)",
+            "description": "Default ending zoom level for elements. Set equal to start for static zoom, or different for animated zoom.",
+            "default": 1.0,
+            "minimum": 1.0,
+            "maximum": 3.0,
+            "ui": {
+              "section": "defaults",
+              "group": "element_defaults",
+              "order": 3
+            }
+          },
+          "smoothness": {
+            "type": "integer",
+            "title": "Smoothness",
+            "description": "Zoom animation smoothness. Higher = smoother but slower render.",
+            "default": 3,
+            "minimum": 1,
+            "maximum": 5,
+            "ui": {
+              "section": "defaults",
+              "group": "element_defaults",
+              "order": 4
+            }
+          },
+          "padding_color": {
+            "type": "string",
+            "title": "Padding Color",
+            "description": "Background color for letterboxing. Use color name (black, white) or hex (#000000).",
+            "default": "black",
+            "format": "color",
+            "ui": {
+              "section": "defaults",
+              "group": "element_defaults",
+              "order": 5
+            }
+          },
+          "horizontal_position": {
+            "type": "string",
+            "title": "Horizontal Position (fallback)",
+            "description": "Default horizontal position for elements that don't specify their own.",
+            "enum": [
+              "left",
+              "center",
+              "right"
+            ],
+            "enumNames": [
+              "Left",
+              "Center",
+              "Right"
+            ],
+            "default": "center",
+            "ui": {
+              "section": "defaults",
+              "group": "element_defaults",
+              "order": 6
+            }
+          },
+          "vertical_position": {
+            "type": "string",
+            "title": "Vertical Position (fallback)",
+            "description": "Default vertical position for elements that don't specify their own.",
+            "enum": [
+              "top",
+              "middle",
+              "bottom"
+            ],
+            "enumNames": [
+              "Top",
+              "Middle",
+              "Bottom"
+            ],
+            "default": "middle",
+            "ui": {
+              "section": "defaults",
+              "group": "element_defaults",
+              "order": 7
+            }
+          },
+          "resize": {
+            "type": "string",
+            "title": "Default Resize Mode",
+            "description": "Default resize mode for elements that don't specify their own.",
+            "enum": [
+              "cover",
+              "contain",
+              "fill",
+              "natural"
+            ],
+            "enumNames": [
+              "Cover (fill and crop)",
+              "Contain (fit with padding)",
+              "Fill (stretch)",
+              "Natural (original size)"
+            ],
+            "default": "contain",
+            "ui": {
+              "section": "defaults",
+              "group": "element_defaults",
+              "order": 8
+            }
+          },
+          "output_per_group": {
+            "type": "boolean",
+            "title": "Output Per Group",
+            "description": "Output separate per-group videos instead of one concatenated video.",
+            "default": false,
+            "ui": {
+              "section": "output",
+              "order": 10
+            }
+          }
+        },
+        "ui_groups": {
+          "element_defaults": {
+            "title": "Element Defaults",
+            "order": 1
+          },
+          "subtitles": {
+            "title": "Subtitles",
+            "order": 2
+          }
+        }
+      },
+      "result_schema": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "output_path": {
+            "type": "string"
+          },
+          "storage_url": {
+            "type": "string"
+          },
+          "duration": {
+            "type": "number"
+          },
+          "frame_count": {
+            "type": "integer"
+          },
+          "has_audio": {
+            "type": "boolean"
+          },
+          "has_subtitles": {
+            "type": "boolean"
+          }
+        }
+      },
+      "output_view": {
+        "type": "media_grid",
+        "source": null,
+        "media_type": "video",
+        "url_field": "storage_url",
+        "download_field": "storage_url"
+      },
+      "example_parameters": {
+        "scenes": [
+          {
+            "elements": [
+              {
+                "type": "image",
+                "src": "https://example.com/scene1.jpg",
+                "duration": 5
+              },
+              {
+                "type": "audio",
+                "src": "https://example.com/narration.mp3"
+              }
+            ]
+          }
+        ],
+        "width": 1920,
+        "height": 1080,
+        "fps": 30
+      },
+      "ui_hints": {
+        "color": "#8b5cf6",
+        "icon": "video",
+        "sections": {
+          "basic": {
+            "title": "Basic",
+            "collapsed": false,
+            "order": 1
+          },
+          "movie_settings": {
+            "title": "Movie Settings",
+            "description": "Project-level options and metadata",
+            "collapsed": true,
+            "order": 2
+          },
+          "scenes": {
+            "title": "Scenes & Elements",
+            "description": "Build your video with scenes containing images, video clips, and audio",
+            "collapsed": false,
+            "order": 3
+          },
+          "output": {
+            "title": "Output Settings",
+            "description": "Video resolution and quality",
+            "collapsed": true,
+            "order": 4
+          },
+          "defaults": {
+            "title": "Defaults",
+            "description": "Fallback values for elements and subtitle defaults. Each scene and element can override these.",
+            "collapsed": true,
+            "order": 5
+          }
+        },
+        "categories": [
+          "ai"
+        ]
+      }
+    }
+  }
+}

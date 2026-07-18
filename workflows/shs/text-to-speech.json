@@ -1,0 +1,50 @@
+{
+  "name": "Text to Speech",
+  "description": "Convert text to natural-sounding speech audio using the SHS Audio TTS service.",
+  "version": "1.0.0",
+  "author": "SelfHostHub",
+  "requires": [
+    "shs/audio"
+  ],
+  "steps": {
+    "generate_audio": {
+      "name": "Generate Audio",
+      "description": "Convert text to speech audio",
+      "type": "task",
+      "depends_on": [],
+      "ui_config": {
+        "position": {
+          "x": 100,
+          "y": 200
+        }
+      },
+      "job": {
+        "provider_id": "shs/audio",
+        "service_id": "shs/audio.tts",
+        "parameters": {
+          "text": "",
+          "exaggeration": 0.5,
+          "cfg_weight": 0.5
+        }
+      },
+      "input_mappings": {
+        "text": {
+          "mappingType": "form"
+        }
+      },
+      "timeout": 120,
+      "outputs": {
+        "storage_url": {
+          "path": "storage_url",
+          "type": "string",
+          "description": "URL of the generated audio file"
+        },
+        "duration_seconds": {
+          "path": "duration_seconds",
+          "type": "number",
+          "description": "Duration of the generated audio in seconds"
+        }
+      }
+    }
+  }
+}

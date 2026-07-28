@@ -344,6 +344,10 @@
         },
         "description": {
           "type": "string"
+        },
+        "items": {
+          "type": "object",
+          "description": "JSON-Schema style description of array elements; descriptive only, not consumed by the product."
         }
       }
     },

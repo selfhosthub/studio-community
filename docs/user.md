@@ -24,7 +24,7 @@ Studio is built around a simple loop:
 
 **Template → Workflow → Instance**
 
-- **Template**: a reusable blueprint (often shared)
+- **Template**: a reusable workflow definition (often shared)
 - **Workflow**: your configured version (steps + settings + credentials)
 - **Instance**: one run of a workflow (results, logs, files, errors)
 

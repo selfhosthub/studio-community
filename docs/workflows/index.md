@@ -1,4 +1,4 @@
-# Studio Workflows & Blueprints
+# Studio Workflows
 
 The Studio workflow catalog. Some entries are installable today; the rest are in development and listed here as the roadmap. Each entry says which.
 
@@ -303,59 +303,6 @@ Brief in, three ad variants out. AI writes three distinct script angles, ComfyUI
 
 ---
 
-## Blueprints
-
-Blueprints are provider-agnostic workflow templates you will be able to install and customize. Where a workflow is configured for specific providers (e.g., OpenAI for text generation), a blueprint uses placeholders - so you can swap in whichever provider you prefer.
-
-Once published, you install a blueprint from the catalog, choose your providers, and have a working workflow in seconds.
-
-**No blueprints have been published yet.** The two lists below are the planned set.
-
-### Community Blueprints (18, planned)
-
-Will be included with every installation.
-
-| Blueprint | Category | Requires |
-|-----------|----------|----------|
-| Welcome Webhook Handler | Core | core |
-| HTTPBin Echo Flow | Core | core |
-| Content Summarizer (Claude) | AI | claude |
-| Customer Support Responder (Claude) | AI | claude |
-| Structured Data Extractor (Claude) | AI | claude |
-| Content Generator (Gemini) | AI | gemini |
-| Image Analyzer (Gemini) | AI | gemini |
-| Text Embedder for Semantic Search (Gemini) | AI | gemini |
-| AI Blog Post Generator | AI | openai |
-| AI Image Generator | AI | shs-comfyui |
-| Summarize & Send Email Report | Productivity | openai, google |
-| Social Post Writer | Marketing | openai |
-| Notion Page Creator | Productivity | openai, notion |
-| Telegram Notification Bot | Communication | openai, telegram |
-| Airtable Record Creator | Productivity | openai, airtable |
-| Text to Speech | AI | shs-audio |
-| Customer Support Reply Drafter | AI | claude, core |
-| Google Drive Organizer | Productivity | openai, google |
-
-### Plus Blueprints (11, planned)
-
-Will require an entitlement token, which comes with a [SelfHost Innovators membership](https://www.skool.com/selfhostinnovators).
-
-| Blueprint | Category | Requires |
-|-----------|----------|----------|
-| Leonardo Image Pipeline | AI | core, leonardo |
-| AI Email Triage Agent | AI | claude, google, airtable, notion, telegram |
-| Lead Capture & Outreach Pipeline | Sales | claude, perplexity, airtable |
-| Client Onboarding Automation | Operations | openai, notion, airtable, google, telegram |
-| AI Document Intelligence | AI | claude, airtable, google, telegram |
-| Multi-LLM Content Evaluator | AI | openai, claude, gemini, notion |
-| Social Listening & Content Pipeline | Marketing | claude, openai, youtube, shs-comfyui |
-| AI Reputation Manager | Marketing | gemini, claude, youtube, airtable, telegram |
-| AI SMS Lead Qualifier | Sales | claude, twilio, airtable, telegram |
-| Competitive Intelligence Report | Research | claude, openai, perplexity, notion, google |
-| AI Video Ad Generator | Video | openai, shs-comfyui, shs-audio |
-
----
-
 ## Guides
 
 | Guide | Description |
@@ -369,21 +316,21 @@ Will require an entitlement token, which comes with a [SelfHost Innovators membe
 
 Studio workflows use a range of providers. Per-provider documentation lives in `docs/providers/`.
 
-| Provider | Workflows | Blueprints | Type |
-|----------|-----------|------------|------|
-| OpenAI | 10 | 10 | AI (Cloud) |
-| Claude | 8 | 9 | AI (Cloud) |
-| ComfyUI | 4 | 3 | Image Generation (Local) |
-| Google | 5 | 4 | SaaS |
-| Airtable | 5 | 4 | SaaS |
-| Telegram | 5 | 4 | Communication |
-| Notion | 5 | 5 | SaaS |
-| Gemini | 2 | 5 | AI (Cloud) |
-| Perplexity | 3 | 2 | AI (Cloud) |
-| YouTube | 3 | 2 | Social |
-| SHS Audio | 3 | 2 | TTS (Local) |
-| SHS Video | 1 | 0 | Video (Local) |
-| Core | 3 | 4 | Workflow Control |
-| Twilio | 1 | 1 | Communication |
-| Leonardo AI | 0 | 1 | AI (Cloud) |
-| Stripe | 0 | 0 | Payments |
+| Provider | Workflows | Type |
+|----------|-----------|------|
+| OpenAI | 10 | AI (Cloud) |
+| Claude | 8 | AI (Cloud) |
+| ComfyUI | 4 | Image Generation (Local) |
+| Google | 5 | SaaS |
+| Airtable | 5 | SaaS |
+| Telegram | 5 | Communication |
+| Notion | 5 | SaaS |
+| Gemini | 2 | AI (Cloud) |
+| Perplexity | 3 | AI (Cloud) |
+| YouTube | 3 | Social |
+| SHS Audio | 3 | TTS (Local) |
+| SHS Video | 1 | Video (Local) |
+| Core | 3 | Workflow Control |
+| Twilio | 1 | Communication |
+| Leonardo AI | 0 | AI (Cloud) |
+| Stripe | 0 | Payments |

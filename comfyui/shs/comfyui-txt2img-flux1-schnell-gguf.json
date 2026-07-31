@@ -1,0 +1,336 @@
+{
+  "$schema": "https://raw.githubusercontent.com/selfhosthub/studio-community/main/schemas/comfyui-workflow.schema.json",
+  "slug": "shs/comfyui-txt2img-flux1-schnell-gguf",
+  "version": "1.1.0",
+  "name": "ComfyUI Text to Image (Flux.1 Schnell GGUF)",
+  "description": "Generate images from text prompts using a GGUF-quantized Flux.1 Schnell pipeline.",
+  "author": "SelfHostHub",
+  "service": {
+    "id": "comfyui_txt2img",
+    "queue": "comfyui_image_jobs",
+    "media": "image"
+  },
+  "models": [
+    {
+      "id": "flux1-schnell-q4",
+      "label": "Flux.1 Schnell Q4 (low memory, 1 step)",
+      "default": true,
+      "required_models": [
+        "flux1-schnell-Q4_K_S.gguf",
+        "t5xxl_fp8_e4m3fn.safetensors",
+        "clip_l.safetensors",
+        "ae.safetensors"
+      ]
+    }
+  ],
+  "capabilities": {
+    "negative_prompt": false,
+    "upscale": true,
+    "lora": false,
+    "batch": true,
+    "style_presets": true
+  },
+  "parameters": {
+    "prompt": {
+      "type": "string",
+      "required": true,
+      "ui": {
+        "section": "basic",
+        "rows": 4
+      }
+    },
+    "styles": {
+      "type": "array",
+      "scope": "api",
+      "default": [
+        "sai-comic book"
+      ],
+      "ui": {
+        "section": "basic",
+        "widget": "multiselect"
+      }
+    },
+    "style_merge": {
+      "type": "enum",
+      "scope": "api",
+      "default": "nested",
+      "options": [
+        "nested",
+        "stacked",
+        "blended",
+        "minimal"
+      ]
+    },
+    "seed": {
+      "type": "integer",
+      "default": -1
+    },
+    "steps": {
+      "type": "integer",
+      "default": 1,
+      "min": 1,
+      "max": 8
+    },
+    "batch_size": {
+      "type": "integer",
+      "default": 1,
+      "min": 1,
+      "max": 4
+    },
+    "dimensions": {
+      "type": "enum",
+      "default": "1920x1080",
+      "options": [
+        {
+          "value": "1024x1024",
+          "label": "1:1 - 1024x1024"
+        },
+        {
+          "value": "1920x1080",
+          "label": "16:9 - 1920x1080"
+        },
+        {
+          "value": "1080x1920",
+          "label": "9:16 - 1080x1920"
+        },
+        {
+          "value": "1536x1024",
+          "label": "3:2 - 1536x1024"
+        },
+        {
+          "value": "1024x1536",
+          "label": "2:3 - 1024x1536"
+        }
+      ]
+    },
+    "upscale": {
+      "type": "boolean",
+      "default": true,
+      "title": "Fast Mode"
+    },
+    "upscale_method": {
+      "type": "enum",
+      "default": "lanczos",
+      "options": [
+        "lanczos",
+        "bicubic",
+        "bilinear",
+        "nearest-exact",
+        "area"
+      ],
+      "when": "upscale"
+    }
+  },
+  "generation": {
+    "min_side": 512,
+    "max_side": 2048,
+    "snap": 64
+  },
+  "node_mappings": {
+    "prompt": [
+      {
+        "node": "3",
+        "path": "inputs.text"
+      }
+    ],
+    "seed": [
+      {
+        "node": "6",
+        "path": "inputs.seed"
+      }
+    ],
+    "steps": [
+      {
+        "node": "6",
+        "path": "inputs.steps"
+      }
+    ],
+    "batch_size": [
+      {
+        "node": "5",
+        "path": "inputs.batch_size"
+      }
+    ],
+    "width": [
+      {
+        "node": "5",
+        "path": "inputs.width"
+      }
+    ],
+    "height": [
+      {
+        "node": "5",
+        "path": "inputs.height"
+      }
+    ],
+    "output_width": [
+      {
+        "node": "50",
+        "path": "inputs.width"
+      }
+    ],
+    "output_height": [
+      {
+        "node": "50",
+        "path": "inputs.height"
+      }
+    ],
+    "upscale_method": [
+      {
+        "node": "50",
+        "path": "inputs.upscale_method"
+      }
+    ]
+  },
+  "outputs": [
+    {
+      "media": "image",
+      "node": "8",
+      "class": "SaveImage"
+    }
+  ],
+  "required_custom_nodes": [
+    {
+      "class": "UnetLoaderGGUF",
+      "pack": "ComfyUI-GGUF",
+      "repo": "https://github.com/city96/ComfyUI-GGUF"
+    }
+  ],
+  "required_models": [
+    {
+      "filename": "flux1-schnell-Q4_K_S.gguf",
+      "directory": "diffusion_models",
+      "size_gb": 6.8,
+      "source_url": "https://huggingface.co/city96/FLUX.1-schnell-gguf",
+      "license": "apache-2.0",
+      "access": "open"
+    },
+    {
+      "filename": "t5xxl_fp8_e4m3fn.safetensors",
+      "directory": "text_encoders",
+      "size_gb": 4.9,
+      "source_url": "https://huggingface.co/comfyanonymous/flux_text_encoders",
+      "license": "apache-2.0",
+      "access": "open"
+    },
+    {
+      "filename": "clip_l.safetensors",
+      "directory": "text_encoders",
+      "size_gb": 0.2,
+      "source_url": "https://huggingface.co/comfyanonymous/flux_text_encoders",
+      "license": "mit",
+      "access": "open"
+    },
+    {
+      "filename": "ae.safetensors",
+      "directory": "vae",
+      "size_gb": 0.3,
+      "source_url": "https://huggingface.co/black-forest-labs/FLUX.1-schnell",
+      "license": "apache-2.0",
+      "access": "open"
+    }
+  ],
+  "graph": {
+    "1": {
+      "inputs": {
+        "unet_name": "flux1-schnell-Q4_K_S.gguf"
+      },
+      "class_type": "UnetLoaderGGUF"
+    },
+    "2": {
+      "inputs": {
+        "clip_name1": "t5xxl_fp8_e4m3fn.safetensors",
+        "clip_name2": "clip_l.safetensors",
+        "type": "flux"
+      },
+      "class_type": "DualCLIPLoader"
+    },
+    "3": {
+      "inputs": {
+        "text": "a cat sitting on a windowsill",
+        "clip": [
+          "2",
+          0
+        ]
+      },
+      "class_type": "CLIPTextEncode"
+    },
+    "4": {
+      "inputs": {
+        "vae_name": "ae.safetensors"
+      },
+      "class_type": "VAELoader"
+    },
+    "5": {
+      "inputs": {
+        "width": 512,
+        "height": 512,
+        "batch_size": 1
+      },
+      "class_type": "EmptySD3LatentImage"
+    },
+    "6": {
+      "inputs": {
+        "seed": 42,
+        "steps": 2,
+        "cfg": 1.0,
+        "sampler_name": "euler",
+        "scheduler": "simple",
+        "denoise": 1.0,
+        "model": [
+          "1",
+          0
+        ],
+        "positive": [
+          "3",
+          0
+        ],
+        "negative": [
+          "3",
+          0
+        ],
+        "latent_image": [
+          "5",
+          0
+        ]
+      },
+      "class_type": "KSampler"
+    },
+    "7": {
+      "inputs": {
+        "samples": [
+          "6",
+          0
+        ],
+        "vae": [
+          "4",
+          0
+        ]
+      },
+      "class_type": "VAEDecode"
+    },
+    "50": {
+      "inputs": {
+        "upscale_method": "lanczos",
+        "width": 512,
+        "height": 512,
+        "crop": "disabled",
+        "image": [
+          "7",
+          0
+        ]
+      },
+      "class_type": "ImageScale"
+    },
+    "8": {
+      "inputs": {
+        "filename_prefix": "ComfyUI",
+        "images": [
+          "50",
+          0
+        ]
+      },
+      "class_type": "SaveImage"
+    }
+  }
+}

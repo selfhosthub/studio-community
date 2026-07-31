@@ -38,21 +38,6 @@
             "type": "string",
             "title": "Model",
             "description": "Which Flux model to use for generation",
-            "default": "flux1-schnell-q4",
-            "enum": [
-              "flux1-schnell",
-              "flux1-schnell-fp8",
-              "flux1-schnell-q4",
-              "flux-2-klein-4b",
-              "flux-2-klein-9b"
-            ],
-            "enumNames": [
-              "Flux.1 Schnell (fast, 4 steps)",
-              "Flux.1 Schnell FP8",
-              "Flux.1 Schnell Q4 (low memory, 4 steps)",
-              "Flux 2 Klein 4B (quality, 8 steps)",
-              "Flux 2 Klein 9B (best quality, 8 steps)"
-            ],
             "ui": {
               "section": "basic",
               "order": 0.1
@@ -62,9 +47,6 @@
             "type": "array",
             "title": "Style Presets",
             "description": "Select one or more Image styles to apply (styles chain in order)",
-            "default": [
-              "sai-comic book"
-            ],
             "items": {
               "type": "string",
               "enum": [
@@ -448,13 +430,6 @@
             "type": "string",
             "title": "Style Merge",
             "description": "How to combine multiple style presets",
-            "default": "nested",
-            "enum": [
-              "nested",
-              "stacked",
-              "blended",
-              "minimal"
-            ],
             "enumNames": [
               "Nested (last style dominant)",
               "Stacked (first style dominant)",
@@ -500,7 +475,6 @@
             "type": "integer",
             "title": "Seed",
             "description": "Random seed for reproducibility (-1 for random)",
-            "default": -1,
             "ui": {
               "section": "advanced",
               "order": 1,
@@ -511,9 +485,6 @@
             "type": "integer",
             "title": "Steps",
             "description": "Number of diffusion steps",
-            "default": 1,
-            "minimum": 1,
-            "maximum": 8,
             "ui": {
               "section": "advanced",
               "order": 2
@@ -523,49 +494,15 @@
             "type": "integer",
             "title": "Batch Size",
             "description": "Number of images to generate",
-            "default": 1,
-            "minimum": 1,
-            "maximum": 4,
             "ui": {
               "section": "advanced",
               "order": 3
-            }
-          },
-          "output_width": {
-            "type": "integer",
-            "title": "Width",
-            "description": "Final output width in pixels",
-            "default": 1920,
-            "ui": {
-              "section": "output",
-              "order": 1,
-              "visibleWhen": {
-                "field": "upscale",
-                "condition": "equals",
-                "value": true
-              }
-            }
-          },
-          "output_height": {
-            "type": "integer",
-            "title": "Height",
-            "description": "Final output height in pixels",
-            "default": 1080,
-            "ui": {
-              "section": "output",
-              "order": 2,
-              "visibleWhen": {
-                "field": "upscale",
-                "condition": "equals",
-                "value": true
-              }
             }
           },
           "upscale": {
             "type": "boolean",
             "title": "Fast Mode",
             "description": "Generate a small image then upscale to output dimensions (faster, slightly less detail)",
-            "default": true,
             "ui": {
               "section": "output",
               "order": 3
@@ -574,14 +511,6 @@
           "upscale_method": {
             "type": "string",
             "title": "Method",
-            "default": "lanczos",
-            "enum": [
-              "lanczos",
-              "bicubic",
-              "bilinear",
-              "nearest-exact",
-              "area"
-            ],
             "ui": {
               "section": "output",
               "order": 4,
@@ -654,9 +583,7 @@
         ],
         "steps": 4,
         "batch_size": 1,
-        "output_width": 1920,
-        "output_height": 1080,
-        "upscale": true
+        "dimensions": "1920x1080"
       },
       "ui_hints": {
         "color": "#8b5cf6",
@@ -737,7 +664,6 @@
             "type": "integer",
             "title": "Seed",
             "description": "Random seed for reproducibility (-1 for random)",
-            "default": -1,
             "ui": {
               "section": "advanced",
               "order": 1,
@@ -748,49 +674,15 @@
             "type": "integer",
             "title": "Steps",
             "description": "Number of diffusion steps",
-            "default": 1,
-            "minimum": 1,
-            "maximum": 20,
             "ui": {
               "section": "advanced",
               "order": 2
-            }
-          },
-          "output_width": {
-            "type": "integer",
-            "title": "Width",
-            "description": "Final output width in pixels",
-            "default": 1920,
-            "ui": {
-              "section": "output",
-              "order": 1,
-              "visibleWhen": {
-                "field": "upscale",
-                "condition": "equals",
-                "value": true
-              }
-            }
-          },
-          "output_height": {
-            "type": "integer",
-            "title": "Height",
-            "description": "Final output height in pixels",
-            "default": 1080,
-            "ui": {
-              "section": "output",
-              "order": 2,
-              "visibleWhen": {
-                "field": "upscale",
-                "condition": "equals",
-                "value": true
-              }
             }
           },
           "upscale": {
             "type": "boolean",
             "title": "Fast Mode",
             "description": "Generate a small image then upscale to output dimensions (faster, slightly less detail)",
-            "default": true,
             "ui": {
               "section": "output",
               "order": 3
@@ -799,14 +691,6 @@
           "upscale_method": {
             "type": "string",
             "title": "Method",
-            "default": "lanczos",
-            "enum": [
-              "lanczos",
-              "bicubic",
-              "bilinear",
-              "nearest-exact",
-              "area"
-            ],
             "ui": {
               "section": "output",
               "order": 4,
@@ -875,9 +759,7 @@
         "image": "https://example.com/photo.jpg",
         "prompt": "realistic, riding a surfboard, on a wave",
         "steps": 8,
-        "output_width": 1920,
-        "output_height": 1080,
-        "upscale": true
+        "dimensions": "1920x1080"
       },
       "ui_hints": {
         "color": "#8b5cf6",

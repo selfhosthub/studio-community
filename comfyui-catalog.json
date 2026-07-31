@@ -1,0 +1,50 @@
+{
+  "$schema": "https://raw.githubusercontent.com/selfhosthub/studio-community/main/schemas/comfyui-catalog.schema.json",
+  "version": "1.0.0",
+  "comfyui": [
+    {
+      "id": "shs/comfyui-txt2img-flux1-schnell",
+      "display_name": "ComfyUI Text to Image (Flux.1 Schnell)",
+      "version": "1.1.0",
+      "tier": "community",
+      "category": "image",
+      "description": "Generate images from text prompts with Flux.1 Schnell (bf16 or FP8) in ComfyUI.",
+      "author": "SelfHostHub",
+      "download_url": "https://raw.githubusercontent.com/selfhosthub/studio-community/main/comfyui/shs/comfyui-txt2img-flux1-schnell.json",
+      "path": "comfyui/shs/comfyui-txt2img-flux1-schnell.json"
+    },
+    {
+      "id": "shs/comfyui-txt2img-flux1-schnell-gguf",
+      "display_name": "ComfyUI Text to Image (Flux.1 Schnell GGUF)",
+      "version": "1.1.0",
+      "tier": "community",
+      "category": "image",
+      "description": "Generate images from text prompts using a GGUF-quantized Flux.1 Schnell pipeline.",
+      "author": "SelfHostHub",
+      "download_url": "https://raw.githubusercontent.com/selfhosthub/studio-community/main/comfyui/shs/comfyui-txt2img-flux1-schnell-gguf.json",
+      "path": "comfyui/shs/comfyui-txt2img-flux1-schnell-gguf.json"
+    },
+    {
+      "id": "shs/comfyui-txt2img-flux2-klein",
+      "display_name": "ComfyUI Text to Image (Flux 2 Klein)",
+      "version": "1.1.0",
+      "tier": "community",
+      "category": "image",
+      "description": "Generate images from text prompts using the Flux 2 Klein 4B or 9B model in ComfyUI. The model parameter selects the weights.",
+      "author": "SelfHostHub",
+      "download_url": "https://raw.githubusercontent.com/selfhosthub/studio-community/main/comfyui/shs/comfyui-txt2img-flux2-klein.json",
+      "path": "comfyui/shs/comfyui-txt2img-flux2-klein.json"
+    },
+    {
+      "id": "shs/comfyui-imgedit-flux2-klein",
+      "display_name": "ComfyUI Image Edit (Flux 2 Klein)",
+      "version": "1.1.0",
+      "tier": "community",
+      "category": "image",
+      "description": "Edit existing images with the Flux 2 Klein model in ComfyUI.",
+      "author": "SelfHostHub",
+      "download_url": "https://raw.githubusercontent.com/selfhosthub/studio-community/main/comfyui/shs/comfyui-imgedit-flux2-klein.json",
+      "path": "comfyui/shs/comfyui-imgedit-flux2-klein.json"
+    }
+  ]
+}

@@ -27,11 +27,10 @@
           "styles": [
             "sai-photographic"
           ],
-          "output_width": 1024,
-          "output_height": 1024,
           "steps": 4,
           "batch_size": 1,
-          "seed": -1
+          "seed": -1,
+          "dimensions": "1024x1024"
         }
       },
       "input_mappings": {
@@ -39,6 +38,18 @@
           "mappingType": "form"
         },
         "batch_size": {
+          "mappingType": "form"
+        },
+        "model": {
+          "mappingType": "form"
+        },
+        "dimensions": {
+          "mappingType": "form"
+        },
+        "steps": {
+          "mappingType": "form"
+        },
+        "seed": {
           "mappingType": "form"
         }
       },

@@ -1,0 +1,414 @@
+{
+  "$schema": "https://raw.githubusercontent.com/selfhosthub/studio-community/main/schemas/comfyui-workflow.schema.json",
+  "slug": "shs/comfyui-imgedit-flux2-klein",
+  "version": "1.1.0",
+  "name": "ComfyUI Image Edit (Flux 2 Klein)",
+  "description": "Edit existing images with the Flux 2 Klein model in ComfyUI.",
+  "author": "SelfHostHub",
+  "service": {
+    "id": "comfyui_imgedit",
+    "queue": "comfyui_image_edit_jobs",
+    "media": "image"
+  },
+  "capabilities": {
+    "negative_prompt": true,
+    "upscale": true,
+    "lora": false,
+    "batch": false,
+    "style_presets": false
+  },
+  "parameters": {
+    "image": {
+      "type": "string",
+      "required": true,
+      "ui": {
+        "section": "basic"
+      }
+    },
+    "prompt": {
+      "type": "string",
+      "required": true,
+      "ui": {
+        "section": "basic",
+        "rows": 4
+      }
+    },
+    "negative_prompt": {
+      "type": "string",
+      "default": "",
+      "ui": {
+        "section": "basic",
+        "rows": 2
+      }
+    },
+    "seed": {
+      "type": "integer",
+      "default": -1
+    },
+    "steps": {
+      "type": "integer",
+      "default": 1,
+      "min": 1,
+      "max": 20
+    },
+    "dimensions": {
+      "type": "enum",
+      "default": "1920x1080",
+      "options": [
+        {
+          "value": "1024x1024",
+          "label": "1:1 - 1024x1024"
+        },
+        {
+          "value": "1920x1080",
+          "label": "16:9 - 1920x1080"
+        },
+        {
+          "value": "1080x1920",
+          "label": "9:16 - 1080x1920"
+        },
+        {
+          "value": "1536x1024",
+          "label": "3:2 - 1536x1024"
+        },
+        {
+          "value": "1024x1536",
+          "label": "2:3 - 1024x1536"
+        }
+      ]
+    },
+    "upscale": {
+      "type": "boolean",
+      "default": true,
+      "title": "Fast Mode"
+    },
+    "upscale_method": {
+      "type": "enum",
+      "default": "lanczos",
+      "options": [
+        "lanczos",
+        "bicubic",
+        "bilinear",
+        "nearest-exact",
+        "area"
+      ],
+      "when": "upscale"
+    }
+  },
+  "generation": {
+    "min_side": 512,
+    "max_side": 2048,
+    "snap": 64
+  },
+  "node_mappings": {
+    "image": [
+      {
+        "node": "1",
+        "path": "inputs.image"
+      }
+    ],
+    "prompt": [
+      {
+        "node": "6",
+        "path": "inputs.text"
+      }
+    ],
+    "negative_prompt": [
+      {
+        "node": "7",
+        "path": "inputs.text"
+      }
+    ],
+    "seed": [
+      {
+        "node": "14",
+        "path": "inputs.noise_seed"
+      }
+    ],
+    "steps": [
+      {
+        "node": "12",
+        "path": "inputs.steps"
+      }
+    ],
+    "width": [
+      {
+        "node": "11",
+        "path": "inputs.width"
+      },
+      {
+        "node": "12",
+        "path": "inputs.width"
+      }
+    ],
+    "height": [
+      {
+        "node": "11",
+        "path": "inputs.height"
+      },
+      {
+        "node": "12",
+        "path": "inputs.height"
+      }
+    ],
+    "output_width": [
+      {
+        "node": "50",
+        "path": "inputs.width"
+      }
+    ],
+    "output_height": [
+      {
+        "node": "50",
+        "path": "inputs.height"
+      }
+    ],
+    "upscale_method": [
+      {
+        "node": "50",
+        "path": "inputs.upscale_method"
+      }
+    ]
+  },
+  "outputs": [
+    {
+      "media": "image",
+      "node": "18",
+      "class": "SaveImage"
+    }
+  ],
+  "requires_comfyui": ">=0.3.40",
+  "required_models": [
+    {
+      "filename": "flux-2-klein-4b.safetensors",
+      "directory": "diffusion_models",
+      "size_gb": 7.8,
+      "source_url": "https://huggingface.co/black-forest-labs/FLUX.2-klein-4B",
+      "license": "apache-2.0",
+      "access": "gated"
+    },
+    {
+      "filename": "qwen_3_4b.safetensors",
+      "directory": "text_encoders",
+      "size_gb": 8.0,
+      "source_url": "https://huggingface.co/Comfy-Org/vae-text-encorder-for-flux-klein-4b",
+      "license": "apache-2.0",
+      "access": "open"
+    },
+    {
+      "filename": "flux2-vae.safetensors",
+      "directory": "vae",
+      "size_gb": 0.3,
+      "source_url": "https://huggingface.co/Comfy-Org/vae-text-encorder-for-flux-klein-4b",
+      "license": "apache-2.0",
+      "access": "open"
+    }
+  ],
+  "graph": {
+    "1": {
+      "inputs": {
+        "image": "input.png"
+      },
+      "class_type": "LoadImage"
+    },
+    "2": {
+      "inputs": {
+        "upscale_method": "nearest-exact",
+        "megapixels": 1,
+        "resolution_steps": 1,
+        "image": [
+          "1",
+          0
+        ]
+      },
+      "class_type": "ImageScaleToTotalPixels"
+    },
+    "3": {
+      "inputs": {
+        "unet_name": "flux-2-klein-4b.safetensors",
+        "weight_dtype": "default"
+      },
+      "class_type": "UNETLoader"
+    },
+    "4": {
+      "inputs": {
+        "clip_name": "qwen_3_4b.safetensors",
+        "type": "flux2",
+        "device": "default"
+      },
+      "class_type": "CLIPLoader"
+    },
+    "5": {
+      "inputs": {
+        "vae_name": "flux2-vae.safetensors"
+      },
+      "class_type": "VAELoader"
+    },
+    "6": {
+      "inputs": {
+        "text": "a cat",
+        "clip": [
+          "4",
+          0
+        ]
+      },
+      "class_type": "CLIPTextEncode"
+    },
+    "7": {
+      "inputs": {
+        "text": "",
+        "clip": [
+          "4",
+          0
+        ]
+      },
+      "class_type": "CLIPTextEncode"
+    },
+    "8": {
+      "inputs": {
+        "pixels": [
+          "2",
+          0
+        ],
+        "vae": [
+          "5",
+          0
+        ]
+      },
+      "class_type": "VAEEncode"
+    },
+    "9": {
+      "inputs": {
+        "conditioning": [
+          "6",
+          0
+        ],
+        "latent": [
+          "8",
+          0
+        ]
+      },
+      "class_type": "ReferenceLatent"
+    },
+    "10": {
+      "inputs": {
+        "conditioning": [
+          "7",
+          0
+        ],
+        "latent": [
+          "8",
+          0
+        ]
+      },
+      "class_type": "ReferenceLatent"
+    },
+    "11": {
+      "inputs": {
+        "width": 512,
+        "height": 512,
+        "batch_size": 1
+      },
+      "class_type": "EmptyFlux2LatentImage"
+    },
+    "12": {
+      "inputs": {
+        "steps": 1,
+        "width": 512,
+        "height": 512
+      },
+      "class_type": "Flux2Scheduler"
+    },
+    "13": {
+      "inputs": {
+        "sampler_name": "euler"
+      },
+      "class_type": "KSamplerSelect"
+    },
+    "14": {
+      "inputs": {
+        "noise_seed": 0
+      },
+      "class_type": "RandomNoise"
+    },
+    "15": {
+      "inputs": {
+        "cfg": 1,
+        "model": [
+          "3",
+          0
+        ],
+        "positive": [
+          "9",
+          0
+        ],
+        "negative": [
+          "10",
+          0
+        ]
+      },
+      "class_type": "CFGGuider"
+    },
+    "16": {
+      "inputs": {
+        "noise": [
+          "14",
+          0
+        ],
+        "guider": [
+          "15",
+          0
+        ],
+        "sampler": [
+          "13",
+          0
+        ],
+        "sigmas": [
+          "12",
+          0
+        ],
+        "latent_image": [
+          "11",
+          0
+        ]
+      },
+      "class_type": "SamplerCustomAdvanced"
+    },
+    "17": {
+      "inputs": {
+        "samples": [
+          "16",
+          0
+        ],
+        "vae": [
+          "5",
+          0
+        ]
+      },
+      "class_type": "VAEDecode"
+    },
+    "50": {
+      "inputs": {
+        "upscale_method": "lanczos",
+        "width": 512,
+        "height": 512,
+        "crop": "disabled",
+        "image": [
+          "17",
+          0
+        ]
+      },
+      "class_type": "ImageScale"
+    },
+    "18": {
+      "inputs": {
+        "filename_prefix": "ComfyUI",
+        "images": [
+          "50",
+          0
+        ]
+      },
+      "class_type": "SaveImage"
+    }
+  }
+}

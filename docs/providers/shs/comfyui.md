@@ -19,42 +19,112 @@ The SHS ComfyUI provider runs entirely on your infrastructure using ComfyUI as t
 
 ### Requirements
 
-Your Studio instance needs:
-- ComfyUI installed and running
-- Flux models downloaded
-- GPU with sufficient VRAM (8GB+ recommended)
-- Studio worker configured for ComfyUI queue
+- ComfyUI installed and running (any machine the worker can reach over HTTP)
+- The model files for the packages you install (table below)
+- A GPU: 8 GB VRAM covers the GGUF pipeline; Klein and bf16 Schnell want more.
+  Apple Silicon runs ComfyUI natively (MPS); the GGUF pipeline is the low-memory pick.
+- A Studio ComfyUI worker connected to your instance (quickstart below)
+
+## Worker Quickstart
+
+The worker is a small dispatcher: it claims jobs from your Studio instance,
+sends the workflow graph to ComfyUI, and uploads the results. ComfyUI is a
+separate process that runs wherever your GPU is. The worker finds it via
+`SHS_COMFYUI_URL`.
+
+Three layouts, all supported:
+
+1. Worker and ComfyUI on the same machine: `SHS_COMFYUI_URL=http://127.0.0.1:8188`
+2. Worker in Docker, ComfyUI on the host: `SHS_COMFYUI_URL=http://host.docker.internal:8188`
+3. Worker anywhere, ComfyUI on your GPU box: `SHS_COMFYUI_URL=http://<gpu-host>:8188`
+
+On macOS, run ComfyUI natively (Docker cannot use the Apple GPU) and prefer the
+native worker.
+
+Every worker needs four values. `studio-console worker-kit` prints them filled
+in for your instance; SHS_PUBLIC_BASE_URL and SHS_WORKER_SHARED_SECRET come
+from your Studio workspace `.env`.
+
+### Native (pip)
+
+```
+uv tool install "studio-workers[comfyui]"     # Python 3.12
+
+SHS_API_BASE_URL=http://127.0.0.1:8000 \
+SHS_PUBLIC_BASE_URL=<your public API URL> \
+SHS_WORKER_SHARED_SECRET=<from workspace .env> \
+SHS_WORKSPACE_ROOT=~/studio-worker-scratch \
+SHS_COMFYUI_URL=http://127.0.0.1:8188 \
+studio-workers run --type comfyui-image
+```
+
+`studio-workers doctor` checks the host first if anything misbehaves.
+
+### Docker
+
+```
+docker run -d --name studio-worker-comfyui \
+  -e SHS_API_BASE_URL=http://<api-host>:80 \
+  -e SHS_PUBLIC_BASE_URL=<your public API URL> \
+  -e SHS_WORKER_SHARED_SECRET=<from workspace .env> \
+  -e SHS_WORKSPACE_ROOT=/workspace \
+  -e SHS_COMFYUI_URL=http://host.docker.internal:8188 \
+  ghcr.io/selfhosthub/studio-worker-comfyui:<studio version>
+```
+
+When the worker registers, it syncs the installed ComfyUI packages from your
+instance automatically and picks up catalog changes on its own. Watch its log
+for `Synced comfyui package` and, on a job, `Using catalog package`.
+
+## Model Files
+
+Place files in the matching ComfyUI model directory. Klein diffusion weights
+are gated on Hugging Face: downloading requires an account and accepting the
+license terms in the browser first. Everything else is an open download.
+
+| File | Directory | Size | Access | Used by |
+|------|-----------|------|--------|---------|
+| flux1-schnell-Q4_K_S.gguf | diffusion_models | 6.8 GB | open | Schnell GGUF (low memory) |
+| flux1-schnell.safetensors | diffusion_models | 23.8 GB | open | Schnell bf16 |
+| flux1-schnell-fp8-e4m3fn.safetensors | diffusion_models | 11.9 GB | open | Schnell FP8 |
+| flux-2-klein-4b.safetensors | diffusion_models | 7.8 GB | gated | Klein 4B txt2img + edit |
+| flux-2-klein-9b-fp8.safetensors | diffusion_models | 9.4 GB | gated | Klein 9B txt2img |
+| t5xxl_fp8_e4m3fn.safetensors | text_encoders | 4.9 GB | open | Schnell GGUF/FP8 |
+| t5xxl_fp16.safetensors | text_encoders | 9.8 GB | open | Schnell bf16 |
+| clip_l.safetensors | text_encoders | 0.2 GB | open | all Schnell |
+| qwen_3_4b.safetensors | text_encoders | 8.0 GB | open | Klein 4B |
+| qwen_3_8b_fp8mixed.safetensors | text_encoders | 8.7 GB | open | Klein 9B |
+| ae.safetensors | vae | 0.3 GB | open | all Schnell |
+| flux2-vae.safetensors | vae | 0.3 GB | open | all Klein |
+
+Each package's marketplace detail page lists exactly which files it needs, with
+download links.
 
 ## Available Services
 
 ### Text to Image
 
-Generate images from text prompts using Flux.1 Schnell.
-
 | Parameter | Description |
 |-----------|-------------|
 | **prompt** | Text description of the image |
-| **negative_prompt** | What to avoid (optional) |
-| **styles** | Style presets to apply |
-| **width** | Image width (512-1536) |
-| **height** | Image height (512-1536) |
-| **seed** | -1 for random, or specific seed |
-| **steps** | Diffusion steps (4 optimal for Schnell) |
+| **model** | Flux.1 Schnell (bf16/FP8/Q4) or Flux 2 Klein (4B/9B) |
+| **dimensions** | Output size preset (1:1, 16:9, 9:16, 3:2, 2:3) |
+| **styles** | Style presets to apply (see below) |
+| **seed** | -1 for random, or a specific seed |
+| **steps** | Diffusion steps (1 for Schnell, 8 for Klein defaults) |
 | **batch_size** | Generate 1-4 images |
+| **fast mode** | Generate small, upscale to target (on by default) |
 
 ### Image Edit
 
-Transform existing images using Flux.2 Klein.
-
 | Parameter | Description |
 |-----------|-------------|
-| **image** | Source image URL or path |
+| **image** | Source image (from a previous step or URL) |
 | **prompt** | How to transform the image |
 | **negative_prompt** | What to avoid (optional) |
-| **width** | Output width |
-| **height** | Output height |
-| **seed** | -1 for random, or specific seed |
-| **steps** | Diffusion steps (8 optimal for Klein) |
+| **dimensions** | Output size preset |
+| **seed** | -1 for random, or a specific seed |
+| **steps** | Diffusion steps (Klein edit default 1, up to 20) |
 
 ---
 

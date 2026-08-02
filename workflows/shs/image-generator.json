@@ -1,7 +1,7 @@
 {
   "name": "AI Image Generator",
   "description": "Generate AI images from text prompts using ComfyUI with customizable styles and batch sizes.",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "author": "SelfHostHub",
   "requires": [
     "shs/comfyui"
@@ -31,7 +31,8 @@
           "batch_size": 1,
           "seed": -1,
           "dimensions": "1024x1024"
-        }
+        },
+        "service_type": "ai"
       },
       "input_mappings": {
         "prompt": {

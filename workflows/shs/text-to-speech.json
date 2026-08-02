@@ -1,7 +1,7 @@
 {
   "name": "Text to Speech",
   "description": "Convert text to natural-sounding speech audio using the SHS Audio TTS service.",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "author": "SelfHostHub",
   "requires": [
     "shs/audio"
@@ -25,7 +25,8 @@
           "text": "",
           "exaggeration": 0.5,
           "cfg_weight": 0.5
-        }
+        },
+        "service_type": "ai"
       },
       "input_mappings": {
         "text": {

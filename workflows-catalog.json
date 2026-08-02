@@ -59,7 +59,7 @@
     {
       "id": "shs/faceless-video-pipeline",
       "display_name": "Faceless Video (Self-Host Studio)",
-      "version": "1.0.0",
+      "version": "1.0.1",
       "tier": "community",
       "category": "video",
       "description": "Turn a news article into a narrated video with AI-generated images, TTS audio, per-image zoom effects, and subtitles.",
@@ -86,7 +86,7 @@
     {
       "id": "shs/text-to-speech",
       "display_name": "Text to Speech",
-      "version": "1.0.0",
+      "version": "1.0.1",
       "tier": "community",
       "category": "ai",
       "description": "Convert text to natural-sounding speech audio using the SHS Audio TTS service.",
@@ -100,7 +100,7 @@
     {
       "id": "shs/image-generator",
       "display_name": "AI Image Generator",
-      "version": "1.0.0",
+      "version": "1.0.1",
       "tier": "community",
       "category": "ai",
       "description": "Generate AI images from text prompts using ComfyUI with customizable styles and batch sizes.",

@@ -1,7 +1,7 @@
 {
   "name": "Faceless Video (Self-Host Studio)",
   "description": "Turn a news article into a narrated video with AI-generated images, TTS audio, per-image zoom effects, and subtitles.",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "author": "SelfHostHub",
   "requires": [
     "shs/openai",
@@ -463,7 +463,7 @@
         }
       },
       "job": {
-        "service_type": "SOCIAL_MEDIA",
+        "service_type": "social_media",
         "provider_id": "shs/youtube",
         "service_id": "shs/youtube.youtube_upload_video",
         "parameters": {
@@ -515,7 +515,7 @@
         }
       },
       "job": {
-        "service_type": "SOCIAL_MEDIA",
+        "service_type": "social_media",
         "provider_id": "shs/tiktok",
         "service_id": "shs/tiktok.tiktok_publish_video",
         "parameters": {

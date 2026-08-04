@@ -34,15 +34,6 @@
           "prompt"
         ],
         "properties": {
-          "model": {
-            "type": "string",
-            "title": "Model",
-            "description": "Which Flux model to use for generation",
-            "ui": {
-              "section": "basic",
-              "order": 0.1
-            }
-          },
           "styles": {
             "type": "array",
             "title": "Style Presets",
@@ -522,6 +513,19 @@
                 "value": true
               }
             }
+          },
+          "dimensions": {
+            "type": "string",
+            "title": "Dimensions",
+            "enum": [
+              "1920x1080",
+              "1080x1920",
+              "1024x1024",
+              "1344x768",
+              "768x1344"
+            ],
+            "default": "1920x1080",
+            "description": "Output size; the graph generates aspect-correct and upscales to this."
           }
         }
       },
@@ -702,6 +706,19 @@
                 "value": true
               }
             }
+          },
+          "dimensions": {
+            "type": "string",
+            "title": "Dimensions",
+            "enum": [
+              "1920x1080",
+              "1080x1920",
+              "1024x1024",
+              "1344x768",
+              "768x1344"
+            ],
+            "default": "1920x1080",
+            "description": "Output size; the graph generates aspect-correct and upscales to this."
           }
         }
       },

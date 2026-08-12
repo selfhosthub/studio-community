@@ -13,7 +13,7 @@ Catalog of released content for Self-Host Studio.
 
 ### Catalogs and docs
 ```
-studio-cat/
+studio-community/
 ├── schemas/                          # JSON schemas for validation
 ├── comfyui/                          # ComfyUI workflow packages
 ├── prompts/                          # AI agent prompt packages
@@ -23,12 +23,13 @@ studio-cat/
     ├── admin.md
     ├── super-admin.md
     ├── user.md
-    └── providers/                    # Per-provider documentation
+    ├── providers/                    # Per-provider documentation
+    └── workflows/                    # Per-workflow documentation
 ```
 
 ### Components
 ```
-studio-cat/
+studio-community/
 ├── comfyui/                          # ComfyUI workflow packages
 ├── prompts/                          # AI agent prompt packages
 ├── providers/                        # Provider packages
@@ -40,7 +41,7 @@ studio-cat/
 | Type | Catalog | Content directory | Description |
 |------|---------|-------------------|-------------|
 | ComfyUI | `comfyui-catalog.json` | `comfyui/` | ComfyUI API-format workflows |
-| Docs | `docs-catalog.json` | `docs/` | In-app user and provider documentation |
+| Docs | `docs-catalog.json` | `docs/` | In-app user, provider, and workflow documentation |
 | Prompts | `prompts-catalog.json` | `prompts/` | Reusable prompt templates |
 | Providers | `providers-catalog.json` | `providers/` | Installable service bundles |
 | Workflows | `workflows-catalog.json` | `workflows/` | Standalone automation recipes |

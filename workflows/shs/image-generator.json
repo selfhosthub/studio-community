@@ -1,7 +1,7 @@
 {
   "name": "AI Image Generator",
   "description": "Generate AI images from text prompts using ComfyUI with customizable styles and batch sizes.",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "author": "SelfHostHub",
   "requires": [
     "shs/comfyui"
@@ -23,7 +23,7 @@
         "service_id": "shs/comfyui.comfyui_txt2img",
         "parameters": {
           "prompt": "",
-          "model": "flux1-schnell-q4",
+          "package": "shs/comfyui-txt2img-flux1-schnell-gguf::flux1-schnell-q4",
           "styles": [
             "sai-photographic"
           ],
@@ -41,8 +41,9 @@
         "batch_size": {
           "mappingType": "form"
         },
-        "model": {
-          "mappingType": "form"
+        "package": {
+          "mappingType": "form",
+          "formField": "package"
         },
         "dimensions": {
           "mappingType": "form"

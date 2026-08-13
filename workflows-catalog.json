@@ -100,7 +100,7 @@
     {
       "id": "shs/image-generator",
       "display_name": "AI Image Generator",
-      "version": "1.0.1",
+      "version": "1.1.0",
       "tier": "community",
       "category": "ai",
       "description": "Generate AI images from text prompts using ComfyUI with customizable styles and batch sizes.",

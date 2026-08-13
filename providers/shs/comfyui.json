@@ -1,7 +1,7 @@
 {
   "$schema": "https://raw.githubusercontent.com/selfhosthub/studio-community/main/schemas/provider.schema.json",
   "slug": "shs/comfyui",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "name": "Self-Host Studio ComfyUI",
   "description": "Self-hosted AI image generation with ComfyUI (Flux Schnell)",
   "provider_type": "INTERNAL",
@@ -517,15 +517,42 @@
           "dimensions": {
             "type": "string",
             "title": "Dimensions",
-            "enum": [
-              "1920x1080",
-              "1080x1920",
-              "1024x1024",
-              "1344x768",
-              "768x1344"
-            ],
+            "description": "Output size; the graph generates aspect-correct and upscales to this.",
             "default": "1920x1080",
-            "description": "Output size; the graph generates aspect-correct and upscales to this."
+            "pattern": "^\\d{2,5}x\\d{2,5}$",
+            "ui": {
+              "widget": "combobox",
+              "suggestions": [
+                {
+                  "value": "1920x1080",
+                  "label": "16:9 - 1920x1080"
+                },
+                {
+                  "value": "1080x1920",
+                  "label": "9:16 - 1080x1920"
+                },
+                {
+                  "value": "1024x1024",
+                  "label": "1:1 - 1024x1024"
+                },
+                {
+                  "value": "1536x1024",
+                  "label": "3:2 - 1536x1024"
+                },
+                {
+                  "value": "1024x1536",
+                  "label": "2:3 - 1024x1536"
+                },
+                {
+                  "value": "1344x768",
+                  "label": "7:4 - 1344x768"
+                },
+                {
+                  "value": "768x1344",
+                  "label": "4:7 - 768x1344"
+                }
+              ]
+            }
           }
         }
       },
@@ -710,15 +737,42 @@
           "dimensions": {
             "type": "string",
             "title": "Dimensions",
-            "enum": [
-              "1920x1080",
-              "1080x1920",
-              "1024x1024",
-              "1344x768",
-              "768x1344"
-            ],
+            "description": "Output size; the graph generates aspect-correct and upscales to this.",
             "default": "1920x1080",
-            "description": "Output size; the graph generates aspect-correct and upscales to this."
+            "pattern": "^\\d{2,5}x\\d{2,5}$",
+            "ui": {
+              "widget": "combobox",
+              "suggestions": [
+                {
+                  "value": "1920x1080",
+                  "label": "16:9 - 1920x1080"
+                },
+                {
+                  "value": "1080x1920",
+                  "label": "9:16 - 1080x1920"
+                },
+                {
+                  "value": "1024x1024",
+                  "label": "1:1 - 1024x1024"
+                },
+                {
+                  "value": "1536x1024",
+                  "label": "3:2 - 1536x1024"
+                },
+                {
+                  "value": "1024x1536",
+                  "label": "2:3 - 1024x1536"
+                },
+                {
+                  "value": "1344x768",
+                  "label": "7:4 - 1344x768"
+                },
+                {
+                  "value": "768x1344",
+                  "label": "4:7 - 768x1344"
+                }
+              ]
+            }
           }
         }
       },

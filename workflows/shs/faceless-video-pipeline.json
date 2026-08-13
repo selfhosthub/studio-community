@@ -1,7 +1,7 @@
 {
   "name": "Faceless Video (Self-Host Studio)",
   "description": "Turn a news article into a narrated video with AI-generated images, TTS audio, per-image zoom effects, and subtitles.",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "author": "SelfHostHub",
   "requires": [
     "shs/openai",
@@ -152,9 +152,8 @@
         "parameters": {
           "prompt": "{{ generate_scene_content.image_prompts[*] }}",
           "negative_prompt": "text, speech bubbles, captions, words, letters, writing, dialogue, subtitles, watermark, signature, blurry, distorted",
-          "model": "flux1-schnell-q4",
-          "output_width": 1024,
-          "output_height": 576,
+          "package": "shs/comfyui-txt2img-flux1-schnell-gguf::flux1-schnell-q4",
+          "dimensions": "1920x1080",
           "upscale": true,
           "steps": 1,
           "seed": -1,
@@ -178,13 +177,9 @@
           "mappingType": "form",
           "formField": "styles"
         },
-        "output_width": {
+        "dimensions": {
           "mappingType": "form",
-          "formField": "output_width"
-        },
-        "output_height": {
-          "mappingType": "form",
-          "formField": "output_height"
+          "formField": "dimensions"
         },
         "steps": {
           "mappingType": "form",

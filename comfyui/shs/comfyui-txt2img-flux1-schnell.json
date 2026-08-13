@@ -1,7 +1,7 @@
 {
   "$schema": "https://raw.githubusercontent.com/selfhosthub/studio-community/main/schemas/comfyui-workflow.schema.json",
   "slug": "shs/comfyui-txt2img-flux1-schnell",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "name": "ComfyUI Text to Image (Flux.1 Schnell)",
   "description": "Generate images from text prompts with Flux.1 Schnell (bf16 or FP8) in ComfyUI.",
   "author": "SelfHostHub",
@@ -111,29 +111,17 @@
       "max": 4
     },
     "dimensions": {
-      "type": "enum",
+      "type": "string",
       "default": "1920x1080",
-      "options": [
-        {
-          "value": "1024x1024",
-          "label": "1:1 - 1024x1024"
-        },
-        {
-          "value": "1920x1080",
-          "label": "16:9 - 1920x1080"
-        },
-        {
-          "value": "1080x1920",
-          "label": "9:16 - 1080x1920"
-        },
-        {
-          "value": "1536x1024",
-          "label": "3:2 - 1536x1024"
-        },
-        {
-          "value": "1024x1536",
-          "label": "2:3 - 1024x1536"
-        }
+      "pattern": "^\\d{2,5}x\\d{2,5}$",
+      "suggestions": [
+        "1920x1080",
+        "1080x1920",
+        "1024x1024",
+        "1536x1024",
+        "1024x1536",
+        "1344x768",
+        "768x1344"
       ]
     },
     "upscale": {

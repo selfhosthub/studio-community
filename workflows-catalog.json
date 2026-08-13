@@ -59,7 +59,7 @@
     {
       "id": "shs/faceless-video-pipeline",
       "display_name": "Faceless Video (Self-Host Studio)",
-      "version": "1.0.1",
+      "version": "1.0.2",
       "tier": "community",
       "category": "video",
       "description": "Turn a news article into a narrated video with AI-generated images, TTS audio, per-image zoom effects, and subtitles.",

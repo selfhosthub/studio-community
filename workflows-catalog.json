@@ -59,7 +59,7 @@
     {
       "id": "shs/faceless-video-pipeline",
       "display_name": "Faceless Video (Self-Host Studio)",
-      "version": "1.0.2",
+      "version": "1.1.0",
       "tier": "community",
       "category": "video",
       "description": "Turn a news article into a narrated video with AI-generated images, TTS audio, per-image zoom effects, and subtitles.",
@@ -68,8 +68,7 @@
         "shs/comfyui",
         "shs/video",
         "shs/core",
-        "shs/youtube",
-        "shs/tiktok"
+        "shs/youtube"
       ],
       "author": "SelfHostHub",
       "download_url": "https://raw.githubusercontent.com/selfhosthub/studio-community/main/workflows/shs/faceless-video-pipeline.json",
@@ -80,6 +79,9 @@
         },
         {
           "marketplace_slug": "shs/scene-designer"
+        },
+        {
+          "marketplace_slug": "shs/youtube-metadata"
         }
       ]
     },

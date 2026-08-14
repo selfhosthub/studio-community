@@ -153,8 +153,8 @@ Turn a news article into a narrated video with AI-generated images, TTS audio, p
 
 | | |
 |---|---|
-| **Providers** | OpenAI, ComfyUI, SHS Audio, SHS Video, Core |
-| **Steps** | 7+ |
+| **Providers** | OpenAI, ComfyUI, SHS Video, Core, YouTube |
+| **Steps** | 8 |
 | **Category** | Video |
 
 ---

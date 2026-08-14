@@ -1,15 +1,14 @@
 {
   "name": "Faceless Video (Self-Host Studio)",
   "description": "Turn a news article into a narrated video with AI-generated images, TTS audio, per-image zoom effects, and subtitles.",
-  "version": "1.0.2",
+  "version": "1.1.0",
   "author": "SelfHostHub",
   "requires": [
     "shs/openai",
     "shs/comfyui",
     "shs/video",
     "shs/core",
-    "shs/youtube",
-    "shs/tiktok"
+    "shs/youtube"
   ],
   "prompts": [
     {
@@ -19,11 +18,15 @@
     {
       "marketplace_slug": "shs/scene-designer",
       "used_by_step": "generate_scene_content"
+    },
+    {
+      "marketplace_slug": "shs/youtube-metadata",
+      "used_by_step": "youtube_metadata"
     }
   ],
   "steps": {
     "generate_story": {
-      "name": "Generate Story",
+      "name": "Story",
       "description": "Generate a narrated story from the article (via prompt template)",
       "type": "task",
       "depends_on": [],
@@ -58,8 +61,69 @@
         }
       }
     },
+    "youtube_metadata": {
+      "name": "Metadata",
+      "description": "Generate optimized video title, description, and tags from the story",
+      "type": "task",
+      "depends_on": [
+        "generate_story"
+      ],
+      "ui_config": {
+        "position": {
+          "x": 400,
+          "y": 366
+        }
+      },
+      "job": {
+        "service_type": "ai",
+        "provider_id": "shs/openai",
+        "service_id": "shs/openai.openai_chat",
+        "parameters": {
+          "model": "gpt-4o",
+          "messages": [],
+          "temperature": 1,
+          "response_format": {
+            "type": "json_object"
+          }
+        }
+      },
+      "input_mappings": {
+        "messages": {
+          "mappingType": "prompt",
+          "promptSlug": "shs/youtube-metadata"
+        },
+        "_prompt_variable:story_text": {
+          "mappingType": "mapped",
+          "stepId": "generate_story",
+          "outputField": "response"
+        },
+        "_prompt_variable:metadata_language": {
+          "mappingType": "mapped",
+          "stepId": "__instance_form__",
+          "outputField": "language"
+        }
+      },
+      "timeout": 60,
+      "outputs": {
+        "title": {
+          "path": "choices[0].message.content.title",
+          "type": "string",
+          "description": "Optimized YouTube video title"
+        },
+        "description": {
+          "path": "choices[0].message.content.description",
+          "type": "string",
+          "description": "Optimized YouTube video description"
+        },
+        "tags": {
+          "path": "choices[0].message.content.tags",
+          "type": "array",
+          "description": "Ordered list of YouTube tags"
+        }
+      }
+    },
     "generate_scene_content": {
-      "name": "Generate Scene Content",
+      "name": "Scenes",
       "description": "Generate scenes with narration and image prompts (via prompt)",
       "type": "task",
       "depends_on": [
@@ -126,7 +190,7 @@
       }
     },
     "generate_images": {
-      "name": "Generate Images",
+      "name": "Images",
       "description": "Generate illustrations for each image prompt",
       "type": "task",
       "depends_on": [
@@ -155,7 +219,7 @@
           "package": "shs/comfyui-txt2img-flux1-schnell-gguf::flux1-schnell-q4",
           "dimensions": "1920x1080",
           "upscale": true,
-          "steps": 1,
+          "steps": 2,
           "seed": -1,
           "batch_size": 1,
           "styles": [
@@ -168,22 +232,6 @@
           "mappingType": "mapped",
           "stepId": "generate_scene_content",
           "outputField": "image_prompts"
-        },
-        "batch_size": {
-          "mappingType": "form",
-          "formField": "batch_size"
-        },
-        "styles": {
-          "mappingType": "form",
-          "formField": "styles"
-        },
-        "dimensions": {
-          "mappingType": "form",
-          "formField": "dimensions"
-        },
-        "steps": {
-          "mappingType": "form",
-          "formField": "steps"
         }
       },
       "config": {
@@ -212,7 +260,7 @@
       }
     },
     "generate_narration": {
-      "name": "Generate Narration (OpenAI TTS)",
+      "name": "Narration",
       "description": "Generate TTS audio for each scene narration using OpenAI",
       "type": "task",
       "depends_on": [
@@ -248,6 +296,10 @@
           "stepId": "generate_scene_content",
           "outputField": "narrations"
         },
+        "voice": {
+          "mappingType": "form",
+          "formField": "voice"
+        },
         "language": {
           "mappingType": "mapped",
           "stepId": "__instance_form__",
@@ -267,7 +319,7 @@
       }
     },
     "set_zoom_fields": {
-      "name": "Set Zoom Fields",
+      "name": "Zoom",
       "description": "Define zoom_start and zoom_end arrays for per-image zoom effects",
       "type": "task",
       "depends_on": [
@@ -322,7 +374,7 @@
       }
     },
     "assemble_video": {
-      "name": "Assemble Video",
+      "name": "Video",
       "description": "Assemble images with narration audio into a video (with per-image zoom)",
       "type": "task",
       "depends_on": [
@@ -443,18 +495,18 @@
       }
     },
     "upload_to_youtube": {
-      "name": "Upload to YouTube",
+      "name": "YouTube",
       "description": "Upload the assembled video to YouTube (resumable upload)",
       "type": "task",
       "trigger_type": "manual",
-      "execution_mode": "skip",
       "depends_on": [
-        "assemble_video"
+        "assemble_video",
+        "youtube_metadata"
       ],
       "ui_config": {
         "position": {
           "x": 1300,
-          "y": 24
+          "y": 138
         }
       },
       "job": {
@@ -468,18 +520,45 @@
           "privacyStatus": "private",
           "madeForKids": false,
           "body_source_url": "{{ assemble_video.storage_url }}",
-          "content_type": "video/mp4"
+          "content_type": "video/mp4",
+          "defaultLanguage": "{{ __instance_form__.language }}",
+          "defaultAudioLanguage": "{{ __instance_form__.language }}"
         }
       },
       "input_mappings": {
         "title": {
+          "mappingType": "mapped",
+          "stepId": "youtube_metadata",
+          "outputField": "title"
+        },
+        "description": {
+          "mappingType": "mapped",
+          "stepId": "youtube_metadata",
+          "outputField": "description"
+        },
+        "tags": {
+          "mappingType": "mapped",
+          "stepId": "youtube_metadata",
+          "outputField": "tags"
+        },
+        "categoryId": {
           "mappingType": "form",
-          "formField": "title"
+          "formField": "categoryId"
         },
         "body_source_url": {
           "mappingType": "mapped",
           "stepId": "assemble_video",
           "outputField": "storage_url"
+        },
+        "defaultLanguage": {
+          "mappingType": "mapped",
+          "stepId": "__instance_form__",
+          "outputField": "language"
+        },
+        "defaultAudioLanguage": {
+          "mappingType": "mapped",
+          "stepId": "__instance_form__",
+          "outputField": "language"
         }
       },
       "timeout": 600,
@@ -490,53 +569,6 @@
         },
         "upload_status": {
           "path": "response_body.status.uploadStatus",
-          "type": "string"
-        }
-      }
-    },
-    "publish_to_tiktok": {
-      "name": "Publish to TikTok",
-      "description": "Publish the assembled video to TikTok via Pull URL",
-      "type": "task",
-      "trigger_type": "manual",
-      "execution_mode": "skip",
-      "depends_on": [
-        "assemble_video"
-      ],
-      "ui_config": {
-        "position": {
-          "x": 1300,
-          "y": 252
-        }
-      },
-      "job": {
-        "service_type": "social_media",
-        "provider_id": "shs/tiktok",
-        "service_id": "shs/tiktok.tiktok_publish_video",
-        "parameters": {
-          "title": "",
-          "video_url": "{{ assemble_video.storage_url }}",
-          "privacy_level": "SELF_ONLY",
-          "disable_duet": false,
-          "disable_stitch": false,
-          "disable_comment": false
-        }
-      },
-      "input_mappings": {
-        "title": {
-          "mappingType": "form",
-          "formField": "title"
-        },
-        "video_url": {
-          "mappingType": "mapped",
-          "stepId": "assemble_video",
-          "outputField": "storage_url"
-        }
-      },
-      "timeout": 600,
-      "outputs": {
-        "publish_id": {
-          "path": "data.publish_id",
           "type": "string"
         }
       }

@@ -1,7 +1,7 @@
 {
   "name": "Faceless Video (Self-Host Studio)",
   "description": "Turn a news article into a narrated video with AI-generated images, TTS audio, per-image zoom effects, and subtitles.",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "author": "SelfHostHub",
   "requires": [
     "shs/openai",
@@ -71,7 +71,7 @@
       "ui_config": {
         "position": {
           "x": 400,
-          "y": 366
+          "y": 334
         }
       },
       "job": {
@@ -132,7 +132,7 @@
       "ui_config": {
         "position": {
           "x": 400,
-          "y": 24
+          "y": -58
         }
       },
       "job": {
@@ -199,7 +199,7 @@
       "ui_config": {
         "position": {
           "x": 700,
-          "y": -240
+          "y": -246
         }
       },
       "iteration_config": {
@@ -255,7 +255,8 @@
         "enabled": true,
         "mode": "selected",
         "selected_fields": [
-          "prompts_per_scene"
+          "prompts_per_scene",
+          "repeat"
         ]
       }
     },
@@ -269,7 +270,7 @@
       "ui_config": {
         "position": {
           "x": 700,
-          "y": -52
+          "y": -58
         }
       },
       "iteration_config": {
@@ -316,6 +317,13 @@
           "path": "storage_url",
           "type": "string"
         }
+      },
+      "output_forwarding": {
+        "enabled": true,
+        "mode": "selected",
+        "selected_fields": [
+          "narrations"
+        ]
       }
     },
     "set_zoom_fields": {
@@ -328,7 +336,7 @@
       "ui_config": {
         "position": {
           "x": 400,
-          "y": 252
+          "y": 130
         }
       },
       "job": {
@@ -380,13 +388,12 @@
       "depends_on": [
         "generate_images",
         "generate_narration",
-        "set_zoom_fields",
-        "generate_scene_content"
+        "set_zoom_fields"
       ],
       "ui_config": {
         "position": {
-          "x": 1000,
-          "y": 138
+          "x": 1001.6555023923445,
+          "y": 52.019138755980876
         }
       },
       "job": {
@@ -397,7 +404,7 @@
           "scenes": [
             {
               "type": "item_group",
-              "repeat": 5,
+              "repeat": "{{ generate_images.repeat }}",
               "subtitles_source": "auto",
               "elements": [
                 {
@@ -442,12 +449,12 @@
       "input_mappings": {
         "scenes[0].repeat": {
           "mappingType": "mapped",
-          "stepId": "generate_scene_content",
+          "stepId": "generate_images",
           "outputField": "repeat"
         },
         "scenes[0].subtitles_narration_texts": {
           "mappingType": "mapped",
-          "stepId": "generate_scene_content",
+          "stepId": "generate_narration",
           "outputField": "narrations"
         },
         "scenes[0].elements[0].src": {
@@ -506,7 +513,7 @@
       "ui_config": {
         "position": {
           "x": 1300,
-          "y": 138
+          "y": 153
         }
       },
       "job": {

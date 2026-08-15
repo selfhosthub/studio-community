@@ -1,7 +1,7 @@
 {
   "$schema": "https://raw.githubusercontent.com/selfhosthub/studio-community/main/schemas/provider.schema.json",
   "slug": "shs/comfyui",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "name": "Self-Host Studio ComfyUI",
   "description": "Self-hosted AI image generation with ComfyUI (Flux Schnell)",
   "provider_type": "INTERNAL",
@@ -22,7 +22,7 @@
   "services": {
     "comfyui_txt2img": {
       "display_name": "Text to Image",
-      "description": "AI image generation with Flux models (Schnell for speed, Klein 4B for quality)",
+      "description": "AI image generation with Flux models (Schnell for speed, Klein 4B for quality). Each package needs its own model files, and the Schnell GGUF package also needs the ComfyUI-GGUF custom node: see Docs > Providers > Self-Host Studio ComfyUI for the file list and download links.",
       "service_type": "AI",
       "path": null,
       "method": "POST",
@@ -643,7 +643,7 @@
     },
     "comfyui_imgedit": {
       "display_name": "Image Edit",
-      "description": "Edit and transform images using Flux.2 Klein 4B model with text prompts",
+      "description": "Edit and transform images using Flux.2 Klein 4B model with text prompts. Needs the Klein 4B model files: see Docs > Providers > Self-Host Studio ComfyUI for the file list and download links.",
       "service_type": "AI",
       "path": null,
       "method": "POST",

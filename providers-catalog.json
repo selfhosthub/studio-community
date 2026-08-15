@@ -91,10 +91,10 @@
     {
       "id": "shs/comfyui",
       "display_name": "Self-Host Studio ComfyUI",
-      "version": "1.2.0",
+      "version": "1.2.1",
       "tier": "community",
       "category": "ai",
-      "description": "Self-hosted AI image generation with ComfyUI (Flux, SDXL, SD1.5)",
+      "description": "Self-hosted AI image generation with ComfyUI (Flux.1 Schnell, Flux 2 Klein)",
       "services_preview": [
         "Text to Image",
         "Image Edit"

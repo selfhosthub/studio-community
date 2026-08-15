@@ -21,6 +21,7 @@ The SHS ComfyUI provider runs entirely on your infrastructure using ComfyUI as t
 
 - ComfyUI installed and running (any machine the worker can reach over HTTP)
 - The model files for the packages you install (table below)
+- The custom nodes for the packages you install (table below)
 - A GPU: 8 GB VRAM covers the GGUF pipeline; Klein and bf16 Schnell want more.
   Apple Silicon runs ComfyUI natively (MPS); the GGUF pipeline is the low-memory pick.
 - A Studio ComfyUI worker connected to your instance (quickstart below)
@@ -82,23 +83,46 @@ Place files in the matching ComfyUI model directory. Klein diffusion weights
 are gated on Hugging Face: downloading requires an account and accepting the
 license terms in the browser first. Everything else is an open download.
 
-| File | Directory | Size | Access | Used by |
-|------|-----------|------|--------|---------|
-| flux1-schnell-Q4_K_S.gguf | diffusion_models | 6.8 GB | open | Schnell GGUF (low memory) |
-| flux1-schnell.safetensors | diffusion_models | 23.8 GB | open | Schnell bf16 |
-| flux1-schnell-fp8-e4m3fn.safetensors | diffusion_models | 11.9 GB | open | Schnell FP8 |
-| flux-2-klein-4b.safetensors | diffusion_models | 7.8 GB | gated | Klein 4B txt2img + edit |
-| flux-2-klein-9b-fp8.safetensors | diffusion_models | 9.4 GB | gated | Klein 9B txt2img |
-| t5xxl_fp8_e4m3fn.safetensors | text_encoders | 4.9 GB | open | Schnell GGUF/FP8 |
-| t5xxl_fp16.safetensors | text_encoders | 9.8 GB | open | Schnell bf16 |
-| clip_l.safetensors | text_encoders | 0.2 GB | open | all Schnell |
-| qwen_3_4b.safetensors | text_encoders | 8.0 GB | open | Klein 4B |
-| qwen_3_8b_fp8mixed.safetensors | text_encoders | 8.7 GB | open | Klein 9B |
-| ae.safetensors | vae | 0.3 GB | open | all Schnell |
-| flux2-vae.safetensors | vae | 0.3 GB | open | all Klein |
+| File | Directory | Size | Access | Used by | Download |
+|------|-----------|------|--------|---------|----------|
+| flux1-schnell-Q4_K_S.gguf | diffusion_models | 6.8 GB | open | Schnell GGUF (low memory) | [city96/FLUX.1-schnell-gguf](https://huggingface.co/city96/FLUX.1-schnell-gguf) |
+| flux1-schnell.safetensors | diffusion_models | 23.8 GB | open | Schnell bf16 | [black-forest-labs/FLUX.1-schnell](https://huggingface.co/black-forest-labs/FLUX.1-schnell) |
+| flux1-schnell-fp8-e4m3fn.safetensors | diffusion_models | 11.9 GB | open | Schnell FP8 | [Kijai/flux-fp8](https://huggingface.co/Kijai/flux-fp8) |
+| flux-2-klein-4b.safetensors | diffusion_models | 7.8 GB | gated | Klein 4B txt2img + edit | [black-forest-labs/FLUX.2-klein-4B](https://huggingface.co/black-forest-labs/FLUX.2-klein-4B) |
+| flux-2-klein-9b-fp8.safetensors | diffusion_models | 9.4 GB | gated | Klein 9B txt2img | [black-forest-labs/FLUX.2-klein-9B](https://huggingface.co/black-forest-labs/FLUX.2-klein-9B) |
+| t5xxl_fp8_e4m3fn.safetensors | text_encoders | 4.9 GB | open | Schnell GGUF/FP8 | [comfyanonymous/flux_text_encoders](https://huggingface.co/comfyanonymous/flux_text_encoders) |
+| t5xxl_fp16.safetensors | text_encoders | 9.8 GB | open | Schnell bf16 | [comfyanonymous/flux_text_encoders](https://huggingface.co/comfyanonymous/flux_text_encoders) |
+| clip_l.safetensors | text_encoders | 0.2 GB | open | all Schnell | [comfyanonymous/flux_text_encoders](https://huggingface.co/comfyanonymous/flux_text_encoders) |
+| qwen_3_4b.safetensors | text_encoders | 8.0 GB | open | Klein 4B | [Comfy-Org/vae-text-encorder-for-flux-klein-4b](https://huggingface.co/Comfy-Org/vae-text-encorder-for-flux-klein-4b) |
+| qwen_3_8b_fp8mixed.safetensors | text_encoders | 8.7 GB | open | Klein 9B | [Comfy-Org/vae-text-encorder-for-flux-klein-9b](https://huggingface.co/Comfy-Org/vae-text-encorder-for-flux-klein-9b) |
+| ae.safetensors | vae | 0.3 GB | open | all Schnell | [black-forest-labs/FLUX.1-schnell](https://huggingface.co/black-forest-labs/FLUX.1-schnell) |
+| flux2-vae.safetensors | vae | 0.3 GB | open | all Klein | [Comfy-Org/vae-text-encorder-for-flux-klein-4b](https://huggingface.co/Comfy-Org/vae-text-encorder-for-flux-klein-4b) |
 
-Each package's marketplace detail page lists exactly which files it needs, with
-download links.
+Each package needs a subset of these files. The "Used by" column marks which
+package a file belongs to, and every package manifest lists its own file set
+under `required_models`.
+
+### Per-package file sets
+
+| Package | Files |
+|---------|-------|
+| Text to Image (Flux.1 Schnell GGUF) | flux1-schnell-Q4_K_S.gguf, t5xxl_fp8_e4m3fn.safetensors, clip_l.safetensors, ae.safetensors |
+| Text to Image (Flux.1 Schnell), bf16 | flux1-schnell.safetensors, t5xxl_fp16.safetensors, clip_l.safetensors, ae.safetensors |
+| Text to Image (Flux.1 Schnell), FP8 | flux1-schnell-fp8-e4m3fn.safetensors, t5xxl_fp8_e4m3fn.safetensors, clip_l.safetensors, ae.safetensors |
+| Text to Image (Flux 2 Klein), 4B | flux-2-klein-4b.safetensors, qwen_3_4b.safetensors, flux2-vae.safetensors |
+| Text to Image (Flux 2 Klein), 9B | flux-2-klein-9b-fp8.safetensors, qwen_3_8b_fp8mixed.safetensors, flux2-vae.safetensors |
+| Image Edit (Flux 2 Klein) | flux-2-klein-4b.safetensors, qwen_3_4b.safetensors, flux2-vae.safetensors |
+
+## Custom Nodes
+
+Install into ComfyUI's `custom_nodes` directory (ComfyUI Manager or `git clone`),
+then restart ComfyUI.
+
+| Node pack | Required by | Repository |
+|-----------|-------------|------------|
+| ComfyUI-GGUF | Text to Image (Flux.1 Schnell GGUF) | https://github.com/city96/ComfyUI-GGUF |
+
+The other packages run on ComfyUI's built-in nodes.
 
 ## Available Services
 

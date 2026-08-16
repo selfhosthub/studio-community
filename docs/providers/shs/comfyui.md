@@ -98,10 +98,11 @@ Every package manifest lists the same set under `required_models`.
 ### All model files
 
 Directory is where ComfyUI Manager's Model Manager saves the file, so installing
-through Manager puts it in the right place. The file name links to its Hugging
-Face repository. Klein diffusion weights are gated: downloading requires an
-account and accepting the license terms in the browser first. Everything else
-is an open download.
+through Manager puts it in the right place. Manager does not carry the FP8
+Schnell build or any Flux 2 Klein file, so those go in the plain type folder
+shown. The file name links to its Hugging Face repository. Klein diffusion
+weights are gated: downloading requires an account and accepting the license
+terms in the browser first. Everything else is an open download.
 
 | File | Directory | Size | Access | Used by |
 |------|-----------|------|--------|---------|
@@ -110,8 +111,8 @@ is an open download.
 | [flux1-schnell-Q4_K_S.gguf](https://huggingface.co/city96/FLUX.1-schnell-gguf) | diffusion_models/FLUX1 | 6.8 GB | open | Schnell GGUF |
 | [t5xxl_fp8_e4m3fn.safetensors](https://huggingface.co/comfyanonymous/flux_text_encoders) | text_encoders/t5 | 4.9 GB | open | Schnell GGUF, FP8 |
 | [flux1-schnell-fp8-e4m3fn.safetensors](https://huggingface.co/Kijai/flux-fp8) | diffusion_models | 11.9 GB | open | Schnell FP8 |
-| [flux1-schnell.safetensors](https://huggingface.co/black-forest-labs/FLUX.1-schnell) | diffusion_models | 23.8 GB | open | Schnell bf16 |
-| [t5xxl_fp16.safetensors](https://huggingface.co/comfyanonymous/flux_text_encoders) | text_encoders | 9.8 GB | open | Schnell bf16 |
+| [flux1-schnell.safetensors](https://huggingface.co/black-forest-labs/FLUX.1-schnell) | diffusion_models/FLUX1 | 23.8 GB | open | Schnell bf16 |
+| [t5xxl_fp16.safetensors](https://huggingface.co/comfyanonymous/flux_text_encoders) | text_encoders/t5 | 9.8 GB | open | Schnell bf16 |
 | [flux2-vae.safetensors](https://huggingface.co/Comfy-Org/vae-text-encorder-for-flux-klein-4b) | vae | 0.3 GB | open | all Klein |
 | [flux-2-klein-4b.safetensors](https://huggingface.co/black-forest-labs/FLUX.2-klein-4B) | diffusion_models | 7.8 GB | gated | Klein 4B, Image Edit |
 | [qwen_3_4b.safetensors](https://huggingface.co/Comfy-Org/vae-text-encorder-for-flux-klein-4b) | text_encoders | 8.0 GB | open | Klein 4B, Image Edit |

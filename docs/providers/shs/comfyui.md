@@ -97,17 +97,18 @@ Every package manifest lists the same set under `required_models`.
 
 ### All model files
 
-Place each file in the matching ComfyUI model directory. The file name links to
-its Hugging Face repository. Klein diffusion weights are gated: downloading
-requires an account and accepting the license terms in the browser first.
-Everything else is an open download.
+Directory is where ComfyUI Manager's Model Manager saves the file, so installing
+through Manager puts it in the right place. The file name links to its Hugging
+Face repository. Klein diffusion weights are gated: downloading requires an
+account and accepting the license terms in the browser first. Everything else
+is an open download.
 
 | File | Directory | Size | Access | Used by |
 |------|-----------|------|--------|---------|
 | [clip_l.safetensors](https://huggingface.co/comfyanonymous/flux_text_encoders) | text_encoders | 0.2 GB | open | all Schnell |
-| [ae.safetensors](https://huggingface.co/black-forest-labs/FLUX.1-schnell) | vae | 0.3 GB | open | all Schnell |
-| [flux1-schnell-Q4_K_S.gguf](https://huggingface.co/city96/FLUX.1-schnell-gguf) | diffusion_models | 6.8 GB | open | Schnell GGUF |
-| [t5xxl_fp8_e4m3fn.safetensors](https://huggingface.co/comfyanonymous/flux_text_encoders) | text_encoders | 4.9 GB | open | Schnell GGUF, FP8 |
+| [ae.safetensors](https://huggingface.co/black-forest-labs/FLUX.1-schnell) | vae/FLUX1 | 0.3 GB | open | all Schnell |
+| [flux1-schnell-Q4_K_S.gguf](https://huggingface.co/city96/FLUX.1-schnell-gguf) | diffusion_models/FLUX1 | 6.8 GB | open | Schnell GGUF |
+| [t5xxl_fp8_e4m3fn.safetensors](https://huggingface.co/comfyanonymous/flux_text_encoders) | text_encoders/t5 | 4.9 GB | open | Schnell GGUF, FP8 |
 | [flux1-schnell-fp8-e4m3fn.safetensors](https://huggingface.co/Kijai/flux-fp8) | diffusion_models | 11.9 GB | open | Schnell FP8 |
 | [flux1-schnell.safetensors](https://huggingface.co/black-forest-labs/FLUX.1-schnell) | diffusion_models | 23.8 GB | open | Schnell bf16 |
 | [t5xxl_fp16.safetensors](https://huggingface.co/comfyanonymous/flux_text_encoders) | text_encoders | 9.8 GB | open | Schnell bf16 |

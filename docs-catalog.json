@@ -1,6 +1,6 @@
 {
-  "version": "1.0.0",
-  "updated_at": "2026-06-23T00:00:00Z",
+  "version": "1.0.1",
+  "updated_at": "2026-08-16T00:00:00Z",
   "workflows": [
     {
       "id": "shs/item-groups",

@@ -16,7 +16,7 @@
     {
       "id": "shs/comfyui-txt2img-flux1-schnell-gguf",
       "display_name": "ComfyUI Text to Image (Flux.1 Schnell GGUF)",
-      "version": "1.2.0",
+      "version": "1.2.1",
       "tier": "community",
       "category": "image",
       "description": "Generate images from text prompts using a GGUF-quantized Flux.1 Schnell pipeline.",

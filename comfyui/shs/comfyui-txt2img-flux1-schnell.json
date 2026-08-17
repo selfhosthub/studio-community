@@ -1,7 +1,7 @@
 {
   "$schema": "https://raw.githubusercontent.com/selfhosthub/studio-community/main/schemas/comfyui-workflow.schema.json",
   "slug": "shs/comfyui-txt2img-flux1-schnell",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "name": "ComfyUI Text to Image (Flux.1 Schnell)",
   "description": "Generate images from text prompts with Flux.1 Schnell (bf16 or FP8) in ComfyUI.",
   "author": "SelfHostHub",
@@ -221,7 +221,7 @@
   "required_models": [
     {
       "filename": "flux1-schnell.safetensors",
-      "directory": "diffusion_models",
+      "directory": "diffusion_models/FLUX1",
       "size_gb": 23.8,
       "source_url": "https://huggingface.co/black-forest-labs/FLUX.1-schnell",
       "license": "apache-2.0",
@@ -229,7 +229,7 @@
     },
     {
       "filename": "t5xxl_fp16.safetensors",
-      "directory": "text_encoders",
+      "directory": "text_encoders/t5",
       "size_gb": 9.8,
       "source_url": "https://huggingface.co/comfyanonymous/flux_text_encoders",
       "license": "apache-2.0",
@@ -245,7 +245,7 @@
     },
     {
       "filename": "ae.safetensors",
-      "directory": "vae",
+      "directory": "vae/FLUX1",
       "size_gb": 0.3,
       "source_url": "https://huggingface.co/black-forest-labs/FLUX.1-schnell",
       "license": "apache-2.0",
@@ -261,7 +261,7 @@
     },
     {
       "filename": "t5xxl_fp8_e4m3fn.safetensors",
-      "directory": "text_encoders",
+      "directory": "text_encoders/t5",
       "size_gb": 4.9,
       "source_url": "https://huggingface.co/comfyanonymous/flux_text_encoders",
       "license": "apache-2.0",

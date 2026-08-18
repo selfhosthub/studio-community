@@ -220,13 +220,11 @@
           "subtitles_backend": {
             "type": "string",
             "title": "Transcription Engine",
-            "description": "Whisper backend. Faster-Whisper transcribes about 2.3x quicker on CPU; OpenAI Whisper is the original and needs PyTorch.",
+            "description": "Transcription engine. Faster-Whisper runs on CTranslate2 and is the engine the video worker image installs.",
             "enum": [
-              "openai",
               "faster"
             ],
             "enumNames": [
-              "OpenAI Whisper",
               "Faster-Whisper"
             ],
             "default": "faster",

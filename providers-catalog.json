@@ -106,7 +106,7 @@
     {
       "id": "shs/video",
       "display_name": "Self-Host Studio Video",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "tier": "community",
       "category": "ai",
       "description": "Self-hosted video processing with FFmpeg and Whisper STT",

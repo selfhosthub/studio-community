@@ -1,7 +1,7 @@
 {
   "$schema": "https://raw.githubusercontent.com/selfhosthub/studio-community/main/schemas/provider.schema.json",
   "slug": "shs/video",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "name": "Self-Host Studio Video",
   "description": "Self-hosted video processing with FFmpeg and Whisper STT",
   "provider_type": "INTERNAL",
@@ -220,7 +220,7 @@
           "subtitles_backend": {
             "type": "string",
             "title": "Transcription Engine",
-            "description": "Whisper backend. Faster-Whisper is ~4-5x quicker; OpenAI is the original.",
+            "description": "Whisper backend. Faster-Whisper transcribes about 2.3x quicker on CPU; OpenAI Whisper is the original and needs PyTorch.",
             "enum": [
               "openai",
               "faster"
@@ -229,7 +229,7 @@
               "OpenAI Whisper",
               "Faster-Whisper"
             ],
-            "default": "openai",
+            "default": "faster",
             "ui": {
               "section": "defaults",
               "group": "subtitles",

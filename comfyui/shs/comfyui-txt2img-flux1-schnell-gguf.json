@@ -1,7 +1,7 @@
 {
   "$schema": "https://raw.githubusercontent.com/selfhosthub/studio-community/main/schemas/comfyui-workflow.schema.json",
   "slug": "shs/comfyui-txt2img-flux1-schnell-gguf",
-  "version": "1.2.2",
+  "version": "1.2.3",
   "name": "ComfyUI Text to Image (Flux.1 Schnell GGUF)",
   "description": "Generate images from text prompts using a GGUF-quantized Flux.1 Schnell pipeline.",
   "author": "SelfHostHub",
@@ -215,7 +215,7 @@
       "size_gb": 0.3,
       "source_url": "https://huggingface.co/black-forest-labs/FLUX.1-schnell",
       "license": "apache-2.0",
-      "access": "open"
+      "access": "gated"
     }
   ],
   "graph": {

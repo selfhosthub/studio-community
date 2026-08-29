@@ -550,13 +550,6 @@
             "email"
           ],
           "description": "Opts the service into dispatch shaping. 'chat' parses the neutral messages list into the dialect's wire shape; 'email' assembles and encodes an RFC 822 message. Shaping runs at enqueue."
-        },
-        "prompt_shape": {
-          "type": "string",
-          "enum": [
-            "chat"
-          ],
-          "description": "Published spelling of dispatch_shape, accepted until the catalogs republish under the new key. Do not author new services with it."
         }
       }
     }

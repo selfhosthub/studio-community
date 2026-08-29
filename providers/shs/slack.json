@@ -1,0 +1,192 @@
+{
+  "$schema": "https://raw.githubusercontent.com/selfhosthub/studio-community/main/schemas/provider.schema.json",
+  "slug": "shs/slack",
+  "version": "1.1.1",
+  "name": "Slack",
+  "description": "Send messages to Slack channels",
+  "provider_type": "API",
+  "category": "communication",
+  "status": "ACTIVE",
+  "tier": "community",
+  "credential_schema": {
+    "type": "object",
+    "required": [],
+    "properties": {
+      "client_id": {
+        "type": "string",
+        "title": "Slack Client ID",
+        "description": "Client ID of your Slack app, from Basic Information",
+        "ui": {
+          "order": 1,
+          "placeholder": "1234567890.1234567890",
+          "help_url": "https://api.slack.com/apps"
+        }
+      },
+      "client_secret": {
+        "type": "string",
+        "title": "Slack Client Secret",
+        "description": "Client Secret of your Slack app",
+        "format": "password",
+        "ui": {
+          "order": 2
+        }
+      },
+      "access_token": {
+        "type": "string",
+        "title": "Bot User OAuth Token",
+        "description": "Paste the xoxb- token from the Slack app's OAuth & Permissions page, or leave blank and authorize to have it filled in",
+        "format": "password",
+        "ui": {
+          "order": 3,
+          "placeholder": "xoxb-..."
+        }
+      },
+      "refresh_token": {
+        "type": "string",
+        "title": "Refresh Token",
+        "description": "OAuth refresh token (populated automatically after authorization)",
+        "format": "password",
+        "ui": {
+          "order": 4,
+          "readonly": true,
+          "hidden": true
+        }
+      }
+    }
+  },
+  "base_url": "https://slack.com/api",
+  "icon_url": "/providers/slack.svg",
+  "auth": {
+    "type": "oauth2",
+    "config": {
+      "oauth_provider": "slack",
+      "token_field": "access_token"
+    }
+  },
+  "oauth": {
+    "oauth_provider": "slack",
+    "authorization_url": "https://slack.com/oauth/v2/authorize",
+    "token_url": "https://slack.com/api/oauth.v2.access",
+    "scopes": [
+      "chat:write",
+      "channels:read",
+      "files:write"
+    ],
+    "client_id_env": "SHS_SLACK_CLIENT_ID",
+    "client_secret_env": "SHS_SLACK_CLIENT_SECRET"
+  },
+  "services": {
+    "slack_send_message": {
+      "display_name": "Send Message",
+      "description": "Send a message to a Slack channel or user",
+      "service_type": "COMMUNICATION",
+      "endpoint_url": "https://slack.com/api/chat.postMessage",
+      "path": "/chat.postMessage",
+      "method": "POST",
+      "requires_credentials": true,
+      "is_active": true,
+      "parameter_mapping": {
+        "body": [
+          "channel",
+          "text",
+          "blocks",
+          "thread_ts"
+        ]
+      },
+      "parameter_schema": {
+        "type": "object",
+        "required": [
+          "channel",
+          "text"
+        ],
+        "properties": {
+          "channel": {
+            "type": "string",
+            "title": "Channel",
+            "description": "Channel ID or name (e.g., #general or C1234567890)",
+            "ui": {
+              "section": "Main",
+              "order": 1
+            }
+          },
+          "text": {
+            "type": "string",
+            "title": "Message Text",
+            "description": "The message to send",
+            "ui": {
+              "section": "Main",
+              "order": 2
+            }
+          },
+          "blocks": {
+            "type": "array",
+            "title": "Block Kit Blocks",
+            "description": "Rich message blocks (optional)",
+            "items": {
+              "type": "object"
+            },
+            "ui": {
+              "section": "Advanced",
+              "order": 1,
+              "collapsed": true
+            }
+          },
+          "thread_ts": {
+            "type": "string",
+            "title": "Thread Timestamp",
+            "description": "Reply to a specific thread",
+            "ui": {
+              "section": "Advanced",
+              "order": 2,
+              "collapsed": true
+            }
+          }
+        }
+      },
+      "result_schema": {
+        "type": "object",
+        "properties": {
+          "ok": {
+            "type": "boolean"
+          },
+          "ts": {
+            "type": "string",
+            "description": "Message timestamp"
+          },
+          "channel": {
+            "type": "string"
+          }
+        }
+      },
+      "output_view": {
+        "type": "key_value",
+        "fields": [
+          {
+            "key": "ok",
+            "label": "Success"
+          },
+          {
+            "key": "ts",
+            "label": "Message Timestamp"
+          },
+          {
+            "key": "channel",
+            "label": "Channel"
+          }
+        ]
+      },
+      "example_parameters": {
+        "channel": "#general",
+        "text": "Hello from Studio workflow!"
+      },
+      "ui_hints": {
+        "color": "#4A154B",
+        "icon": "message-square",
+        "categories": [
+          "communication"
+        ]
+      }
+    }
+  },
+  "default_queue": "step_jobs"
+}

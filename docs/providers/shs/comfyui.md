@@ -138,8 +138,7 @@ The other packages run on ComfyUI's built-in nodes.
 | Parameter | Description |
 |-----------|-------------|
 | **prompt** | Text description of the image |
-| **model** | Flux.1 Schnell (bf16/FP8/Q4) or Flux 2 Klein (4B/9B) |
-| **dimensions** | Output size preset (1:1, 16:9, 9:16, 3:2, 2:3) |
+| **dimensions** | Output size as WxH (1920x1080, 1080x1920, 1024x1024, 1536x1024, 1024x1536, 1344x768, 768x1344) |
 | **styles** | Style presets to apply (see below) |
 | **seed** | -1 for random, or a specific seed |
 | **steps** | Diffusion steps (1 for Schnell, 8 for Klein defaults) |
@@ -223,8 +222,7 @@ Step 1: SHS ComfyUI Text to Image
   - Prompt: "Professional product photo of {{ product.name }},
     white background, studio lighting, commercial photography"
   - Styles: ["sai-photographic", "ads-advertising"]
-  - Width: 1024
-  - Height: 1024
+  - Dimensions: 1024x1024
   ↓
 Step 2: Save to product gallery
 ```
@@ -239,8 +237,7 @@ Trigger: Content calendar event
 Step 1: SHS ComfyUI Text to Image
   - Prompt: "{{ post.visual_concept }}"
   - Styles: ["sai-digital art"]
-  - Width: 1024
-  - Height: 1024
+  - Dimensions: 1024x1024
   - Batch Size: 4
   ↓
 Step 2: Save options for review
@@ -257,8 +254,7 @@ Step 1: SHS ComfyUI Text to Image
   - Prompt: "Portrait of {{ style_description }}, centered face,
     detailed, high quality"
   - Styles: ["sai-anime"] or ["sai-photographic"]
-  - Width: 512
-  - Height: 512
+  - Dimensions: 512x512
 ```
 
 ---

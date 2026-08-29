@@ -1,0 +1,1007 @@
+{
+  "$schema": "https://raw.githubusercontent.com/selfhosthub/studio-community/main/schemas/provider.schema.json",
+  "slug": "shs/notion",
+  "version": "1.0.0",
+  "name": "Notion",
+  "description": "Connect to Notion workspaces for pages, databases, and knowledge management",
+  "provider_type": "API",
+  "category": "productivity",
+  "status": "ACTIVE",
+  "tier": "community",
+  "credential_provider": null,
+  "requires": [],
+  "services_preview": [
+    "Search Pages",
+    "Get Page",
+    "Create Page",
+    "Query Database"
+  ],
+  "credential_schema": {
+    "type": "object",
+    "required": [
+      "secret"
+    ],
+    "x-ui-hints": {
+      "instructions": "Notion uses Internal Integration Secrets for API access. Create an integration to get your secret."
+    },
+    "properties": {
+      "secret": {
+        "type": "string",
+        "title": "Internal Integration Secret",
+        "description": "Copy the secret from your integration settings page",
+        "format": "password",
+        "x-ui-hints": {
+          "step": 1,
+          "step_title": "Get your Integration Secret",
+          "help_url": "https://www.notion.so/my-integrations",
+          "help_link_text": "Open Notion Integrations",
+          "help_text": "Create a new integration or use an existing one. Copy the Internal Integration Secret (starts with ntn_).",
+          "placeholder": "ntn_..."
+        }
+      }
+    }
+  },
+  "base_url": "https://api.notion.com/v1",
+  "icon_url": "/providers/notion.svg",
+  "auth": {
+    "type": "bearer",
+    "config": {
+      "token_field": "secret"
+    }
+  },
+  "default_headers": {
+    "Notion-Version": "2022-06-28"
+  },
+  "services": {
+    "notion_query_database": {
+      "display_name": "Query Database",
+      "description": "Search and filter items in a Notion database. Supports complex filtering, sorting, and pagination.",
+      "service_type": "PRODUCTIVITY",
+      "endpoint_url": "https://api.notion.com/v1/databases",
+      "path": "/{database_id}/query",
+      "method": "POST",
+      "requires_credentials": true,
+      "parameter_mapping": {
+        "path": [
+          "database_id"
+        ],
+        "body": [
+          "filter",
+          "sorts",
+          "start_cursor",
+          "page_size"
+        ]
+      },
+      "parameter_schema": {
+        "type": "object",
+        "required": [
+          "database_id"
+        ],
+        "properties": {
+          "database_id": {
+            "type": "string",
+            "title": "Database ID",
+            "description": "The ID of the database to query (32-character string, can include hyphens)",
+            "ui": {
+              "section": "basic",
+              "order": 1,
+              "placeholder": "abc123def456..."
+            }
+          },
+          "filter": {
+            "type": "object",
+            "title": "Filter",
+            "description": "Filter conditions to apply to the database query",
+            "ui": {
+              "section": "basic",
+              "order": 2,
+              "widget": "json-editor"
+            }
+          },
+          "sorts": {
+            "type": "array",
+            "title": "Sort",
+            "description": "Sort criteria for results",
+            "items": {
+              "type": "object",
+              "properties": {
+                "property": {
+                  "type": "string",
+                  "title": "Property Name"
+                },
+                "direction": {
+                  "type": "string",
+                  "enum": [
+                    "ascending",
+                    "descending"
+                  ],
+                  "default": "ascending"
+                }
+              }
+            },
+            "ui": {
+              "section": "options",
+              "order": 1
+            }
+          },
+          "start_cursor": {
+            "type": "string",
+            "title": "Start Cursor",
+            "description": "Pagination cursor from previous response",
+            "ui": {
+              "section": "options",
+              "order": 2
+            }
+          },
+          "page_size": {
+            "type": "integer",
+            "title": "Page Size",
+            "description": "Number of results to return (max 100)",
+            "default": 100,
+            "minimum": 1,
+            "maximum": 100,
+            "ui": {
+              "section": "options",
+              "order": 3
+            }
+          }
+        }
+      },
+      "result_schema": {
+        "type": "object",
+        "properties": {
+          "results": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "properties": {
+                  "type": "object"
+                },
+                "url": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "has_more": {
+            "type": "boolean"
+          },
+          "next_cursor": {
+            "type": "string"
+          }
+        }
+      },
+      "output_view": {
+        "type": "table",
+        "source": "results",
+        "columns": [
+          {
+            "key": "id",
+            "label": "Page ID"
+          },
+          {
+            "key": "properties",
+            "label": "Properties"
+          },
+          {
+            "key": "url",
+            "label": "URL"
+          }
+        ]
+      },
+      "example_parameters": {
+        "database_id": "abc123def456",
+        "page_size": 10
+      },
+      "ui_hints": {
+        "color": "#000000",
+        "icon": "database",
+        "sections": {
+          "basic": {
+            "title": "Basic",
+            "collapsed": false,
+            "order": 1
+          },
+          "options": {
+            "title": "Options",
+            "collapsed": true,
+            "order": 2
+          }
+        },
+        "categories": [
+          "productivity"
+        ]
+      }
+    },
+    "notion_create_page": {
+      "display_name": "Create Page",
+      "description": "Create a new page in Notion. Can be a child of a page or database.",
+      "service_type": "PRODUCTIVITY",
+      "endpoint_url": "https://api.notion.com/v1/pages",
+      "path": "",
+      "method": "POST",
+      "requires_credentials": true,
+      "parameter_mapping": {
+        "body": [
+          "parent",
+          "properties",
+          "children",
+          "icon",
+          "cover"
+        ]
+      },
+      "parameter_schema": {
+        "type": "object",
+        "required": [
+          "parent",
+          "properties"
+        ],
+        "properties": {
+          "parent": {
+            "type": "object",
+            "title": "Parent",
+            "description": "Parent page or database",
+            "required": [
+              "type"
+            ],
+            "properties": {
+              "type": {
+                "type": "string",
+                "title": "Parent Type",
+                "enum": [
+                  "page_id",
+                  "database_id"
+                ],
+                "ui": {
+                  "order": 1
+                }
+              },
+              "page_id": {
+                "type": "string",
+                "title": "Page ID",
+                "description": "ID of parent page (if type is page_id)",
+                "ui": {
+                  "order": 2
+                }
+              },
+              "database_id": {
+                "type": "string",
+                "title": "Database ID",
+                "description": "ID of parent database (if type is database_id)",
+                "ui": {
+                  "order": 3
+                }
+              }
+            },
+            "ui": {
+              "section": "basic",
+              "order": 1
+            }
+          },
+          "properties": {
+            "type": "object",
+            "title": "Properties",
+            "description": "Page properties (title, rich text, etc.). For database pages, must match database schema.",
+            "ui": {
+              "section": "basic",
+              "order": 2,
+              "widget": "json-editor"
+            }
+          },
+          "children": {
+            "type": "array",
+            "title": "Content Blocks",
+            "description": "Page content as Notion blocks",
+            "items": {
+              "type": "object"
+            },
+            "ui": {
+              "section": "content",
+              "order": 1,
+              "widget": "json-editor"
+            }
+          },
+          "icon": {
+            "type": "object",
+            "title": "Icon",
+            "description": "Page icon",
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
+                  "emoji",
+                  "external"
+                ],
+                "default": "emoji"
+              },
+              "emoji": {
+                "type": "string",
+                "title": "Emoji"
+              }
+            },
+            "ui": {
+              "section": "options",
+              "order": 1
+            }
+          },
+          "cover": {
+            "type": "object",
+            "title": "Cover Image",
+            "description": "Cover image for the page",
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
+                  "external"
+                ],
+                "default": "external"
+              },
+              "external": {
+                "type": "object",
+                "properties": {
+                  "url": {
+                    "type": "string",
+                    "format": "uri"
+                  }
+                }
+              }
+            },
+            "ui": {
+              "section": "options",
+              "order": 2
+            }
+          }
+        }
+      },
+      "result_schema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          },
+          "properties": {
+            "type": "object"
+          },
+          "parent": {
+            "type": "object"
+          }
+        }
+      },
+      "output_view": {
+        "type": "key_value",
+        "fields": [
+          {
+            "key": "url",
+            "label": "URL"
+          },
+          {
+            "key": "id",
+            "label": "Page ID"
+          },
+          {
+            "key": "properties",
+            "label": "Properties"
+          },
+          {
+            "key": "parent",
+            "label": "Parent"
+          }
+        ]
+      },
+      "example_parameters": {
+        "parent": {
+          "type": "database_id",
+          "database_id": "abc123"
+        },
+        "properties": {
+          "Name": {
+            "title": [
+              {
+                "text": {
+                  "content": "New Page Title"
+                }
+              }
+            ]
+          }
+        }
+      },
+      "ui_hints": {
+        "color": "#000000",
+        "icon": "file-plus",
+        "sections": {
+          "basic": {
+            "title": "Basic",
+            "collapsed": false,
+            "order": 1
+          },
+          "content": {
+            "title": "Content",
+            "collapsed": true,
+            "order": 2
+          },
+          "options": {
+            "title": "Options",
+            "collapsed": true,
+            "order": 3
+          }
+        },
+        "categories": [
+          "productivity"
+        ]
+      }
+    },
+    "notion_update_page": {
+      "display_name": "Update Page",
+      "description": "Update an existing page's properties.",
+      "service_type": "PRODUCTIVITY",
+      "endpoint_url": "https://api.notion.com/v1/pages",
+      "path": "/{page_id}",
+      "method": "PATCH",
+      "requires_credentials": true,
+      "parameter_mapping": {
+        "path": [
+          "page_id"
+        ],
+        "body": [
+          "properties",
+          "archived",
+          "icon",
+          "cover"
+        ]
+      },
+      "parameter_schema": {
+        "type": "object",
+        "required": [
+          "page_id"
+        ],
+        "properties": {
+          "page_id": {
+            "type": "string",
+            "title": "Page ID",
+            "description": "The ID of the page to update",
+            "ui": {
+              "section": "basic",
+              "order": 1
+            }
+          },
+          "properties": {
+            "type": "object",
+            "title": "Properties",
+            "description": "Page properties to update",
+            "ui": {
+              "section": "basic",
+              "order": 2,
+              "widget": "json-editor"
+            }
+          },
+          "archived": {
+            "type": "boolean",
+            "title": "Archived",
+            "description": "Whether the page is archived",
+            "ui": {
+              "section": "options",
+              "order": 1
+            }
+          },
+          "icon": {
+            "type": "object",
+            "title": "Icon",
+            "ui": {
+              "section": "options",
+              "order": 2
+            }
+          },
+          "cover": {
+            "type": "object",
+            "title": "Cover Image",
+            "ui": {
+              "section": "options",
+              "order": 3
+            }
+          }
+        }
+      },
+      "result_schema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "properties": {
+            "type": "object"
+          },
+          "archived": {
+            "type": "boolean"
+          }
+        }
+      },
+      "output_view": {
+        "type": "key_value",
+        "fields": [
+          {
+            "key": "id",
+            "label": "Page ID"
+          },
+          {
+            "key": "properties",
+            "label": "Properties"
+          },
+          {
+            "key": "archived",
+            "label": "Archived"
+          }
+        ]
+      },
+      "example_parameters": {
+        "page_id": "abc123",
+        "properties": {
+          "Status": {
+            "select": {
+              "name": "In Progress"
+            }
+          }
+        }
+      },
+      "ui_hints": {
+        "color": "#000000",
+        "icon": "edit",
+        "sections": {
+          "basic": {
+            "title": "Basic",
+            "collapsed": false,
+            "order": 1
+          },
+          "options": {
+            "title": "Options",
+            "collapsed": true,
+            "order": 2
+          }
+        },
+        "categories": [
+          "productivity"
+        ]
+      }
+    },
+    "notion_get_page": {
+      "display_name": "Get Page",
+      "description": "Retrieve a page by ID, including its properties and metadata.",
+      "service_type": "PRODUCTIVITY",
+      "endpoint_url": "https://api.notion.com/v1/pages",
+      "path": "/{page_id}",
+      "method": "GET",
+      "requires_credentials": true,
+      "parameter_mapping": {
+        "path": [
+          "page_id"
+        ]
+      },
+      "parameter_schema": {
+        "type": "object",
+        "required": [
+          "page_id"
+        ],
+        "properties": {
+          "page_id": {
+            "type": "string",
+            "title": "Page ID",
+            "description": "The ID of the page to retrieve",
+            "ui": {
+              "section": "basic",
+              "order": 1
+            }
+          }
+        }
+      },
+      "result_schema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "properties": {
+            "type": "object"
+          },
+          "parent": {
+            "type": "object"
+          },
+          "url": {
+            "type": "string"
+          },
+          "created_time": {
+            "type": "string"
+          },
+          "last_edited_time": {
+            "type": "string"
+          }
+        }
+      },
+      "output_view": {
+        "type": "key_value",
+        "fields": [
+          {
+            "key": "url",
+            "label": "URL"
+          },
+          {
+            "key": "id",
+            "label": "Page ID"
+          },
+          {
+            "key": "properties",
+            "label": "Properties"
+          },
+          {
+            "key": "created_time",
+            "label": "Created"
+          },
+          {
+            "key": "last_edited_time",
+            "label": "Last Edited"
+          }
+        ]
+      },
+      "example_parameters": {
+        "page_id": "abc123def456"
+      },
+      "ui_hints": {
+        "color": "#000000",
+        "icon": "file-text",
+        "categories": [
+          "productivity"
+        ]
+      }
+    },
+    "notion_get_database": {
+      "display_name": "Get Database",
+      "description": "Retrieve database schema, including all properties and their configurations.",
+      "service_type": "PRODUCTIVITY",
+      "endpoint_url": "https://api.notion.com/v1/databases",
+      "path": "/{database_id}",
+      "method": "GET",
+      "requires_credentials": true,
+      "parameter_mapping": {
+        "path": [
+          "database_id"
+        ]
+      },
+      "parameter_schema": {
+        "type": "object",
+        "required": [
+          "database_id"
+        ],
+        "properties": {
+          "database_id": {
+            "type": "string",
+            "title": "Database ID",
+            "description": "The ID of the database to retrieve",
+            "ui": {
+              "section": "basic",
+              "order": 1
+            }
+          }
+        }
+      },
+      "result_schema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "title": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "properties": {
+            "type": "object",
+            "description": "Database schema with property definitions"
+          },
+          "url": {
+            "type": "string"
+          }
+        }
+      },
+      "output_view": {
+        "type": "key_value",
+        "fields": [
+          {
+            "key": "id",
+            "label": "Database ID"
+          },
+          {
+            "key": "title",
+            "label": "Title"
+          },
+          {
+            "key": "properties",
+            "label": "Schema"
+          },
+          {
+            "key": "url",
+            "label": "URL"
+          }
+        ]
+      },
+      "example_parameters": {
+        "database_id": "abc123def456"
+      },
+      "ui_hints": {
+        "color": "#000000",
+        "icon": "database",
+        "categories": [
+          "productivity"
+        ]
+      }
+    },
+    "notion_append_block_children": {
+      "display_name": "Append Block Children",
+      "description": "Append content blocks to a page or block. Use to add paragraphs, headings, lists, etc.",
+      "service_type": "PRODUCTIVITY",
+      "endpoint_url": "https://api.notion.com/v1/blocks",
+      "path": "/{block_id}/children",
+      "method": "PATCH",
+      "requires_credentials": true,
+      "parameter_mapping": {
+        "path": [
+          "block_id"
+        ],
+        "body": [
+          "children"
+        ]
+      },
+      "parameter_schema": {
+        "type": "object",
+        "required": [
+          "block_id",
+          "children"
+        ],
+        "properties": {
+          "block_id": {
+            "type": "string",
+            "title": "Block ID",
+            "description": "ID of the parent block or page",
+            "ui": {
+              "section": "basic",
+              "order": 1
+            }
+          },
+          "children": {
+            "type": "array",
+            "title": "Content Blocks",
+            "description": "Array of block objects to append",
+            "items": {
+              "type": "object"
+            },
+            "ui": {
+              "section": "basic",
+              "order": 2,
+              "widget": "json-editor"
+            }
+          }
+        }
+      },
+      "result_schema": {
+        "type": "object",
+        "properties": {
+          "results": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          }
+        }
+      },
+      "output_view": {
+        "type": "table",
+        "source": "results",
+        "columns": [
+          {
+            "key": "id",
+            "label": "Block ID"
+          },
+          {
+            "key": "type",
+            "label": "Type"
+          }
+        ]
+      },
+      "example_parameters": {
+        "block_id": "abc123",
+        "children": [
+          {
+            "object": "block",
+            "type": "paragraph",
+            "paragraph": {
+              "rich_text": [
+                {
+                  "type": "text",
+                  "text": {
+                    "content": "This is a new paragraph."
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "ui_hints": {
+        "color": "#000000",
+        "icon": "plus-circle",
+        "categories": [
+          "productivity"
+        ]
+      }
+    },
+    "notion_search": {
+      "display_name": "Search",
+      "description": "Search all pages and databases the integration has access to.",
+      "service_type": "PRODUCTIVITY",
+      "endpoint_url": "https://api.notion.com/v1/search",
+      "path": "",
+      "method": "POST",
+      "requires_credentials": true,
+      "parameter_mapping": {
+        "body": [
+          "query",
+          "filter",
+          "sort",
+          "start_cursor",
+          "page_size"
+        ]
+      },
+      "parameter_schema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "title": "Search Query",
+            "description": "Text to search for in page titles",
+            "ui": {
+              "section": "basic",
+              "order": 1,
+              "placeholder": "Search pages..."
+            }
+          },
+          "filter": {
+            "type": "object",
+            "title": "Filter",
+            "description": "Filter by object type",
+            "properties": {
+              "value": {
+                "type": "string",
+                "title": "Object Type",
+                "enum": [
+                  "page",
+                  "database"
+                ],
+                "ui": {
+                  "order": 1
+                }
+              },
+              "property": {
+                "type": "string",
+                "const": "object",
+                "default": "object"
+              }
+            },
+            "ui": {
+              "section": "basic",
+              "order": 2
+            }
+          },
+          "sort": {
+            "type": "object",
+            "title": "Sort",
+            "properties": {
+              "direction": {
+                "type": "string",
+                "enum": [
+                  "ascending",
+                  "descending"
+                ],
+                "default": "descending"
+              },
+              "timestamp": {
+                "type": "string",
+                "enum": [
+                  "last_edited_time"
+                ],
+                "default": "last_edited_time"
+              }
+            },
+            "ui": {
+              "section": "options",
+              "order": 1
+            }
+          },
+          "start_cursor": {
+            "type": "string",
+            "title": "Start Cursor",
+            "ui": {
+              "section": "options",
+              "order": 2
+            }
+          },
+          "page_size": {
+            "type": "integer",
+            "title": "Page Size",
+            "default": 100,
+            "minimum": 1,
+            "maximum": 100,
+            "ui": {
+              "section": "options",
+              "order": 3
+            }
+          }
+        }
+      },
+      "result_schema": {
+        "type": "object",
+        "properties": {
+          "results": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "has_more": {
+            "type": "boolean"
+          },
+          "next_cursor": {
+            "type": "string"
+          }
+        }
+      },
+      "output_view": {
+        "type": "table",
+        "source": "results",
+        "columns": [
+          {
+            "key": "id",
+            "label": "ID"
+          },
+          {
+            "key": "object",
+            "label": "Type"
+          },
+          {
+            "key": "url",
+            "label": "URL"
+          }
+        ]
+      },
+      "example_parameters": {
+        "query": "Meeting Notes",
+        "page_size": 10
+      },
+      "ui_hints": {
+        "color": "#000000",
+        "icon": "search",
+        "sections": {
+          "basic": {
+            "title": "Basic",
+            "collapsed": false,
+            "order": 1
+          },
+          "options": {
+            "title": "Options",
+            "collapsed": true,
+            "order": 2
+          }
+        },
+        "categories": [
+          "productivity"
+        ]
+      }
+    }
+  },
+  "default_queue": "step_jobs"
+}

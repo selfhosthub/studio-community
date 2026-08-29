@@ -1,0 +1,1240 @@
+{
+  "$schema": "https://raw.githubusercontent.com/selfhosthub/studio-community/main/schemas/provider.schema.json",
+  "slug": "shs/trello",
+  "version": "1.0.0",
+  "name": "Trello",
+  "description": "Project management with boards, lists, and cards",
+  "provider_type": "API",
+  "category": "productivity",
+  "status": "ACTIVE",
+  "tier": "community",
+  "credential_provider": null,
+  "requires": [],
+  "services_preview": [
+    "Get Board",
+    "List Cards",
+    "Create Card",
+    "Update Card"
+  ],
+  "credential_schema": {
+    "type": "object",
+    "required": [
+      "api_key",
+      "api_token"
+    ],
+    "x-ui-hints": {
+      "instructions": "Trello requires an API Key and Token. Follow the steps below to get both."
+    },
+    "properties": {
+      "api_key": {
+        "type": "string",
+        "title": "API Key",
+        "description": "Create a Power-Up or use an existing one to get your API Key",
+        "format": "password",
+        "x-ui-hints": {
+          "step": 1,
+          "step_title": "Get your API Key",
+          "help_url": "https://trello.com/power-ups/admin",
+          "help_link_text": "Open Trello Power-Ups Admin"
+        }
+      },
+      "api_token": {
+        "type": "string",
+        "title": "API Token",
+        "description": "Click 'Allow' on the Trello page, then copy the token shown",
+        "format": "password",
+        "x-ui-hints": {
+          "step": 2,
+          "step_title": "Generate your Token",
+          "depends_on": "api_key",
+          "generate_url_template": "https://trello.com/1/authorize?expiration=never&scope=read,write&response_type=token&key={api_key}",
+          "generate_button_text": "Generate Token",
+          "help_text": "Token never expires (permanent access)"
+        }
+      }
+    }
+  },
+  "base_url": "https://api.trello.com/1",
+  "auth": {
+    "type": "custom",
+    "config": {
+      "fields": {
+        "api_key": "key",
+        "api_token": "token"
+      }
+    }
+  },
+  "default_headers": {
+    "Accept": "application/json"
+  },
+  "services": {
+    "trello_get_board": {
+      "display_name": "Get Board",
+      "description": "Retrieve board information including lists, cards, members, and settings. Use to understand board structure.",
+      "service_type": "PRODUCTIVITY",
+      "endpoint_url": "https://api.trello.com/1",
+      "path": "/boards/{board_id}",
+      "method": "GET",
+      "requires_credentials": true,
+      "parameter_mapping": {
+        "path": [
+          "board_id"
+        ],
+        "query": [
+          "fields",
+          "lists",
+          "cards",
+          "members"
+        ]
+      },
+      "parameter_schema": {
+        "type": "object",
+        "required": [
+          "board_id"
+        ],
+        "properties": {
+          "board_id": {
+            "type": "string",
+            "title": "Board ID",
+            "description": "The ID or short name of the board",
+            "examples": [
+              "abc123",
+              "myboard"
+            ],
+            "ui": {
+              "section": "Main",
+              "order": 1
+            }
+          },
+          "fields": {
+            "type": "string",
+            "title": "Fields",
+            "description": "Comma-separated list of fields to include (all, name, desc, url, etc.)",
+            "default": "all",
+            "ui": {
+              "section": "Advanced",
+              "order": 1
+            }
+          },
+          "lists": {
+            "type": "string",
+            "title": "Include Lists",
+            "description": "Whether to include lists (all, open, closed, none)",
+            "enum": [
+              "all",
+              "open",
+              "closed",
+              "none"
+            ],
+            "default": "none",
+            "ui": {
+              "section": "Advanced",
+              "order": 2
+            },
+            "x-ui-hints": {
+              "format": "select"
+            }
+          },
+          "cards": {
+            "type": "string",
+            "title": "Include Cards",
+            "description": "Whether to include cards (all, open, closed, visible, none)",
+            "enum": [
+              "all",
+              "open",
+              "closed",
+              "visible",
+              "none"
+            ],
+            "default": "none",
+            "ui": {
+              "section": "Advanced",
+              "order": 3
+            },
+            "x-ui-hints": {
+              "format": "select"
+            }
+          },
+          "members": {
+            "type": "string",
+            "title": "Include Members",
+            "description": "Whether to include board members (all, none)",
+            "enum": [
+              "all",
+              "none"
+            ],
+            "default": "none",
+            "ui": {
+              "section": "Advanced",
+              "order": 4
+            },
+            "x-ui-hints": {
+              "format": "select"
+            }
+          }
+        }
+      },
+      "result_schema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "desc": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          },
+          "lists": {
+            "type": "array"
+          },
+          "cards": {
+            "type": "array"
+          }
+        }
+      },
+      "output_view": {
+        "type": "key_value",
+        "fields": [
+          {
+            "key": "id",
+            "label": "Board ID"
+          },
+          {
+            "key": "name",
+            "label": "Name"
+          },
+          {
+            "key": "desc",
+            "label": "Description"
+          },
+          {
+            "key": "url",
+            "label": "URL"
+          }
+        ]
+      },
+      "example_parameters": {
+        "board_id": "abc123",
+        "lists": "open",
+        "cards": "open"
+      },
+      "ui_hints": {
+        "sections": {
+          "Main": {
+            "title": "Main",
+            "collapsed": false,
+            "order": 1
+          },
+          "Advanced": {
+            "title": "Advanced",
+            "collapsed": true,
+            "order": 2
+          }
+        },
+        "categories": [
+          "productivity"
+        ]
+      }
+    },
+    "trello_list_cards": {
+      "display_name": "List Cards",
+      "description": "Get cards from a board or list. Filter by status, labels, members, and more.",
+      "service_type": "PRODUCTIVITY",
+      "endpoint_url": "https://api.trello.com/1",
+      "path": "/boards/{board_id}/cards",
+      "method": "GET",
+      "requires_credentials": true,
+      "parameter_mapping": {
+        "path": [
+          "board_id"
+        ],
+        "query": [
+          "filter",
+          "fields",
+          "members",
+          "attachments",
+          "checklists"
+        ]
+      },
+      "parameter_schema": {
+        "type": "object",
+        "required": [
+          "board_id"
+        ],
+        "properties": {
+          "board_id": {
+            "type": "string",
+            "title": "Board ID",
+            "description": "The ID of the board",
+            "examples": [
+              "abc123"
+            ],
+            "ui": {
+              "section": "Main",
+              "order": 1
+            }
+          },
+          "filter": {
+            "type": "string",
+            "title": "Filter",
+            "description": "Card status filter",
+            "enum": [
+              "all",
+              "open",
+              "closed",
+              "visible"
+            ],
+            "default": "open",
+            "ui": {
+              "section": "Main",
+              "order": 2
+            },
+            "x-ui-hints": {
+              "format": "select"
+            }
+          },
+          "fields": {
+            "type": "string",
+            "title": "Fields",
+            "description": "Comma-separated list of card fields to include",
+            "examples": [
+              "name,desc,due,labels,idList"
+            ],
+            "ui": {
+              "section": "Advanced",
+              "order": 1
+            }
+          },
+          "members": {
+            "type": "boolean",
+            "title": "Include Members",
+            "description": "Include member details",
+            "default": false,
+            "ui": {
+              "section": "Advanced",
+              "order": 2
+            }
+          },
+          "attachments": {
+            "type": "boolean",
+            "title": "Include Attachments",
+            "description": "Include card attachments",
+            "default": false,
+            "ui": {
+              "section": "Advanced",
+              "order": 3
+            }
+          },
+          "checklists": {
+            "type": "string",
+            "title": "Include Checklists",
+            "description": "Include card checklists (all or none)",
+            "enum": [
+              "all",
+              "none"
+            ],
+            "default": "none",
+            "ui": {
+              "section": "Advanced",
+              "order": 4
+            },
+            "x-ui-hints": {
+              "format": "select"
+            }
+          }
+        }
+      },
+      "result_schema": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "name": {
+              "type": "string"
+            },
+            "desc": {
+              "type": "string"
+            },
+            "due": {
+              "type": "string"
+            },
+            "idList": {
+              "type": "string"
+            },
+            "labels": {
+              "type": "array"
+            }
+          }
+        }
+      },
+      "output_view": {
+        "type": "table",
+        "source": "",
+        "columns": [
+          {
+            "key": "id",
+            "label": "Card ID"
+          },
+          {
+            "key": "name",
+            "label": "Name"
+          },
+          {
+            "key": "due",
+            "label": "Due Date"
+          },
+          {
+            "key": "idList",
+            "label": "List ID"
+          }
+        ]
+      },
+      "example_parameters": {
+        "board_id": "abc123",
+        "filter": "open"
+      },
+      "ui_hints": {
+        "sections": {
+          "Main": {
+            "title": "Main",
+            "collapsed": false,
+            "order": 1
+          },
+          "Advanced": {
+            "title": "Advanced",
+            "collapsed": true,
+            "order": 2
+          }
+        },
+        "categories": [
+          "productivity"
+        ]
+      }
+    },
+    "trello_get_card": {
+      "display_name": "Get Card",
+      "description": "Retrieve a single card's details including description, members, labels, checklists, and attachments.",
+      "service_type": "PRODUCTIVITY",
+      "endpoint_url": "https://api.trello.com/1",
+      "path": "/cards/{card_id}",
+      "method": "GET",
+      "requires_credentials": true,
+      "parameter_mapping": {
+        "path": [
+          "card_id"
+        ],
+        "query": [
+          "fields",
+          "members",
+          "attachments",
+          "checklists"
+        ]
+      },
+      "parameter_schema": {
+        "type": "object",
+        "required": [
+          "card_id"
+        ],
+        "properties": {
+          "card_id": {
+            "type": "string",
+            "title": "Card ID",
+            "description": "The ID of the card to retrieve",
+            "examples": [
+              "abc123def456"
+            ],
+            "ui": {
+              "section": "Main",
+              "order": 1
+            }
+          },
+          "fields": {
+            "type": "string",
+            "title": "Fields",
+            "description": "Comma-separated list of fields to include",
+            "default": "all",
+            "ui": {
+              "section": "Advanced",
+              "order": 1
+            }
+          },
+          "members": {
+            "type": "boolean",
+            "title": "Include Members",
+            "default": true,
+            "ui": {
+              "section": "Advanced",
+              "order": 2
+            }
+          },
+          "attachments": {
+            "type": "boolean",
+            "title": "Include Attachments",
+            "default": true,
+            "ui": {
+              "section": "Advanced",
+              "order": 3
+            }
+          },
+          "checklists": {
+            "type": "string",
+            "title": "Include Checklists",
+            "enum": [
+              "all",
+              "none"
+            ],
+            "default": "all",
+            "ui": {
+              "section": "Advanced",
+              "order": 4
+            },
+            "x-ui-hints": {
+              "format": "select"
+            }
+          }
+        }
+      },
+      "result_schema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "desc": {
+            "type": "string"
+          },
+          "due": {
+            "type": "string"
+          },
+          "labels": {
+            "type": "array"
+          },
+          "members": {
+            "type": "array"
+          },
+          "attachments": {
+            "type": "array"
+          }
+        }
+      },
+      "output_view": {
+        "type": "key_value",
+        "fields": [
+          {
+            "key": "id",
+            "label": "Card ID"
+          },
+          {
+            "key": "name",
+            "label": "Name"
+          },
+          {
+            "key": "desc",
+            "label": "Description"
+          },
+          {
+            "key": "due",
+            "label": "Due Date"
+          }
+        ]
+      },
+      "example_parameters": {
+        "card_id": "abc123def456",
+        "members": true,
+        "attachments": true,
+        "checklists": "all"
+      },
+      "ui_hints": {
+        "sections": {
+          "Main": {
+            "title": "Main",
+            "collapsed": false,
+            "order": 1
+          },
+          "Advanced": {
+            "title": "Advanced",
+            "collapsed": true,
+            "order": 2
+          }
+        },
+        "categories": [
+          "productivity"
+        ]
+      }
+    },
+    "trello_create_card": {
+      "display_name": "Create Card",
+      "description": "Create a new card in a Trello list. Set name, description, due date, labels, and members.",
+      "service_type": "PRODUCTIVITY",
+      "endpoint_url": "https://api.trello.com/1",
+      "path": "/cards",
+      "method": "POST",
+      "requires_credentials": true,
+      "parameter_mapping": {
+        "query": [
+          "idList",
+          "name",
+          "desc",
+          "pos",
+          "due",
+          "dueComplete",
+          "idMembers",
+          "idLabels",
+          "urlSource"
+        ]
+      },
+      "parameter_schema": {
+        "type": "object",
+        "required": [
+          "idList",
+          "name"
+        ],
+        "properties": {
+          "board_id": {
+            "type": "string",
+            "title": "Board",
+            "description": "Select the board containing your target list",
+            "ui": {
+              "section": "Main",
+              "order": 1
+            },
+            "x-ui-hints": {
+              "ui_only": true
+            },
+            "dynamicOptions": {
+              "service": "trello_get_my_boards",
+              "optionsPath": "",
+              "valueField": "id",
+              "labelField": "name"
+            }
+          },
+          "idList": {
+            "type": "string",
+            "title": "List",
+            "description": "Select the list where the card should be created",
+            "ui": {
+              "section": "Main",
+              "order": 2
+            },
+            "dynamicOptions": {
+              "service": "trello_get_lists",
+              "optionsPath": "",
+              "valueField": "id",
+              "labelField": "name",
+              "dependsOn": {
+                "field": "board_id",
+                "param": "board_id"
+              }
+            }
+          },
+          "name": {
+            "type": "string",
+            "title": "Card Name",
+            "description": "The name/title of the card",
+            "examples": [
+              "New task from workflow"
+            ],
+            "ui": {
+              "section": "Main",
+              "order": 3
+            }
+          },
+          "desc": {
+            "type": "string",
+            "title": "Description",
+            "description": "The description/body of the card (supports Markdown)",
+            "ui": {
+              "section": "Main",
+              "order": 4
+            },
+            "x-ui-hints": {
+              "format": "textarea"
+            }
+          },
+          "pos": {
+            "type": "string",
+            "title": "Position",
+            "description": "Position of the card in the list",
+            "enum": [
+              "top",
+              "bottom"
+            ],
+            "default": "bottom",
+            "ui": {
+              "section": "Advanced",
+              "order": 1
+            },
+            "x-ui-hints": {
+              "format": "select"
+            }
+          },
+          "due": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Due Date",
+            "description": "Due date in ISO 8601 format",
+            "examples": [
+              "2024-12-31T23:59:59Z"
+            ],
+            "ui": {
+              "section": "Advanced",
+              "order": 2
+            }
+          },
+          "dueComplete": {
+            "type": "boolean",
+            "title": "Due Complete",
+            "description": "Whether the due date has been marked complete",
+            "default": false,
+            "ui": {
+              "section": "Advanced",
+              "order": 3
+            }
+          },
+          "idMembers": {
+            "type": "string",
+            "title": "Member IDs",
+            "description": "Comma-separated list of member IDs to assign",
+            "examples": [
+              "member1,member2"
+            ],
+            "ui": {
+              "section": "Advanced",
+              "order": 4
+            }
+          },
+          "idLabels": {
+            "type": "string",
+            "title": "Label IDs",
+            "description": "Comma-separated list of label IDs to apply",
+            "examples": [
+              "label1,label2"
+            ],
+            "ui": {
+              "section": "Advanced",
+              "order": 5
+            }
+          },
+          "urlSource": {
+            "type": "string",
+            "title": "URL Source",
+            "description": "URL to attach to the card",
+            "format": "uri",
+            "ui": {
+              "section": "Advanced",
+              "order": 6
+            }
+          }
+        }
+      },
+      "result_schema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "The ID of the created card"
+          },
+          "name": {
+            "type": "string"
+          },
+          "desc": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string",
+            "description": "Direct URL to the card"
+          },
+          "idList": {
+            "type": "string"
+          }
+        }
+      },
+      "output_view": {
+        "type": "key_value",
+        "fields": [
+          {
+            "key": "id",
+            "label": "Card ID"
+          },
+          {
+            "key": "name",
+            "label": "Name"
+          },
+          {
+            "key": "url",
+            "label": "URL"
+          },
+          {
+            "key": "idList",
+            "label": "List ID"
+          }
+        ]
+      },
+      "example_parameters": {
+        "idList": "60a1b2c3d4e5f6a7b8c9d0e1",
+        "name": "New task from workflow",
+        "desc": "Created automatically by Studio"
+      },
+      "ui_hints": {
+        "sections": {
+          "Main": {
+            "title": "Main",
+            "collapsed": false,
+            "order": 1
+          },
+          "Advanced": {
+            "title": "Advanced",
+            "collapsed": true,
+            "order": 2
+          }
+        },
+        "categories": [
+          "productivity"
+        ]
+      }
+    },
+    "trello_update_card": {
+      "display_name": "Update Card",
+      "description": "Update a card's properties. Change name, description, list, due date, status, labels, or members.",
+      "service_type": "PRODUCTIVITY",
+      "endpoint_url": "https://api.trello.com/1",
+      "path": "/cards/{card_id}",
+      "method": "PUT",
+      "requires_credentials": true,
+      "parameter_mapping": {
+        "path": [
+          "card_id"
+        ],
+        "query": [
+          "name",
+          "desc",
+          "closed",
+          "idList",
+          "due",
+          "dueComplete",
+          "idMembers",
+          "idLabels"
+        ]
+      },
+      "parameter_schema": {
+        "type": "object",
+        "required": [
+          "card_id"
+        ],
+        "properties": {
+          "card_id": {
+            "type": "string",
+            "title": "Card ID",
+            "description": "The ID of the card to update",
+            "examples": [
+              "abc123def456"
+            ],
+            "ui": {
+              "section": "Main",
+              "order": 1
+            }
+          },
+          "name": {
+            "type": "string",
+            "title": "Card Name",
+            "description": "New name for the card",
+            "ui": {
+              "section": "Main",
+              "order": 2
+            }
+          },
+          "desc": {
+            "type": "string",
+            "title": "Description",
+            "description": "New description for the card",
+            "ui": {
+              "section": "Main",
+              "order": 3
+            },
+            "x-ui-hints": {
+              "format": "textarea"
+            }
+          },
+          "closed": {
+            "type": "boolean",
+            "title": "Closed (Archived)",
+            "description": "Whether the card is archived",
+            "ui": {
+              "section": "Advanced",
+              "order": 1
+            }
+          },
+          "idList": {
+            "type": "string",
+            "title": "List ID",
+            "description": "Move card to this list",
+            "ui": {
+              "section": "Main",
+              "order": 4
+            }
+          },
+          "due": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Due Date",
+            "description": "New due date (ISO 8601 format)",
+            "ui": {
+              "section": "Advanced",
+              "order": 2
+            }
+          },
+          "dueComplete": {
+            "type": "boolean",
+            "title": "Due Complete",
+            "description": "Mark due date as complete",
+            "ui": {
+              "section": "Advanced",
+              "order": 3
+            }
+          },
+          "idMembers": {
+            "type": "string",
+            "title": "Member IDs",
+            "description": "Comma-separated list of member IDs (replaces existing)",
+            "ui": {
+              "section": "Advanced",
+              "order": 4
+            }
+          },
+          "idLabels": {
+            "type": "string",
+            "title": "Label IDs",
+            "description": "Comma-separated list of label IDs (replaces existing)",
+            "ui": {
+              "section": "Advanced",
+              "order": 5
+            }
+          }
+        }
+      },
+      "result_schema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "desc": {
+            "type": "string"
+          },
+          "closed": {
+            "type": "boolean"
+          },
+          "url": {
+            "type": "string"
+          }
+        }
+      },
+      "output_view": {
+        "type": "key_value",
+        "fields": [
+          {
+            "key": "id",
+            "label": "Card ID"
+          },
+          {
+            "key": "name",
+            "label": "Name"
+          },
+          {
+            "key": "closed",
+            "label": "Archived"
+          },
+          {
+            "key": "url",
+            "label": "URL"
+          }
+        ]
+      },
+      "example_parameters": {
+        "card_id": "abc123def456",
+        "name": "Updated task name",
+        "dueComplete": true
+      },
+      "ui_hints": {
+        "sections": {
+          "Main": {
+            "title": "Main",
+            "collapsed": false,
+            "order": 1
+          },
+          "Advanced": {
+            "title": "Advanced",
+            "collapsed": true,
+            "order": 2
+          }
+        },
+        "categories": [
+          "productivity"
+        ]
+      }
+    },
+    "trello_get_lists": {
+      "display_name": "Get Lists",
+      "description": "Get all lists on a board. Use to find list IDs for creating cards.",
+      "service_type": "PRODUCTIVITY",
+      "endpoint_url": "https://api.trello.com/1",
+      "path": "/boards/{board_id}/lists",
+      "method": "GET",
+      "requires_credentials": true,
+      "parameter_mapping": {
+        "path": [
+          "board_id"
+        ],
+        "query": [
+          "filter",
+          "fields"
+        ]
+      },
+      "parameter_schema": {
+        "type": "object",
+        "required": [
+          "board_id"
+        ],
+        "properties": {
+          "board_id": {
+            "type": "string",
+            "title": "Board ID",
+            "examples": [
+              "abc123"
+            ],
+            "ui": {
+              "section": "Main",
+              "order": 1
+            }
+          },
+          "filter": {
+            "type": "string",
+            "title": "Filter",
+            "description": "Filter lists by status",
+            "enum": [
+              "all",
+              "open",
+              "closed"
+            ],
+            "default": "open",
+            "ui": {
+              "section": "Main",
+              "order": 2
+            },
+            "x-ui-hints": {
+              "format": "select"
+            }
+          },
+          "fields": {
+            "type": "string",
+            "title": "Fields",
+            "description": "Comma-separated list of fields to include",
+            "default": "all",
+            "ui": {
+              "section": "Advanced",
+              "order": 1
+            }
+          }
+        }
+      },
+      "result_schema": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "description": "List ID (use for creating cards)"
+            },
+            "name": {
+              "type": "string",
+              "description": "List name"
+            },
+            "closed": {
+              "type": "boolean"
+            },
+            "pos": {
+              "type": "number",
+              "description": "Position on board"
+            }
+          }
+        }
+      },
+      "output_view": {
+        "type": "table",
+        "source": "",
+        "columns": [
+          {
+            "key": "id",
+            "label": "List ID"
+          },
+          {
+            "key": "name",
+            "label": "Name"
+          },
+          {
+            "key": "closed",
+            "label": "Closed"
+          },
+          {
+            "key": "pos",
+            "label": "Position"
+          }
+        ]
+      },
+      "example_parameters": {
+        "board_id": "abc123",
+        "filter": "open"
+      },
+      "ui_hints": {
+        "sections": {
+          "Main": {
+            "title": "Main",
+            "collapsed": false,
+            "order": 1
+          },
+          "Advanced": {
+            "title": "Advanced",
+            "collapsed": true,
+            "order": 2
+          }
+        },
+        "categories": [
+          "productivity"
+        ]
+      }
+    },
+    "trello_get_my_boards": {
+      "display_name": "Get My Boards",
+      "description": "List all boards for the authenticated user. Use to find board IDs.",
+      "service_type": "PRODUCTIVITY",
+      "endpoint_url": "https://api.trello.com/1",
+      "path": "/members/me/boards",
+      "method": "GET",
+      "requires_credentials": true,
+      "parameter_mapping": {
+        "query": [
+          "filter",
+          "fields"
+        ]
+      },
+      "parameter_schema": {
+        "type": "object",
+        "required": [],
+        "properties": {
+          "filter": {
+            "type": "string",
+            "title": "Filter",
+            "description": "Filter boards by membership type",
+            "enum": [
+              "all",
+              "open",
+              "closed",
+              "members",
+              "organization",
+              "public",
+              "starred"
+            ],
+            "default": "open",
+            "ui": {
+              "section": "Main",
+              "order": 1
+            },
+            "x-ui-hints": {
+              "format": "select"
+            }
+          },
+          "fields": {
+            "type": "string",
+            "title": "Fields",
+            "description": "Comma-separated list of fields to include",
+            "default": "id,name,desc,url",
+            "ui": {
+              "section": "Advanced",
+              "order": 1
+            }
+          }
+        }
+      },
+      "result_schema": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "description": "Board ID"
+            },
+            "name": {
+              "type": "string",
+              "description": "Board name"
+            },
+            "desc": {
+              "type": "string"
+            },
+            "url": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "output_view": {
+        "type": "table",
+        "source": "",
+        "columns": [
+          {
+            "key": "id",
+            "label": "Board ID"
+          },
+          {
+            "key": "name",
+            "label": "Name"
+          },
+          {
+            "key": "desc",
+            "label": "Description"
+          },
+          {
+            "key": "url",
+            "label": "URL"
+          }
+        ]
+      },
+      "example_parameters": {
+        "filter": "open"
+      },
+      "ui_hints": {
+        "sections": {
+          "Main": {
+            "title": "Main",
+            "collapsed": false,
+            "order": 1
+          },
+          "Advanced": {
+            "title": "Advanced",
+            "collapsed": true,
+            "order": 2
+          }
+        },
+        "categories": [
+          "productivity"
+        ]
+      }
+    }
+  },
+  "default_queue": "step_jobs"
+}

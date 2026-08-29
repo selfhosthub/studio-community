@@ -59,9 +59,9 @@ Pause workflow execution until an external webhook callback is received.
 
 | Parameter | Description |
 |-----------|-------------|
-| **path** | Webhook path to listen on |
-| **timeout** | Max wait time in seconds |
-| **expected_status** | HTTP status code to return |
+| **timeout_seconds** | Max wait time in seconds |
+| **expected_fields** | Fields the callback body must contain |
+| **callback_url_field** | Field the generated callback URL is written into |
 
 ### Wait for Approval
 
@@ -69,8 +69,10 @@ Pause workflow execution until a human approves or rejects.
 
 | Parameter | Description |
 |-----------|-------------|
-| **message** | Message shown to the approver |
-| **timeout** | Max wait time (optional) |
+| **approval_message** | Message shown to the approver |
+| **timeout_seconds** | Max wait time (optional) |
+| **required_approvers** | Who must approve |
+| **allow_reject** | Whether the approver can reject |
 
 ### Stop Workflow
 
@@ -106,10 +108,10 @@ Repeatedly call an API endpoint until it returns a success status and an optiona
 |-----------|-------------|
 | **url** | Endpoint to poll |
 | **method** | HTTP method |
-| **interval** | Seconds between polls |
+| **interval_seconds** | Seconds between polls |
 | **max_attempts** | Maximum poll attempts |
 | **success_condition** | Expression to evaluate response |
-| **credential_id** | Credential for authenticated polling (optional) |
+| **headers** | Request headers; credential auth is added here |
 
 ---
 

@@ -1,0 +1,2847 @@
+{
+  "$schema": "https://raw.githubusercontent.com/selfhosthub/studio-community/main/schemas/provider.schema.json",
+  "slug": "shs/google",
+  "version": "1.1.0",
+  "name": "Google",
+  "description": "Google Workspace integration for Sheets, Drive, and Gmail",
+  "provider_type": "API",
+  "category": "productivity",
+  "status": "ACTIVE",
+  "tier": "community",
+  "credential_provider": "shs/google",
+  "requires": [],
+  "services_preview": [
+    "Sheets: Read/Write",
+    "Drive: List/Upload",
+    "Gmail: Send/Read"
+  ],
+  "credential_schema": {
+    "type": "object",
+    "required": [
+      "client_id",
+      "client_secret"
+    ],
+    "properties": {
+      "client_id": {
+        "type": "string",
+        "title": "OAuth Client ID",
+        "description": "Your Google OAuth 2.0 Client ID from Google Cloud Console",
+        "ui": {
+          "order": 1,
+          "placeholder": "123456789-abc.apps.googleusercontent.com",
+          "help_url": "https://console.cloud.google.com/apis/credentials"
+        }
+      },
+      "client_secret": {
+        "type": "string",
+        "title": "OAuth Client Secret",
+        "description": "Your Google OAuth 2.0 Client Secret",
+        "format": "password",
+        "ui": {
+          "order": 2
+        }
+      },
+      "access_token": {
+        "type": "string",
+        "title": "Access Token",
+        "description": "OAuth access token (populated automatically after authorization)",
+        "format": "password",
+        "ui": {
+          "order": 3,
+          "readonly": true,
+          "hidden": true
+        }
+      },
+      "refresh_token": {
+        "type": "string",
+        "title": "Refresh Token",
+        "description": "OAuth refresh token (populated automatically after authorization)",
+        "format": "password",
+        "ui": {
+          "order": 4,
+          "readonly": true,
+          "hidden": true
+        }
+      }
+    }
+  },
+  "base_url": null,
+  "icon_url": "/providers/google.svg",
+  "auth": {
+    "type": "oauth2",
+    "config": {
+      "oauth_provider": "google"
+    }
+  },
+  "oauth": {
+    "oauth_provider": "google",
+    "authorization_url": "https://accounts.google.com/o/oauth2/v2/auth",
+    "token_url": "https://oauth2.googleapis.com/token",
+    "scopes": [
+      "https://www.googleapis.com/auth/spreadsheets",
+      "https://www.googleapis.com/auth/drive",
+      "https://www.googleapis.com/auth/gmail.modify"
+    ],
+    "client_id_env": "SHS_GOOGLE_CLIENT_ID",
+    "client_secret_env": "SHS_GOOGLE_CLIENT_SECRET"
+  },
+  "services": {
+    "google_sheets_get_values": {
+      "display_name": "Sheets: Get Rows",
+      "description": "Read rows from a Google Sheets spreadsheet. Returns values from a specified range.",
+      "service_type": "PRODUCTIVITY",
+      "endpoint_url": "https://sheets.googleapis.com/v4/spreadsheets",
+      "path": "/{spreadsheet_id}/values/{range}",
+      "method": "GET",
+      "requires_credentials": true,
+      "parameter_mapping": {
+        "path": [
+          "spreadsheet_id",
+          "range"
+        ],
+        "query": [
+          "majorDimension",
+          "valueRenderOption",
+          "dateTimeRenderOption"
+        ]
+      },
+      "parameter_schema": {
+        "type": "object",
+        "required": [
+          "spreadsheet_id",
+          "range"
+        ],
+        "properties": {
+          "spreadsheet_id": {
+            "type": "string",
+            "title": "Spreadsheet ID",
+            "description": "The ID of the spreadsheet (from the URL: docs.google.com/spreadsheets/d/{ID}/edit)",
+            "ui": {
+              "section": "basic",
+              "order": 1,
+              "placeholder": "1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms"
+            }
+          },
+          "range": {
+            "type": "string",
+            "title": "Range",
+            "description": "The A1 notation of the range to read (e.g., 'Sheet1!A1:D10' or 'A1:D10')",
+            "ui": {
+              "section": "basic",
+              "order": 2,
+              "placeholder": "Sheet1!A1:D10"
+            }
+          },
+          "majorDimension": {
+            "type": "string",
+            "title": "Major Dimension",
+            "description": "How to interpret the returned values",
+            "enum": [
+              "ROWS",
+              "COLUMNS"
+            ],
+            "enumNames": [
+              "Rows",
+              "Columns"
+            ],
+            "default": "ROWS",
+            "ui": {
+              "section": "options",
+              "order": 1
+            }
+          },
+          "valueRenderOption": {
+            "type": "string",
+            "title": "Value Render Option",
+            "description": "How values should be rendered in the output",
+            "enum": [
+              "FORMATTED_VALUE",
+              "UNFORMATTED_VALUE",
+              "FORMULA"
+            ],
+            "enumNames": [
+              "Formatted Value",
+              "Unformatted Value",
+              "Formula"
+            ],
+            "default": "FORMATTED_VALUE",
+            "ui": {
+              "section": "options",
+              "order": 2
+            }
+          },
+          "dateTimeRenderOption": {
+            "type": "string",
+            "title": "Date/Time Render Option",
+            "description": "How dates and times should be rendered",
+            "enum": [
+              "SERIAL_NUMBER",
+              "FORMATTED_STRING"
+            ],
+            "enumNames": [
+              "Serial Number",
+              "Formatted String"
+            ],
+            "default": "FORMATTED_STRING",
+            "ui": {
+              "section": "options",
+              "order": 3
+            }
+          }
+        }
+      },
+      "result_schema": {
+        "type": "object",
+        "properties": {
+          "range": {
+            "type": "string",
+            "description": "The range of cells in A1 notation"
+          },
+          "majorDimension": {
+            "type": "string",
+            "description": "The major dimension of the values"
+          },
+          "values": {
+            "type": "array",
+            "description": "The data that was read",
+            "items": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "output_view": {
+        "type": "table",
+        "source": "values",
+        "columns": "auto",
+        "first_row_is_header": true
+      },
+      "example_parameters": {
+        "spreadsheet_id": "1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms",
+        "range": "Sheet1!A1:D10"
+      },
+      "ui_hints": {
+        "color": "#0F9D58",
+        "icon": "table",
+        "sections": {
+          "basic": {
+            "title": "Basic",
+            "collapsed": false,
+            "order": 1
+          },
+          "options": {
+            "title": "Options",
+            "collapsed": true,
+            "order": 2
+          }
+        },
+        "categories": [
+          "productivity"
+        ]
+      }
+    },
+    "google_sheets_append_values": {
+      "display_name": "Sheets: Append Rows",
+      "description": "Append rows to a Google Sheets spreadsheet. Adds data after the last row with content.",
+      "service_type": "PRODUCTIVITY",
+      "endpoint_url": "https://sheets.googleapis.com/v4/spreadsheets",
+      "path": "/{spreadsheet_id}/values/{range}:append",
+      "method": "POST",
+      "requires_credentials": true,
+      "parameter_mapping": {
+        "path": [
+          "spreadsheet_id",
+          "range"
+        ],
+        "query": [
+          "valueInputOption",
+          "insertDataOption",
+          "includeValuesInResponse"
+        ],
+        "body": [
+          "values"
+        ]
+      },
+      "parameter_schema": {
+        "type": "object",
+        "required": [
+          "spreadsheet_id",
+          "range",
+          "values"
+        ],
+        "properties": {
+          "spreadsheet_id": {
+            "type": "string",
+            "title": "Spreadsheet ID",
+            "description": "The ID of the spreadsheet",
+            "ui": {
+              "section": "basic",
+              "order": 1,
+              "placeholder": "1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms"
+            }
+          },
+          "range": {
+            "type": "string",
+            "title": "Range",
+            "description": "The A1 notation of the range to append to (e.g., 'Sheet1!A:D')",
+            "ui": {
+              "section": "basic",
+              "order": 2,
+              "placeholder": "Sheet1!A:D"
+            }
+          },
+          "values": {
+            "type": "array",
+            "title": "Rows",
+            "description": "The rows to append. Each row is an array of cell values.",
+            "items": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "ui": {
+              "section": "basic",
+              "order": 3,
+              "widget": "json"
+            }
+          },
+          "valueInputOption": {
+            "type": "string",
+            "title": "Value Input Option",
+            "description": "How the input data should be interpreted",
+            "enum": [
+              "RAW",
+              "USER_ENTERED"
+            ],
+            "default": "USER_ENTERED",
+            "ui": {
+              "section": "options",
+              "order": 1
+            }
+          },
+          "insertDataOption": {
+            "type": "string",
+            "title": "Insert Data Option",
+            "description": "How the input data should be inserted",
+            "enum": [
+              "OVERWRITE",
+              "INSERT_ROWS"
+            ],
+            "default": "INSERT_ROWS",
+            "ui": {
+              "section": "options",
+              "order": 2
+            }
+          },
+          "includeValuesInResponse": {
+            "type": "boolean",
+            "title": "Include Values in Response",
+            "description": "Return the values that were appended",
+            "default": true,
+            "ui": {
+              "section": "options",
+              "order": 3
+            }
+          }
+        }
+      },
+      "result_schema": {
+        "type": "object",
+        "properties": {
+          "spreadsheetId": {
+            "type": "string"
+          },
+          "tableRange": {
+            "type": "string"
+          },
+          "updates": {
+            "type": "object",
+            "properties": {
+              "spreadsheetId": {
+                "type": "string"
+              },
+              "updatedRange": {
+                "type": "string"
+              },
+              "updatedRows": {
+                "type": "integer"
+              },
+              "updatedColumns": {
+                "type": "integer"
+              },
+              "updatedCells": {
+                "type": "integer"
+              }
+            }
+          }
+        }
+      },
+      "output_view": {
+        "type": "key_value",
+        "fields": [
+          {
+            "key": "updates.updatedRange",
+            "label": "Updated Range"
+          },
+          {
+            "key": "updates.updatedRows",
+            "label": "Updated Rows"
+          },
+          {
+            "key": "updates.updatedCells",
+            "label": "Updated Cells"
+          },
+          {
+            "key": "spreadsheetId",
+            "label": "Spreadsheet ID"
+          }
+        ]
+      },
+      "example_parameters": {
+        "spreadsheet_id": "1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms",
+        "range": "Sheet1!A:D",
+        "values": [
+          [
+            "John",
+            "Doe",
+            "john@example.com",
+            "Active"
+          ],
+          [
+            "Jane",
+            "Smith",
+            "jane@example.com",
+            "Pending"
+          ]
+        ],
+        "valueInputOption": "USER_ENTERED"
+      },
+      "ui_hints": {
+        "color": "#0F9D58",
+        "icon": "plus-circle",
+        "sections": {
+          "basic": {
+            "title": "Basic",
+            "collapsed": false,
+            "order": 1
+          },
+          "options": {
+            "title": "Options",
+            "collapsed": true,
+            "order": 2
+          }
+        },
+        "categories": [
+          "productivity"
+        ]
+      }
+    },
+    "google_sheets_update_values": {
+      "display_name": "Sheets: Update Rows",
+      "description": "Update existing rows in a Google Sheets spreadsheet. Overwrites data in the specified range.",
+      "service_type": "PRODUCTIVITY",
+      "endpoint_url": "https://sheets.googleapis.com/v4/spreadsheets",
+      "path": "/{spreadsheet_id}/values/{range}",
+      "method": "PUT",
+      "requires_credentials": true,
+      "parameter_mapping": {
+        "path": [
+          "spreadsheet_id",
+          "range"
+        ],
+        "query": [
+          "valueInputOption",
+          "includeValuesInResponse"
+        ],
+        "body": [
+          "values"
+        ]
+      },
+      "parameter_schema": {
+        "type": "object",
+        "required": [
+          "spreadsheet_id",
+          "range",
+          "values"
+        ],
+        "properties": {
+          "spreadsheet_id": {
+            "type": "string",
+            "title": "Spreadsheet ID",
+            "description": "The ID of the spreadsheet",
+            "ui": {
+              "section": "basic",
+              "order": 1,
+              "placeholder": "1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms"
+            }
+          },
+          "range": {
+            "type": "string",
+            "title": "Range",
+            "description": "The A1 notation of the range to update (e.g., 'Sheet1!A2:D5')",
+            "ui": {
+              "section": "basic",
+              "order": 2,
+              "placeholder": "Sheet1!A2:D5"
+            }
+          },
+          "values": {
+            "type": "array",
+            "title": "Rows",
+            "description": "The rows to write. Each row is an array of cell values.",
+            "items": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "ui": {
+              "section": "basic",
+              "order": 3,
+              "widget": "json"
+            }
+          },
+          "valueInputOption": {
+            "type": "string",
+            "title": "Value Input Option",
+            "description": "How the input data should be interpreted",
+            "enum": [
+              "RAW",
+              "USER_ENTERED"
+            ],
+            "default": "USER_ENTERED",
+            "ui": {
+              "section": "options",
+              "order": 1
+            }
+          },
+          "includeValuesInResponse": {
+            "type": "boolean",
+            "title": "Include Values in Response",
+            "description": "Return the values that were written",
+            "default": true,
+            "ui": {
+              "section": "options",
+              "order": 2
+            }
+          }
+        }
+      },
+      "result_schema": {
+        "type": "object",
+        "properties": {
+          "spreadsheetId": {
+            "type": "string"
+          },
+          "updatedRange": {
+            "type": "string"
+          },
+          "updatedRows": {
+            "type": "integer"
+          },
+          "updatedColumns": {
+            "type": "integer"
+          },
+          "updatedCells": {
+            "type": "integer"
+          }
+        }
+      },
+      "output_view": {
+        "type": "key_value",
+        "fields": [
+          {
+            "key": "updatedRange",
+            "label": "Updated Range"
+          },
+          {
+            "key": "updatedRows",
+            "label": "Updated Rows"
+          },
+          {
+            "key": "updatedCells",
+            "label": "Updated Cells"
+          },
+          {
+            "key": "spreadsheetId",
+            "label": "Spreadsheet ID"
+          }
+        ]
+      },
+      "example_parameters": {
+        "spreadsheet_id": "1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms",
+        "range": "Sheet1!A2:D2",
+        "values": [
+          [
+            "John",
+            "Doe",
+            "john.updated@example.com",
+            "Completed"
+          ]
+        ],
+        "valueInputOption": "USER_ENTERED"
+      },
+      "ui_hints": {
+        "color": "#0F9D58",
+        "icon": "edit",
+        "sections": {
+          "basic": {
+            "title": "Basic",
+            "collapsed": false,
+            "order": 1
+          },
+          "options": {
+            "title": "Options",
+            "collapsed": true,
+            "order": 2
+          }
+        },
+        "categories": [
+          "productivity"
+        ]
+      }
+    },
+    "google_sheets_clear_values": {
+      "display_name": "Sheets: Clear Rows",
+      "description": "Clear values from a range in a Google Sheets spreadsheet. Removes data but keeps formatting.",
+      "service_type": "PRODUCTIVITY",
+      "endpoint_url": "https://sheets.googleapis.com/v4/spreadsheets",
+      "path": "/{spreadsheet_id}/values/{range}:clear",
+      "method": "POST",
+      "requires_credentials": true,
+      "parameter_mapping": {
+        "path": [
+          "spreadsheet_id",
+          "range"
+        ]
+      },
+      "parameter_schema": {
+        "type": "object",
+        "required": [
+          "spreadsheet_id",
+          "range"
+        ],
+        "properties": {
+          "spreadsheet_id": {
+            "type": "string",
+            "title": "Spreadsheet ID",
+            "description": "The ID of the spreadsheet",
+            "ui": {
+              "order": 1,
+              "placeholder": "1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms"
+            }
+          },
+          "range": {
+            "type": "string",
+            "title": "Range",
+            "description": "The A1 notation of the range to clear (e.g., 'Sheet1!A2:D10')",
+            "ui": {
+              "order": 2,
+              "placeholder": "Sheet1!A2:D10"
+            }
+          }
+        }
+      },
+      "result_schema": {
+        "type": "object",
+        "properties": {
+          "spreadsheetId": {
+            "type": "string"
+          },
+          "clearedRange": {
+            "type": "string"
+          }
+        }
+      },
+      "output_view": {
+        "type": "key_value",
+        "fields": [
+          {
+            "key": "clearedRange",
+            "label": "Cleared Range"
+          },
+          {
+            "key": "spreadsheetId",
+            "label": "Spreadsheet ID"
+          }
+        ]
+      },
+      "example_parameters": {
+        "spreadsheet_id": "1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms",
+        "range": "Sheet1!A2:D10"
+      },
+      "ui_hints": {
+        "color": "#0F9D58",
+        "icon": "trash-2",
+        "categories": [
+          "productivity"
+        ]
+      }
+    },
+    "google_sheets_get_spreadsheet": {
+      "display_name": "Sheets: Get Spreadsheet Info",
+      "description": "Get metadata about a Google Sheets spreadsheet, including sheet names and properties.",
+      "service_type": "PRODUCTIVITY",
+      "endpoint_url": "https://sheets.googleapis.com/v4/spreadsheets",
+      "path": "/{spreadsheet_id}",
+      "method": "GET",
+      "requires_credentials": true,
+      "parameter_mapping": {
+        "path": [
+          "spreadsheet_id"
+        ],
+        "query": [
+          "includeGridData"
+        ]
+      },
+      "parameter_schema": {
+        "type": "object",
+        "required": [
+          "spreadsheet_id"
+        ],
+        "properties": {
+          "spreadsheet_id": {
+            "type": "string",
+            "title": "Spreadsheet ID",
+            "description": "The ID of the spreadsheet",
+            "ui": {
+              "order": 1,
+              "placeholder": "1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms"
+            }
+          },
+          "includeGridData": {
+            "type": "boolean",
+            "title": "Include Grid Data",
+            "description": "Include cell data in the response (can be slow for large sheets)",
+            "default": false,
+            "ui": {
+              "order": 2
+            }
+          }
+        }
+      },
+      "result_schema": {
+        "type": "object",
+        "properties": {
+          "spreadsheetId": {
+            "type": "string"
+          },
+          "properties": {
+            "type": "object",
+            "properties": {
+              "title": {
+                "type": "string"
+              },
+              "locale": {
+                "type": "string"
+              },
+              "timeZone": {
+                "type": "string"
+              }
+            }
+          },
+          "sheets": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "properties": {
+                  "type": "object",
+                  "properties": {
+                    "sheetId": {
+                      "type": "integer"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "index": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "spreadsheetUrl": {
+            "type": "string"
+          }
+        }
+      },
+      "output_view": {
+        "type": "key_value",
+        "fields": [
+          {
+            "key": "properties.title",
+            "label": "Title"
+          },
+          {
+            "key": "spreadsheetId",
+            "label": "Spreadsheet ID"
+          },
+          {
+            "key": "properties.locale",
+            "label": "Locale"
+          },
+          {
+            "key": "spreadsheetUrl",
+            "label": "URL"
+          }
+        ]
+      },
+      "example_parameters": {
+        "spreadsheet_id": "1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms"
+      },
+      "ui_hints": {
+        "color": "#0F9D58",
+        "icon": "file-text",
+        "categories": [
+          "productivity"
+        ]
+      }
+    },
+    "google_drive_list_files": {
+      "display_name": "Drive: List Files",
+      "description": "List files and folders in Google Drive. Supports filtering by folder, name, and type.",
+      "service_type": "STORAGE",
+      "endpoint_url": "https://www.googleapis.com/drive/v3/files",
+      "path": "",
+      "method": "GET",
+      "requires_credentials": true,
+      "parameter_mapping": {
+        "query": [
+          "q",
+          "pageSize",
+          "pageToken",
+          "orderBy",
+          "fields"
+        ]
+      },
+      "parameter_schema": {
+        "type": "object",
+        "properties": {
+          "q": {
+            "type": "string",
+            "title": "Query",
+            "description": "Search query (e.g., \"'folderId' in parents\" or \"name contains 'report'\")",
+            "ui": {
+              "section": "basic",
+              "order": 1,
+              "placeholder": "name contains 'report'"
+            }
+          },
+          "pageSize": {
+            "type": "integer",
+            "title": "Page Size",
+            "description": "Maximum number of files to return (1-1000)",
+            "default": 100,
+            "minimum": 1,
+            "maximum": 1000,
+            "ui": {
+              "section": "options",
+              "order": 1
+            }
+          },
+          "pageToken": {
+            "type": "string",
+            "title": "Page Token",
+            "description": "Token for fetching the next page of results",
+            "ui": {
+              "section": "options",
+              "order": 2
+            }
+          },
+          "orderBy": {
+            "type": "string",
+            "title": "Order By",
+            "description": "Sort order for results",
+            "enum": [
+              "createdTime",
+              "modifiedTime",
+              "name",
+              "folder"
+            ],
+            "enumNames": [
+              "Created Time",
+              "Modified Time",
+              "Name",
+              "Folder"
+            ],
+            "default": "modifiedTime",
+            "ui": {
+              "section": "options",
+              "order": 3
+            }
+          },
+          "fields": {
+            "type": "string",
+            "title": "Fields",
+            "description": "Fields to include in the response",
+            "default": "nextPageToken, files(id, name, mimeType, size, createdTime, modifiedTime, webViewLink)",
+            "ui": {
+              "section": "options",
+              "order": 4
+            }
+          }
+        }
+      },
+      "result_schema": {
+        "type": "object",
+        "properties": {
+          "files": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "mimeType": {
+                  "type": "string"
+                },
+                "size": {
+                  "type": "string"
+                },
+                "createdTime": {
+                  "type": "string"
+                },
+                "modifiedTime": {
+                  "type": "string"
+                },
+                "webViewLink": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "nextPageToken": {
+            "type": "string"
+          }
+        }
+      },
+      "output_view": {
+        "type": "table",
+        "source": "files",
+        "columns": [
+          "name",
+          "mimeType",
+          "modifiedTime",
+          "webViewLink"
+        ]
+      },
+      "example_parameters": {
+        "q": "mimeType='application/vnd.google-apps.spreadsheet'",
+        "pageSize": 20
+      },
+      "ui_hints": {
+        "color": "#4285F4",
+        "icon": "folder",
+        "sections": {
+          "basic": {
+            "title": "Basic",
+            "collapsed": false,
+            "order": 1
+          },
+          "options": {
+            "title": "Options",
+            "collapsed": true,
+            "order": 2
+          }
+        },
+        "categories": [
+          "storage"
+        ]
+      }
+    },
+    "google_drive_upload_file": {
+      "display_name": "Drive: Upload File",
+      "description": "Upload a file to Google Drive. Supports creating new files or updating existing ones.",
+      "service_type": "STORAGE",
+      "endpoint_url": "https://www.googleapis.com/upload/drive/v3/files",
+      "path": "",
+      "method": "POST",
+      "requires_credentials": true,
+      "parameter_mapping": {
+        "query": [
+          "uploadType"
+        ],
+        "body": [
+          "name",
+          "parents",
+          "mimeType",
+          "content"
+        ]
+      },
+      "parameter_schema": {
+        "type": "object",
+        "required": [
+          "name",
+          "content"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "File Name",
+            "description": "Name for the uploaded file",
+            "ui": {
+              "section": "basic",
+              "order": 1,
+              "placeholder": "document.txt"
+            }
+          },
+          "content": {
+            "type": "string",
+            "title": "Content",
+            "description": "File content (text or base64 encoded for binary)",
+            "ui": {
+              "section": "basic",
+              "order": 2,
+              "widget": "textarea"
+            }
+          },
+          "parents": {
+            "type": "array",
+            "title": "Parent Folders",
+            "description": "Folder IDs to upload to (leave empty for root)",
+            "items": {
+              "type": "string"
+            },
+            "ui": {
+              "section": "options",
+              "order": 1
+            }
+          },
+          "mimeType": {
+            "type": "string",
+            "title": "MIME Type",
+            "description": "File MIME type (auto-detected if not specified)",
+            "ui": {
+              "section": "options",
+              "order": 2,
+              "placeholder": "text/plain"
+            }
+          },
+          "uploadType": {
+            "type": "string",
+            "title": "Upload Type",
+            "description": "Upload method to use",
+            "enum": [
+              "multipart",
+              "media"
+            ],
+            "default": "multipart",
+            "ui": {
+              "section": "options",
+              "order": 3
+            }
+          }
+        }
+      },
+      "result_schema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "mimeType": {
+            "type": "string"
+          },
+          "webViewLink": {
+            "type": "string"
+          },
+          "webContentLink": {
+            "type": "string"
+          }
+        }
+      },
+      "output_view": {
+        "type": "key_value",
+        "fields": [
+          {
+            "key": "name",
+            "label": "File Name"
+          },
+          {
+            "key": "id",
+            "label": "File ID"
+          },
+          {
+            "key": "mimeType",
+            "label": "MIME Type"
+          },
+          {
+            "key": "webViewLink",
+            "label": "View Link"
+          }
+        ]
+      },
+      "example_parameters": {
+        "name": "report.txt",
+        "content": "This is the file content",
+        "uploadType": "multipart"
+      },
+      "ui_hints": {
+        "color": "#4285F4",
+        "icon": "upload",
+        "sections": {
+          "basic": {
+            "title": "Basic",
+            "collapsed": false,
+            "order": 1
+          },
+          "options": {
+            "title": "Options",
+            "collapsed": true,
+            "order": 2
+          }
+        },
+        "categories": [
+          "storage"
+        ]
+      }
+    },
+    "google_drive_download_file": {
+      "display_name": "Drive: Download File",
+      "description": "Download a file from Google Drive. Returns file content or export for Google Docs formats.",
+      "service_type": "STORAGE",
+      "endpoint_url": "https://www.googleapis.com/drive/v3/files",
+      "path": "/{file_id}",
+      "method": "GET",
+      "requires_credentials": true,
+      "parameter_mapping": {
+        "path": [
+          "file_id"
+        ],
+        "query": [
+          "alt",
+          "acknowledgeAbuse"
+        ]
+      },
+      "parameter_schema": {
+        "type": "object",
+        "required": [
+          "file_id"
+        ],
+        "properties": {
+          "file_id": {
+            "type": "string",
+            "title": "File ID",
+            "description": "The ID of the file to download",
+            "ui": {
+              "section": "basic",
+              "order": 1,
+              "placeholder": "1abc123def456"
+            }
+          },
+          "alt": {
+            "type": "string",
+            "title": "Response Type",
+            "description": "Use 'media' to download file content",
+            "enum": [
+              "json",
+              "media"
+            ],
+            "enumNames": [
+              "JSON Metadata",
+              "Media (File Content)"
+            ],
+            "default": "media",
+            "ui": {
+              "section": "options",
+              "order": 1
+            }
+          },
+          "acknowledgeAbuse": {
+            "type": "boolean",
+            "title": "Acknowledge Abuse Warning",
+            "description": "Acknowledge download of potentially abusive files",
+            "default": false,
+            "ui": {
+              "section": "options",
+              "order": 2
+            }
+          }
+        }
+      },
+      "result_schema": {
+        "type": "object",
+        "properties": {
+          "content": {
+            "type": "string",
+            "description": "File content"
+          },
+          "mimeType": {
+            "type": "string"
+          },
+          "size": {
+            "type": "integer"
+          }
+        }
+      },
+      "output_view": {
+        "type": "key_value",
+        "fields": [
+          {
+            "key": "content",
+            "label": "Content"
+          },
+          {
+            "key": "mimeType",
+            "label": "MIME Type"
+          },
+          {
+            "key": "size",
+            "label": "Size"
+          }
+        ]
+      },
+      "example_parameters": {
+        "file_id": "1abc123def456",
+        "alt": "media"
+      },
+      "ui_hints": {
+        "color": "#4285F4",
+        "icon": "download",
+        "categories": [
+          "storage"
+        ]
+      }
+    },
+    "google_drive_get_file": {
+      "display_name": "Drive: Get File Info",
+      "description": "Get metadata about a file in Google Drive without downloading its content.",
+      "service_type": "STORAGE",
+      "endpoint_url": "https://www.googleapis.com/drive/v3/files",
+      "path": "/{file_id}",
+      "method": "GET",
+      "requires_credentials": true,
+      "parameter_mapping": {
+        "path": [
+          "file_id"
+        ],
+        "query": [
+          "fields"
+        ]
+      },
+      "parameter_schema": {
+        "type": "object",
+        "required": [
+          "file_id"
+        ],
+        "properties": {
+          "file_id": {
+            "type": "string",
+            "title": "File ID",
+            "description": "The ID of the file",
+            "ui": {
+              "order": 1,
+              "placeholder": "1abc123def456"
+            }
+          },
+          "fields": {
+            "type": "string",
+            "title": "Fields",
+            "description": "Fields to include in the response",
+            "default": "id, name, mimeType, size, createdTime, modifiedTime, webViewLink, webContentLink, parents",
+            "ui": {
+              "order": 2
+            }
+          }
+        }
+      },
+      "result_schema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "mimeType": {
+            "type": "string"
+          },
+          "size": {
+            "type": "string"
+          },
+          "createdTime": {
+            "type": "string"
+          },
+          "modifiedTime": {
+            "type": "string"
+          },
+          "webViewLink": {
+            "type": "string"
+          },
+          "webContentLink": {
+            "type": "string"
+          },
+          "parents": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "output_view": {
+        "type": "key_value",
+        "fields": [
+          {
+            "key": "name",
+            "label": "File Name"
+          },
+          {
+            "key": "id",
+            "label": "File ID"
+          },
+          {
+            "key": "mimeType",
+            "label": "MIME Type"
+          },
+          {
+            "key": "size",
+            "label": "Size"
+          },
+          {
+            "key": "modifiedTime",
+            "label": "Modified"
+          },
+          {
+            "key": "webViewLink",
+            "label": "View Link"
+          }
+        ]
+      },
+      "example_parameters": {
+        "file_id": "1abc123def456"
+      },
+      "ui_hints": {
+        "color": "#4285F4",
+        "icon": "file",
+        "categories": [
+          "storage"
+        ]
+      }
+    },
+    "gmail_send_message": {
+      "display_name": "Gmail: Send Email",
+      "description": "Send an email via Gmail. Supports plain text and HTML content with attachments.",
+      "service_type": "COMMUNICATION",
+      "endpoint_url": "https://gmail.googleapis.com/gmail/v1/users/me/messages",
+      "path": "/send",
+      "method": "POST",
+      "requires_credentials": true,
+      "dispatch_shape": "email",
+      "wire_dialect": "rfc822_base64url",
+      "request_transform": {
+        "body": {
+          "raw": "{{ parameters._raw }}"
+        }
+      },
+      "parameter_schema": {
+        "type": "object",
+        "required": [
+          "to",
+          "subject"
+        ],
+        "properties": {
+          "to": {
+            "type": "array",
+            "title": "To",
+            "description": "Recipient email addresses",
+            "items": {
+              "type": "string",
+              "format": "email"
+            },
+            "ui": {
+              "section": "basic",
+              "order": 1
+            }
+          },
+          "subject": {
+            "type": "string",
+            "title": "Subject",
+            "description": "Email subject line",
+            "ui": {
+              "section": "basic",
+              "order": 2
+            }
+          },
+          "body": {
+            "type": "string",
+            "title": "Body",
+            "description": "Plain text email body",
+            "ui": {
+              "section": "basic",
+              "order": 3,
+              "widget": "textarea"
+            }
+          },
+          "html": {
+            "type": "string",
+            "title": "HTML Body",
+            "description": "HTML email body (optional, overrides plain text)",
+            "ui": {
+              "section": "options",
+              "order": 1,
+              "widget": "textarea"
+            }
+          },
+          "cc": {
+            "type": "array",
+            "title": "CC",
+            "description": "CC recipients",
+            "items": {
+              "type": "string",
+              "format": "email"
+            },
+            "ui": {
+              "section": "options",
+              "order": 2
+            }
+          },
+          "bcc": {
+            "type": "array",
+            "title": "BCC",
+            "description": "BCC recipients",
+            "items": {
+              "type": "string",
+              "format": "email"
+            },
+            "ui": {
+              "section": "options",
+              "order": 3
+            }
+          },
+          "from": {
+            "type": "string",
+            "title": "From",
+            "description": "Sender address; defaults to the authorized account",
+            "ui": {
+              "section": "Advanced",
+              "order": 1,
+              "collapsed": true
+            }
+          }
+        }
+      },
+      "result_schema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Message ID"
+          },
+          "threadId": {
+            "type": "string",
+            "description": "Thread ID"
+          },
+          "labelIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "output_view": {
+        "type": "key_value",
+        "fields": [
+          {
+            "key": "id",
+            "label": "Message ID"
+          },
+          {
+            "key": "threadId",
+            "label": "Thread ID"
+          },
+          {
+            "key": "labelIds",
+            "label": "Labels"
+          }
+        ]
+      },
+      "example_parameters": {
+        "to": [
+          "user@example.com"
+        ],
+        "subject": "Workflow Complete",
+        "body": "Your workflow has finished processing successfully."
+      },
+      "ui_hints": {
+        "color": "#EA4335",
+        "icon": "send",
+        "sections": {
+          "basic": {
+            "title": "Basic",
+            "collapsed": false,
+            "order": 1
+          },
+          "options": {
+            "title": "Options",
+            "collapsed": true,
+            "order": 2
+          }
+        },
+        "categories": [
+          "communication"
+        ]
+      }
+    },
+    "gmail_list_messages": {
+      "display_name": "Gmail: List Emails",
+      "description": "List emails in Gmail inbox. Supports filtering by labels, search query, and pagination.",
+      "service_type": "COMMUNICATION",
+      "endpoint_url": "https://gmail.googleapis.com/gmail/v1/users/me/messages",
+      "path": "",
+      "method": "GET",
+      "requires_credentials": true,
+      "parameter_mapping": {
+        "query": [
+          "q",
+          "labelIds",
+          "maxResults",
+          "pageToken",
+          "includeSpamTrash"
+        ]
+      },
+      "parameter_schema": {
+        "type": "object",
+        "properties": {
+          "q": {
+            "type": "string",
+            "title": "Search Query",
+            "description": "Gmail search query (e.g., 'from:user@example.com' or 'is:unread')",
+            "ui": {
+              "section": "basic",
+              "order": 1,
+              "placeholder": "is:unread"
+            }
+          },
+          "labelIds": {
+            "type": "array",
+            "title": "Label IDs",
+            "description": "Only return messages with these labels",
+            "items": {
+              "type": "string"
+            },
+            "ui": {
+              "section": "options",
+              "order": 1
+            }
+          },
+          "maxResults": {
+            "type": "integer",
+            "title": "Max Results",
+            "description": "Maximum number of messages to return (1-500)",
+            "default": 100,
+            "minimum": 1,
+            "maximum": 500,
+            "ui": {
+              "section": "options",
+              "order": 2
+            }
+          },
+          "pageToken": {
+            "type": "string",
+            "title": "Page Token",
+            "description": "Token for fetching the next page of results",
+            "ui": {
+              "section": "options",
+              "order": 3
+            }
+          },
+          "includeSpamTrash": {
+            "type": "boolean",
+            "title": "Include Spam/Trash",
+            "description": "Include messages from spam and trash",
+            "default": false,
+            "ui": {
+              "section": "options",
+              "order": 4
+            }
+          }
+        }
+      },
+      "result_schema": {
+        "type": "object",
+        "properties": {
+          "messages": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "threadId": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "nextPageToken": {
+            "type": "string"
+          },
+          "resultSizeEstimate": {
+            "type": "integer"
+          }
+        }
+      },
+      "output_view": {
+        "type": "table",
+        "source": "messages",
+        "columns": [
+          {
+            "key": "id",
+            "label": "Message ID"
+          },
+          {
+            "key": "threadId",
+            "label": "Thread ID"
+          }
+        ]
+      },
+      "example_parameters": {
+        "q": "is:unread",
+        "maxResults": 20
+      },
+      "ui_hints": {
+        "color": "#EA4335",
+        "icon": "inbox",
+        "sections": {
+          "basic": {
+            "title": "Basic",
+            "collapsed": false,
+            "order": 1
+          },
+          "options": {
+            "title": "Options",
+            "collapsed": true,
+            "order": 2
+          }
+        },
+        "categories": [
+          "communication"
+        ]
+      }
+    },
+    "gmail_get_message": {
+      "display_name": "Gmail: Get Email",
+      "description": "Get the full content of an email by its ID. Returns headers, body, and attachments.",
+      "service_type": "COMMUNICATION",
+      "endpoint_url": "https://gmail.googleapis.com/gmail/v1/users/me/messages",
+      "path": "/{message_id}",
+      "method": "GET",
+      "requires_credentials": true,
+      "parameter_mapping": {
+        "path": [
+          "message_id"
+        ],
+        "query": [
+          "format",
+          "metadataHeaders"
+        ]
+      },
+      "parameter_schema": {
+        "type": "object",
+        "required": [
+          "message_id"
+        ],
+        "properties": {
+          "message_id": {
+            "type": "string",
+            "title": "Message ID",
+            "description": "The ID of the email message",
+            "ui": {
+              "section": "basic",
+              "order": 1
+            }
+          },
+          "format": {
+            "type": "string",
+            "title": "Format",
+            "description": "Response format",
+            "enum": [
+              "minimal",
+              "full",
+              "raw",
+              "metadata"
+            ],
+            "default": "full",
+            "ui": {
+              "section": "options",
+              "order": 1
+            }
+          },
+          "metadataHeaders": {
+            "type": "array",
+            "title": "Metadata Headers",
+            "description": "Headers to include when format is 'metadata'",
+            "items": {
+              "type": "string"
+            },
+            "ui": {
+              "section": "options",
+              "order": 2
+            }
+          }
+        }
+      },
+      "result_schema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "threadId": {
+            "type": "string"
+          },
+          "labelIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "snippet": {
+            "type": "string"
+          },
+          "payload": {
+            "type": "object",
+            "properties": {
+              "headers": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "type": "string"
+                    },
+                    "value": {
+                      "type": "string"
+                    }
+                  }
+                }
+              },
+              "body": {
+                "type": "object",
+                "properties": {
+                  "data": {
+                    "type": "string"
+                  },
+                  "size": {
+                    "type": "integer"
+                  }
+                }
+              }
+            }
+          },
+          "internalDate": {
+            "type": "string"
+          }
+        }
+      },
+      "output_view": {
+        "type": "key_value",
+        "fields": [
+          {
+            "key": "snippet",
+            "label": "Snippet"
+          },
+          {
+            "key": "id",
+            "label": "Message ID"
+          },
+          {
+            "key": "threadId",
+            "label": "Thread ID"
+          },
+          {
+            "key": "labelIds",
+            "label": "Labels"
+          },
+          {
+            "key": "internalDate",
+            "label": "Date"
+          }
+        ]
+      },
+      "example_parameters": {
+        "message_id": "18abc123def456",
+        "format": "full"
+      },
+      "ui_hints": {
+        "color": "#EA4335",
+        "icon": "mail",
+        "sections": {
+          "basic": {
+            "title": "Basic",
+            "collapsed": false,
+            "order": 1
+          },
+          "options": {
+            "title": "Options",
+            "collapsed": true,
+            "order": 2
+          }
+        },
+        "categories": [
+          "communication"
+        ]
+      }
+    },
+    "google_calendar_list_events": {
+      "display_name": "Calendar: List Events",
+      "description": "List events from a Google Calendar. Supports filtering by time range and search query.",
+      "service_type": "PRODUCTIVITY",
+      "endpoint_url": "https://www.googleapis.com/calendar/v3/calendars",
+      "path": "/{calendar_id}/events",
+      "method": "GET",
+      "requires_credentials": true,
+      "parameter_mapping": {
+        "path": [
+          "calendar_id"
+        ],
+        "query": [
+          "timeMin",
+          "timeMax",
+          "q",
+          "maxResults",
+          "orderBy",
+          "singleEvents",
+          "showDeleted"
+        ]
+      },
+      "parameter_schema": {
+        "type": "object",
+        "required": [
+          "calendar_id"
+        ],
+        "properties": {
+          "calendar_id": {
+            "type": "string",
+            "title": "Calendar ID",
+            "description": "Calendar identifier. Use 'primary' for the primary calendar.",
+            "default": "primary",
+            "ui": {
+              "section": "basic",
+              "order": 1,
+              "placeholder": "primary"
+            }
+          },
+          "timeMin": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Time Min",
+            "description": "Lower bound for event start time (ISO 8601 format, e.g., 2024-01-01T00:00:00Z)",
+            "ui": {
+              "section": "basic",
+              "order": 2,
+              "placeholder": "2024-01-01T00:00:00Z"
+            }
+          },
+          "timeMax": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Time Max",
+            "description": "Upper bound for event start time (ISO 8601 format)",
+            "ui": {
+              "section": "basic",
+              "order": 3,
+              "placeholder": "2024-12-31T23:59:59Z"
+            }
+          },
+          "q": {
+            "type": "string",
+            "title": "Search Query",
+            "description": "Free text search terms to find events",
+            "ui": {
+              "section": "options",
+              "order": 1
+            }
+          },
+          "maxResults": {
+            "type": "integer",
+            "title": "Max Results",
+            "description": "Maximum number of events to return",
+            "default": 250,
+            "minimum": 1,
+            "maximum": 2500,
+            "ui": {
+              "section": "options",
+              "order": 2
+            }
+          },
+          "orderBy": {
+            "type": "string",
+            "title": "Order By",
+            "description": "Order of events in the result",
+            "enum": [
+              "startTime",
+              "updated"
+            ],
+            "enumNames": [
+              "Start Time",
+              "Last Updated"
+            ],
+            "ui": {
+              "section": "options",
+              "order": 3
+            }
+          },
+          "singleEvents": {
+            "type": "boolean",
+            "title": "Expand Recurring Events",
+            "description": "Whether to expand recurring events into instances",
+            "default": true,
+            "ui": {
+              "section": "options",
+              "order": 4
+            }
+          },
+          "showDeleted": {
+            "type": "boolean",
+            "title": "Show Deleted",
+            "description": "Whether to include deleted events",
+            "default": false,
+            "ui": {
+              "section": "options",
+              "order": 5
+            }
+          }
+        }
+      },
+      "result_schema": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "summary": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "start": {
+                  "type": "object",
+                  "properties": {
+                    "dateTime": {
+                      "type": "string"
+                    },
+                    "date": {
+                      "type": "string"
+                    },
+                    "timeZone": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "end": {
+                  "type": "object",
+                  "properties": {
+                    "dateTime": {
+                      "type": "string"
+                    },
+                    "date": {
+                      "type": "string"
+                    },
+                    "timeZone": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "attendees": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "email": {
+                        "type": "string"
+                      },
+                      "displayName": {
+                        "type": "string"
+                      },
+                      "responseStatus": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                },
+                "htmlLink": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "output_view": {
+        "type": "table",
+        "source": "items",
+        "columns": [
+          {
+            "key": "summary",
+            "label": "Event"
+          },
+          {
+            "key": "start.dateTime",
+            "label": "Start"
+          },
+          {
+            "key": "end.dateTime",
+            "label": "End"
+          },
+          {
+            "key": "htmlLink",
+            "label": "Link"
+          }
+        ]
+      },
+      "example_parameters": {
+        "calendar_id": "primary",
+        "timeMin": "2024-01-01T00:00:00Z",
+        "maxResults": 10
+      },
+      "ui_hints": {
+        "color": "#4285F4",
+        "icon": "calendar",
+        "sections": {
+          "basic": {
+            "title": "Basic",
+            "collapsed": false,
+            "order": 1
+          },
+          "options": {
+            "title": "Options",
+            "collapsed": true,
+            "order": 2
+          }
+        },
+        "categories": [
+          "productivity"
+        ]
+      }
+    },
+    "google_calendar_get_event": {
+      "display_name": "Calendar: Get Event",
+      "description": "Get details of a specific calendar event.",
+      "service_type": "PRODUCTIVITY",
+      "endpoint_url": "https://www.googleapis.com/calendar/v3/calendars",
+      "path": "/{calendar_id}/events/{event_id}",
+      "method": "GET",
+      "requires_credentials": true,
+      "parameter_mapping": {
+        "path": [
+          "calendar_id",
+          "event_id"
+        ]
+      },
+      "parameter_schema": {
+        "type": "object",
+        "required": [
+          "calendar_id",
+          "event_id"
+        ],
+        "properties": {
+          "calendar_id": {
+            "type": "string",
+            "title": "Calendar ID",
+            "description": "Calendar identifier",
+            "default": "primary",
+            "ui": {
+              "section": "basic",
+              "order": 1
+            }
+          },
+          "event_id": {
+            "type": "string",
+            "title": "Event ID",
+            "description": "The event identifier",
+            "ui": {
+              "section": "basic",
+              "order": 2
+            }
+          }
+        }
+      },
+      "result_schema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "summary": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "location": {
+            "type": "string"
+          },
+          "start": {
+            "type": "object"
+          },
+          "end": {
+            "type": "object"
+          },
+          "attendees": {
+            "type": "array"
+          },
+          "htmlLink": {
+            "type": "string"
+          }
+        }
+      },
+      "output_view": {
+        "type": "key_value",
+        "fields": [
+          {
+            "key": "summary",
+            "label": "Event"
+          },
+          {
+            "key": "description",
+            "label": "Description"
+          },
+          {
+            "key": "location",
+            "label": "Location"
+          },
+          {
+            "key": "start",
+            "label": "Start"
+          },
+          {
+            "key": "end",
+            "label": "End"
+          },
+          {
+            "key": "htmlLink",
+            "label": "Link"
+          }
+        ]
+      },
+      "example_parameters": {
+        "calendar_id": "primary",
+        "event_id": "abc123def456"
+      },
+      "ui_hints": {
+        "color": "#4285F4",
+        "icon": "calendar",
+        "categories": [
+          "productivity"
+        ]
+      }
+    },
+    "google_calendar_create_event": {
+      "display_name": "Calendar: Create Event",
+      "description": "Create a new calendar event with details like title, time, attendees, and location.",
+      "service_type": "PRODUCTIVITY",
+      "endpoint_url": "https://www.googleapis.com/calendar/v3/calendars",
+      "path": "/{calendar_id}/events",
+      "method": "POST",
+      "requires_credentials": true,
+      "parameter_mapping": {
+        "path": [
+          "calendar_id"
+        ],
+        "body": [
+          "summary",
+          "description",
+          "location",
+          "start",
+          "end",
+          "attendees",
+          "reminders",
+          "conferenceData"
+        ]
+      },
+      "parameter_schema": {
+        "type": "object",
+        "required": [
+          "calendar_id",
+          "summary",
+          "start",
+          "end"
+        ],
+        "properties": {
+          "calendar_id": {
+            "type": "string",
+            "title": "Calendar ID",
+            "description": "Calendar identifier",
+            "default": "primary",
+            "ui": {
+              "section": "basic",
+              "order": 1
+            }
+          },
+          "summary": {
+            "type": "string",
+            "title": "Title",
+            "description": "Event title/summary",
+            "ui": {
+              "section": "basic",
+              "order": 2,
+              "placeholder": "Team Meeting"
+            }
+          },
+          "description": {
+            "type": "string",
+            "title": "Description",
+            "description": "Event description",
+            "ui": {
+              "section": "basic",
+              "order": 3,
+              "widget": "textarea",
+              "rows": 3
+            }
+          },
+          "location": {
+            "type": "string",
+            "title": "Location",
+            "description": "Event location",
+            "ui": {
+              "section": "basic",
+              "order": 4,
+              "placeholder": "Conference Room A"
+            }
+          },
+          "start": {
+            "type": "object",
+            "title": "Start Time",
+            "description": "Event start time",
+            "required": [
+              "dateTime"
+            ],
+            "properties": {
+              "dateTime": {
+                "type": "string",
+                "format": "date-time",
+                "title": "Date/Time",
+                "description": "ISO 8601 format (e.g., 2024-01-15T10:00:00-07:00)",
+                "ui": {
+                  "placeholder": "2024-01-15T10:00:00-07:00"
+                }
+              },
+              "timeZone": {
+                "type": "string",
+                "title": "Time Zone",
+                "description": "IANA Time Zone (e.g., America/Los_Angeles)",
+                "ui": {
+                  "placeholder": "America/Los_Angeles"
+                }
+              }
+            },
+            "ui": {
+              "section": "basic",
+              "order": 5
+            }
+          },
+          "end": {
+            "type": "object",
+            "title": "End Time",
+            "description": "Event end time",
+            "required": [
+              "dateTime"
+            ],
+            "properties": {
+              "dateTime": {
+                "type": "string",
+                "format": "date-time",
+                "title": "Date/Time",
+                "description": "ISO 8601 format",
+                "ui": {
+                  "placeholder": "2024-01-15T11:00:00-07:00"
+                }
+              },
+              "timeZone": {
+                "type": "string",
+                "title": "Time Zone",
+                "ui": {
+                  "placeholder": "America/Los_Angeles"
+                }
+              }
+            },
+            "ui": {
+              "section": "basic",
+              "order": 6
+            }
+          },
+          "attendees": {
+            "type": "array",
+            "title": "Attendees",
+            "description": "List of attendees",
+            "items": {
+              "type": "object",
+              "required": [
+                "email"
+              ],
+              "properties": {
+                "email": {
+                  "type": "string",
+                  "title": "Email",
+                  "format": "email"
+                },
+                "displayName": {
+                  "type": "string",
+                  "title": "Name"
+                },
+                "optional": {
+                  "type": "boolean",
+                  "title": "Optional",
+                  "default": false
+                }
+              }
+            },
+            "ui": {
+              "section": "attendees",
+              "order": 1
+            }
+          },
+          "reminders": {
+            "type": "object",
+            "title": "Reminders",
+            "description": "Event reminders",
+            "properties": {
+              "useDefault": {
+                "type": "boolean",
+                "title": "Use Default Reminders",
+                "default": true
+              },
+              "overrides": {
+                "type": "array",
+                "title": "Custom Reminders",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "method": {
+                      "type": "string",
+                      "enum": [
+                        "email",
+                        "popup"
+                      ],
+                      "default": "popup"
+                    },
+                    "minutes": {
+                      "type": "integer",
+                      "title": "Minutes Before",
+                      "default": 30
+                    }
+                  }
+                }
+              }
+            },
+            "ui": {
+              "section": "options",
+              "order": 1
+            }
+          },
+          "conferenceData": {
+            "type": "object",
+            "title": "Conference",
+            "description": "Video conference settings",
+            "properties": {
+              "createRequest": {
+                "type": "object",
+                "properties": {
+                  "requestId": {
+                    "type": "string",
+                    "title": "Request ID",
+                    "description": "Unique ID for the conference request"
+                  },
+                  "conferenceSolutionKey": {
+                    "type": "object",
+                    "properties": {
+                      "type": {
+                        "type": "string",
+                        "title": "Type",
+                        "enum": [
+                          "hangoutsMeet"
+                        ],
+                        "default": "hangoutsMeet"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "ui": {
+              "section": "options",
+              "order": 2
+            }
+          }
+        }
+      },
+      "result_schema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "summary": {
+            "type": "string"
+          },
+          "htmlLink": {
+            "type": "string"
+          },
+          "start": {
+            "type": "object"
+          },
+          "end": {
+            "type": "object"
+          }
+        }
+      },
+      "output_view": {
+        "type": "key_value",
+        "fields": [
+          {
+            "key": "summary",
+            "label": "Event"
+          },
+          {
+            "key": "id",
+            "label": "Event ID"
+          },
+          {
+            "key": "htmlLink",
+            "label": "Link"
+          },
+          {
+            "key": "start",
+            "label": "Start"
+          },
+          {
+            "key": "end",
+            "label": "End"
+          }
+        ]
+      },
+      "example_parameters": {
+        "calendar_id": "primary",
+        "summary": "Team Standup",
+        "start": {
+          "dateTime": "2024-01-15T10:00:00-07:00",
+          "timeZone": "America/Los_Angeles"
+        },
+        "end": {
+          "dateTime": "2024-01-15T10:30:00-07:00",
+          "timeZone": "America/Los_Angeles"
+        }
+      },
+      "ui_hints": {
+        "color": "#4285F4",
+        "icon": "calendar-plus",
+        "sections": {
+          "basic": {
+            "title": "Basic Details",
+            "collapsed": false,
+            "order": 1
+          },
+          "attendees": {
+            "title": "Attendees",
+            "collapsed": true,
+            "order": 2
+          },
+          "options": {
+            "title": "Options",
+            "collapsed": true,
+            "order": 3
+          }
+        },
+        "categories": [
+          "productivity"
+        ]
+      }
+    },
+    "google_calendar_update_event": {
+      "display_name": "Calendar: Update Event",
+      "description": "Update an existing calendar event.",
+      "service_type": "PRODUCTIVITY",
+      "endpoint_url": "https://www.googleapis.com/calendar/v3/calendars",
+      "path": "/{calendar_id}/events/{event_id}",
+      "method": "PATCH",
+      "requires_credentials": true,
+      "parameter_mapping": {
+        "path": [
+          "calendar_id",
+          "event_id"
+        ],
+        "body": [
+          "summary",
+          "description",
+          "location",
+          "start",
+          "end",
+          "attendees",
+          "reminders"
+        ]
+      },
+      "parameter_schema": {
+        "type": "object",
+        "required": [
+          "calendar_id",
+          "event_id"
+        ],
+        "properties": {
+          "calendar_id": {
+            "type": "string",
+            "title": "Calendar ID",
+            "description": "Calendar identifier",
+            "default": "primary",
+            "ui": {
+              "section": "basic",
+              "order": 1
+            }
+          },
+          "event_id": {
+            "type": "string",
+            "title": "Event ID",
+            "description": "The event identifier to update",
+            "ui": {
+              "section": "basic",
+              "order": 2
+            }
+          },
+          "summary": {
+            "type": "string",
+            "title": "Title",
+            "description": "Event title/summary",
+            "ui": {
+              "section": "basic",
+              "order": 3
+            }
+          },
+          "description": {
+            "type": "string",
+            "title": "Description",
+            "description": "Event description",
+            "ui": {
+              "section": "basic",
+              "order": 4,
+              "widget": "textarea"
+            }
+          },
+          "location": {
+            "type": "string",
+            "title": "Location",
+            "description": "Event location",
+            "ui": {
+              "section": "basic",
+              "order": 5
+            }
+          },
+          "start": {
+            "type": "object",
+            "title": "Start Time",
+            "properties": {
+              "dateTime": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "timeZone": {
+                "type": "string"
+              }
+            },
+            "ui": {
+              "section": "basic",
+              "order": 6
+            }
+          },
+          "end": {
+            "type": "object",
+            "title": "End Time",
+            "properties": {
+              "dateTime": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "timeZone": {
+                "type": "string"
+              }
+            },
+            "ui": {
+              "section": "basic",
+              "order": 7
+            }
+          },
+          "attendees": {
+            "type": "array",
+            "title": "Attendees",
+            "items": {
+              "type": "object",
+              "properties": {
+                "email": {
+                  "type": "string"
+                },
+                "displayName": {
+                  "type": "string"
+                }
+              }
+            },
+            "ui": {
+              "section": "options",
+              "order": 1
+            }
+          },
+          "reminders": {
+            "type": "object",
+            "title": "Reminders",
+            "ui": {
+              "section": "options",
+              "order": 2
+            }
+          }
+        }
+      },
+      "result_schema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "summary": {
+            "type": "string"
+          },
+          "updated": {
+            "type": "string"
+          }
+        }
+      },
+      "output_view": {
+        "type": "key_value",
+        "fields": [
+          {
+            "key": "summary",
+            "label": "Event"
+          },
+          {
+            "key": "id",
+            "label": "Event ID"
+          },
+          {
+            "key": "updated",
+            "label": "Updated At"
+          }
+        ]
+      },
+      "example_parameters": {
+        "calendar_id": "primary",
+        "event_id": "abc123",
+        "summary": "Updated Meeting Title"
+      },
+      "ui_hints": {
+        "color": "#4285F4",
+        "icon": "calendar-edit",
+        "sections": {
+          "basic": {
+            "title": "Basic",
+            "collapsed": false,
+            "order": 1
+          },
+          "options": {
+            "title": "Options",
+            "collapsed": true,
+            "order": 2
+          }
+        },
+        "categories": [
+          "productivity"
+        ]
+      }
+    },
+    "google_calendar_delete_event": {
+      "display_name": "Calendar: Delete Event",
+      "description": "Delete a calendar event.",
+      "service_type": "PRODUCTIVITY",
+      "endpoint_url": "https://www.googleapis.com/calendar/v3/calendars",
+      "path": "/{calendar_id}/events/{event_id}",
+      "method": "DELETE",
+      "requires_credentials": true,
+      "parameter_mapping": {
+        "path": [
+          "calendar_id",
+          "event_id"
+        ]
+      },
+      "parameter_schema": {
+        "type": "object",
+        "required": [
+          "calendar_id",
+          "event_id"
+        ],
+        "properties": {
+          "calendar_id": {
+            "type": "string",
+            "title": "Calendar ID",
+            "description": "Calendar identifier",
+            "default": "primary",
+            "ui": {
+              "section": "basic",
+              "order": 1
+            }
+          },
+          "event_id": {
+            "type": "string",
+            "title": "Event ID",
+            "description": "The event identifier to delete",
+            "ui": {
+              "section": "basic",
+              "order": 2
+            }
+          }
+        }
+      },
+      "result_schema": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          }
+        }
+      },
+      "output_view": {
+        "type": "key_value",
+        "fields": [
+          {
+            "key": "success",
+            "label": "Success"
+          }
+        ]
+      },
+      "example_parameters": {
+        "calendar_id": "primary",
+        "event_id": "abc123def456"
+      },
+      "ui_hints": {
+        "color": "#EA4335",
+        "icon": "calendar-x",
+        "categories": [
+          "productivity"
+        ]
+      }
+    },
+    "google_calendar_quick_add": {
+      "display_name": "Calendar: Quick Add Event",
+      "description": "Create an event from a simple text string (e.g., 'Meeting with John tomorrow at 3pm').",
+      "service_type": "PRODUCTIVITY",
+      "endpoint_url": "https://www.googleapis.com/calendar/v3/calendars",
+      "path": "/{calendar_id}/events/quickAdd",
+      "method": "POST",
+      "requires_credentials": true,
+      "parameter_mapping": {
+        "path": [
+          "calendar_id"
+        ],
+        "query": [
+          "text"
+        ]
+      },
+      "parameter_schema": {
+        "type": "object",
+        "required": [
+          "calendar_id",
+          "text"
+        ],
+        "properties": {
+          "calendar_id": {
+            "type": "string",
+            "title": "Calendar ID",
+            "description": "Calendar identifier",
+            "default": "primary",
+            "ui": {
+              "section": "basic",
+              "order": 1
+            }
+          },
+          "text": {
+            "type": "string",
+            "title": "Event Text",
+            "description": "Natural language event description (e.g., 'Lunch meeting tomorrow at 12pm' or 'Team sync on Friday at 2pm for 1 hour')",
+            "ui": {
+              "section": "basic",
+              "order": 2,
+              "widget": "textarea",
+              "rows": 2,
+              "placeholder": "Team standup tomorrow at 10am"
+            }
+          }
+        }
+      },
+      "result_schema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "summary": {
+            "type": "string"
+          },
+          "start": {
+            "type": "object"
+          },
+          "end": {
+            "type": "object"
+          },
+          "htmlLink": {
+            "type": "string"
+          }
+        }
+      },
+      "output_view": {
+        "type": "key_value",
+        "fields": [
+          {
+            "key": "summary",
+            "label": "Event"
+          },
+          {
+            "key": "id",
+            "label": "Event ID"
+          },
+          {
+            "key": "start",
+            "label": "Start"
+          },
+          {
+            "key": "end",
+            "label": "End"
+          },
+          {
+            "key": "htmlLink",
+            "label": "Link"
+          }
+        ]
+      },
+      "example_parameters": {
+        "calendar_id": "primary",
+        "text": "Coffee with Sarah on Monday at 3pm"
+      },
+      "ui_hints": {
+        "color": "#4285F4",
+        "icon": "zap",
+        "categories": [
+          "productivity"
+        ]
+      }
+    }
+  },
+  "default_queue": "step_jobs"
+}

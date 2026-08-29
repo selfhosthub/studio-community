@@ -1,7 +1,7 @@
 {
   "$schema": "https://raw.githubusercontent.com/selfhosthub/studio-community/main/schemas/provider.schema.json",
   "slug": "shs/openai",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "name": "OpenAI",
   "description": "AI models for chat completion, embeddings, and image generation",
   "provider_type": "API",
@@ -47,7 +47,7 @@
       "path": "/chat/completions",
       "method": "POST",
       "requires_credentials": true,
-      "prompt_shape": "chat",
+      "dispatch_shape": "chat",
       "wire_dialect": "openai",
       "request_transform": {
         "body": {
@@ -344,6 +344,13 @@
             "type": "string",
             "description": "Backend fingerprint identifying the model snapshot serving the request. Used for reproducibility / cache-key construction."
           }
+        }
+      },
+      "outputs": {
+        "response": {
+          "path": "choices[0].message.content",
+          "type": "string",
+          "description": "The model's reply text."
         }
       },
       "output_view": {

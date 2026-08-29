@@ -1,6 +1,6 @@
 {
-  "version": "1.0.1",
-  "updated_at": "2026-08-16T00:00:00Z",
+  "version": "1.0.2",
+  "updated_at": "2026-08-28T00:00:00Z",
   "workflows": [
     {
       "id": "shs/item-groups",
@@ -106,6 +106,118 @@
       "icon": "box",
       "public": true,
       "id": "shs/tiktok"
+    },
+    {
+      "title": "Airtable Provider",
+      "description": "Connect to Airtable to manage database records, query tables, and automate data workflows.",
+      "file": "providers/shs/airtable.md",
+      "icon": "box",
+      "public": true,
+      "id": "shs/airtable"
+    },
+    {
+      "title": "Claude Provider",
+      "description": "Connect to Anthropic's Claude AI models for chat, analysis, tool use, and agentic coding tasks.",
+      "file": "providers/shs/claude.md",
+      "icon": "box",
+      "public": true,
+      "id": "shs/claude"
+    },
+    {
+      "title": "Discord Provider",
+      "description": "Send messages to Discord servers using webhooks.",
+      "file": "providers/shs/discord.md",
+      "icon": "box",
+      "public": true,
+      "id": "shs/discord"
+    },
+    {
+      "title": "Gemini Provider",
+      "description": "Connect to Google's Gemini AI models for chat, multimodal understanding, and function calling.",
+      "file": "providers/shs/gemini.md",
+      "icon": "box",
+      "public": true,
+      "id": "shs/gemini"
+    },
+    {
+      "title": "Google Provider",
+      "description": "Connect to Google Workspace apps including Sheets, Drive, Gmail, and Calendar.",
+      "file": "providers/shs/google.md",
+      "icon": "box",
+      "public": true,
+      "id": "shs/google"
+    },
+    {
+      "title": "Instagram Provider",
+      "description": "Publish content, manage comments, and track insights on Instagram Business and Creator accounts.",
+      "file": "providers/shs/instagram.md",
+      "icon": "box",
+      "public": true,
+      "id": "shs/instagram"
+    },
+    {
+      "title": "Notion Provider",
+      "description": "Connect to Notion workspaces for pages, databases, and knowledge management automation.",
+      "file": "providers/shs/notion.md",
+      "icon": "box",
+      "public": true,
+      "id": "shs/notion"
+    },
+    {
+      "title": "Perplexity Provider",
+      "description": "Connect to Perplexity AI for search-augmented chat completions with real-time web citations.",
+      "file": "providers/shs/perplexity.md",
+      "icon": "box",
+      "public": true,
+      "id": "shs/perplexity"
+    },
+    {
+      "title": "Slack Provider",
+      "description": "Send messages to Slack channels and users from your workflows.",
+      "file": "providers/shs/slack.md",
+      "icon": "box",
+      "public": true,
+      "id": "shs/slack"
+    },
+    {
+      "title": "Stripe Provider",
+      "description": "Accept payments, manage customers, and automate billing workflows with the Stripe payment platform.",
+      "file": "providers/shs/stripe.md",
+      "icon": "box",
+      "public": true,
+      "id": "shs/stripe"
+    },
+    {
+      "title": "Telegram Provider",
+      "description": "Send messages, photos, documents, and locations via Telegram bot API for notifications and automation.",
+      "file": "providers/shs/telegram.md",
+      "icon": "box",
+      "public": true,
+      "id": "shs/telegram"
+    },
+    {
+      "title": "Trello Provider",
+      "description": "Automate project management workflows, create cards from external events, and sync tasks across systems with Trello boards.",
+      "file": "providers/shs/trello.md",
+      "icon": "box",
+      "public": true,
+      "id": "shs/trello"
+    },
+    {
+      "title": "Twilio Provider",
+      "description": "Send SMS, WhatsApp messages, and voice calls via Twilio for automated communication workflows.",
+      "file": "providers/shs/twilio.md",
+      "icon": "box",
+      "public": true,
+      "id": "shs/twilio"
+    },
+    {
+      "title": "Typeform Provider",
+      "description": "Automate form submission workflows, sync responses to databases, and trigger actions based on form completions.",
+      "file": "providers/shs/typeform.md",
+      "icon": "box",
+      "public": true,
+      "id": "shs/typeform"
     }
   ]
 }

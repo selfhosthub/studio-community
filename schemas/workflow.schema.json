@@ -54,6 +54,120 @@
         "$ref": "#/$defs/step"
       }
     },
+    "trigger_type": {
+      "type": "string",
+      "description": "How the workflow is triggered.",
+      "enum": [
+        "manual",
+        "schedule",
+        "webhook",
+        "event",
+        "api"
+      ],
+      "default": "manual"
+    },
+    "trigger_input_schema": {
+      "type": "object",
+      "description": "Expected fields on the trigger payload.",
+      "additionalProperties": true
+    },
+    "webhook_method": {
+      "type": "string",
+      "description": "HTTP method the webhook trigger accepts.",
+      "enum": [
+        "POST",
+        "GET"
+      ],
+      "default": "POST"
+    },
+    "webhook_auth_type": {
+      "type": "string",
+      "description": "How an inbound webhook request is authenticated. signed_raw_body is parameterised by webhook_config.auth.",
+      "enum": [
+        "none",
+        "header",
+        "jwt",
+        "hmac",
+        "signed_raw_body"
+      ],
+      "default": "none"
+    },
+    "webhook_auth_header_name": {
+      "type": "string",
+      "description": "Header carrying the shared value for header auth. Never the value itself."
+    },
+    "webhook_config": {
+      "type": "object",
+      "description": "Non-secret webhook trigger configuration. No credential belongs here: the signing secret is an organization secret, never a catalog field.",
+      "additionalProperties": false,
+      "properties": {
+        "auth": {
+          "type": "object",
+          "description": "Signature verification parameters for signed_raw_body.",
+          "additionalProperties": false,
+          "required": [
+            "signature_header",
+            "signed_template",
+            "algorithm"
+          ],
+          "properties": {
+            "signature_header": {
+              "type": "string",
+              "description": "Header carrying the signature."
+            },
+            "timestamp_header": {
+              "type": "string",
+              "description": "Header carrying the signing timestamp. Required when signed_template names {timestamp}."
+            },
+            "signature_prefix": {
+              "type": "string",
+              "description": "Literal prefix stripped from the header before comparison, e.g. \"v0=\"."
+            },
+            "signed_template": {
+              "type": "string",
+              "description": "String that is signed, with {timestamp} and {body} substituted."
+            },
+            "max_age_seconds": {
+              "type": "integer",
+              "description": "Accepted clock skew in either direction. Required when signed_template names {timestamp}.",
+              "minimum": 1
+            },
+            "algorithm": {
+              "type": "string",
+              "enum": [
+                "sha1",
+                "sha256",
+                "sha512"
+              ]
+            }
+          }
+        },
+        "handshake": {
+          "type": "object",
+          "description": "The sender's URL-verification echo.",
+          "additionalProperties": false,
+          "required": [
+            "match_field",
+            "match_value",
+            "echo_field"
+          ],
+          "properties": {
+            "match_field": {
+              "type": "string",
+              "description": "Body field identifying a handshake request."
+            },
+            "match_value": {
+              "type": "string",
+              "description": "Value of match_field that marks a handshake."
+            },
+            "echo_field": {
+              "type": "string",
+              "description": "Body field whose value is echoed back."
+            }
+          }
+        }
+      }
+    },
     "client_metadata": {
       "type": "object",
       "description": "Frontend-owned metadata (experience_config, etc.). Not validated by the backend.",

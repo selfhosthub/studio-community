@@ -1,0 +1,931 @@
+{
+  "$schema": "https://raw.githubusercontent.com/selfhosthub/studio-community/main/schemas/provider.schema.json",
+  "slug": "shs/gemini",
+  "version": "1.1.0",
+  "name": "Gemini",
+  "description": "Google's Gemini AI models for chat, multimodal understanding, and function calling",
+  "provider_type": "API",
+  "category": "ai",
+  "status": "ACTIVE",
+  "tier": "community",
+  "credential_provider": null,
+  "requires": [],
+  "services_preview": [
+    "Generate Content",
+    "Multimodal",
+    "Function Calling"
+  ],
+  "credential_schema": {
+    "type": "object",
+    "required": [
+      "api_key"
+    ],
+    "properties": {
+      "api_key": {
+        "type": "string",
+        "title": "API Key",
+        "description": "Google AI Studio API key",
+        "format": "password"
+      }
+    }
+  },
+  "base_url": "https://generativelanguage.googleapis.com/v1beta",
+  "icon_url": "/providers/gemini.svg",
+  "auth": {
+    "type": "custom_header",
+    "header_name": "x-goog-api-key",
+    "header_value_source": "api_key"
+  },
+  "default_headers": {
+    "content-type": "application/json"
+  },
+  "services": {
+    "gemini_generate": {
+      "display_name": "Generate Content",
+      "description": "Generate text responses using Gemini models. Supports conversation history, system instructions, and function calling.",
+      "service_type": "AI",
+      "path": "/models/{model}:generateContent",
+      "method": "POST",
+      "requires_credentials": true,
+      "dispatch_shape": "chat",
+      "wire_dialect": "gemini",
+      "parameter_mapping": {
+        "path": [
+          "model"
+        ]
+      },
+      "request_transform": {
+        "body": {
+          "systemInstruction": "{{ parameters._gemini_system if parameters._gemini_system is defined else '__omit__' }}",
+          "contents": "{{ parameters._gemini_contents }}",
+          "generationConfig": "{{ parameters.generationConfig if parameters.generationConfig is defined and parameters.generationConfig is not none else '__omit__' }}",
+          "safetySettings": "{{ parameters.safetySettings if parameters.safetySettings is defined and parameters.safetySettings is not none else '__omit__' }}",
+          "tools": "{{ parameters.tools if parameters.tools is defined and parameters.tools is not none else '__omit__' }}",
+          "toolConfig": "{{ parameters.toolConfig if parameters.toolConfig is defined and parameters.toolConfig is not none else '__omit__' }}"
+        }
+      },
+      "parameter_schema": {
+        "type": "object",
+        "required": [
+          "model",
+          "contents"
+        ],
+        "properties": {
+          "model": {
+            "type": "string",
+            "title": "Model",
+            "description": "The Gemini model to use",
+            "enum": [
+              "gemini-3.5-flash",
+              "gemini-3.1-pro",
+              "gemini-3-flash",
+              "gemini-3.1-flash-lite"
+            ],
+            "enumNames": [
+              "Gemini 3.5 Flash (Recommended)",
+              "Gemini 3.1 Pro (Most Capable)",
+              "Gemini 3 Flash (Balanced)",
+              "Gemini 3.1 Flash-Lite (Cheapest)"
+            ],
+            "default": "gemini-3.5-flash",
+            "ui": {
+              "section": "basic",
+              "order": 1
+            }
+          },
+          "systemInstruction": {
+            "type": "object",
+            "title": "System Instruction",
+            "description": "System-level instructions that guide the model's behavior.",
+            "properties": {
+              "parts": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "text": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            },
+            "ui": {
+              "section": "basic",
+              "order": 2,
+              "widget": "system-instruction",
+              "system_slot": true
+            }
+          },
+          "contents": {
+            "type": "array",
+            "title": "Contents",
+            "description": "The conversation contents. Each content has a role and parts.",
+            "items": {
+              "type": "object",
+              "required": [
+                "role",
+                "parts"
+              ],
+              "properties": {
+                "role": {
+                  "type": "string",
+                  "title": "Role",
+                  "enum": [
+                    "user",
+                    "model"
+                  ],
+                  "default": "user"
+                },
+                "parts": {
+                  "type": "array",
+                  "title": "Parts",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "text": {
+                        "type": "string",
+                        "title": "Text"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "minItems": 1,
+            "ui": {
+              "section": "basic",
+              "order": 3,
+              "widget": "gemini-contents-editor",
+              "prompt": true
+            }
+          },
+          "generationConfig": {
+            "type": "object",
+            "title": "Generation Config",
+            "description": "Configuration for text generation.",
+            "properties": {
+              "temperature": {
+                "type": "number",
+                "title": "Temperature",
+                "description": "Controls randomness. 0 = deterministic, 2 = very random.",
+                "default": 1,
+                "minimum": 0,
+                "maximum": 2
+              },
+              "topP": {
+                "type": "number",
+                "title": "Top P",
+                "description": "Nucleus sampling threshold.",
+                "minimum": 0,
+                "maximum": 1
+              },
+              "topK": {
+                "type": "integer",
+                "title": "Top K",
+                "description": "Only sample from top K tokens.",
+                "minimum": 1
+              },
+              "maxOutputTokens": {
+                "type": "integer",
+                "title": "Max Output Tokens",
+                "description": "Maximum tokens to generate.",
+                "minimum": 1,
+                "maximum": 65536,
+                "default": 2048
+              },
+              "stopSequences": {
+                "type": "array",
+                "title": "Stop Sequences",
+                "description": "Sequences that stop generation.",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "responseMimeType": {
+                "type": "string",
+                "title": "Response MIME Type",
+                "description": "Output format (text/plain or application/json).",
+                "enum": [
+                  "text/plain",
+                  "application/json"
+                ],
+                "default": "text/plain"
+              }
+            },
+            "ui": {
+              "section": "basic",
+              "order": 4
+            }
+          },
+          "safetySettings": {
+            "type": "array",
+            "title": "Safety Settings",
+            "description": "Configure content safety filters.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "category": {
+                  "type": "string",
+                  "enum": [
+                    "HARM_CATEGORY_HARASSMENT",
+                    "HARM_CATEGORY_HATE_SPEECH",
+                    "HARM_CATEGORY_SEXUALLY_EXPLICIT",
+                    "HARM_CATEGORY_DANGEROUS_CONTENT"
+                  ]
+                },
+                "threshold": {
+                  "type": "string",
+                  "enum": [
+                    "BLOCK_NONE",
+                    "BLOCK_ONLY_HIGH",
+                    "BLOCK_MEDIUM_AND_ABOVE",
+                    "BLOCK_LOW_AND_ABOVE"
+                  ],
+                  "default": "BLOCK_MEDIUM_AND_ABOVE"
+                }
+              }
+            },
+            "ui": {
+              "section": "advanced",
+              "order": 1
+            }
+          },
+          "tools": {
+            "type": "array",
+            "title": "Tools",
+            "description": "Function declarations for function calling.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "functionDeclarations": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "name",
+                      "description"
+                    ],
+                    "properties": {
+                      "name": {
+                        "type": "string",
+                        "title": "Function Name"
+                      },
+                      "description": {
+                        "type": "string",
+                        "title": "Description"
+                      },
+                      "parameters": {
+                        "type": "object",
+                        "title": "Parameters",
+                        "description": "JSON Schema for function parameters"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "ui": {
+              "section": "tools",
+              "order": 1,
+              "widget": "json-editor"
+            }
+          },
+          "toolConfig": {
+            "type": "object",
+            "title": "Tool Config",
+            "description": "Configure how the model uses tools.",
+            "properties": {
+              "functionCallingConfig": {
+                "type": "object",
+                "properties": {
+                  "mode": {
+                    "type": "string",
+                    "enum": [
+                      "AUTO",
+                      "ANY",
+                      "NONE"
+                    ],
+                    "default": "AUTO",
+                    "description": "AUTO: model decides, ANY: must use a function, NONE: no functions"
+                  },
+                  "allowedFunctionNames": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "Restrict to specific functions (when mode is ANY)"
+                  }
+                }
+              }
+            },
+            "ui": {
+              "section": "tools",
+              "order": 2
+            }
+          }
+        }
+      },
+      "result_schema": {
+        "type": "object",
+        "properties": {
+          "candidates": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "content": {
+                  "type": "object",
+                  "properties": {
+                    "parts": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "text": {
+                            "type": "string"
+                          },
+                          "functionCall": {
+                            "type": "object",
+                            "properties": {
+                              "name": {
+                                "type": "string"
+                              },
+                              "args": {
+                                "type": "object"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "role": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "finishReason": {
+                  "type": "string",
+                  "enum": [
+                    "STOP",
+                    "MAX_TOKENS",
+                    "SAFETY",
+                    "RECITATION",
+                    "OTHER"
+                  ]
+                },
+                "safetyRatings": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "category": {
+                        "type": "string"
+                      },
+                      "probability": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "usageMetadata": {
+            "type": "object",
+            "properties": {
+              "promptTokenCount": {
+                "type": "integer"
+              },
+              "candidatesTokenCount": {
+                "type": "integer"
+              },
+              "totalTokenCount": {
+                "type": "integer"
+              }
+            }
+          }
+        }
+      },
+      "outputs": {
+        "response": {
+          "path": "candidates[0].content.parts[0].text",
+          "type": "string",
+          "description": "The model's reply text."
+        }
+      },
+      "output_view": {
+        "type": "key_value",
+        "fields": [
+          {
+            "key": "candidates.0.content.parts.0.text",
+            "label": "Response"
+          },
+          {
+            "key": "candidates.0.finishReason",
+            "label": "Finish Reason"
+          },
+          {
+            "key": "usageMetadata.promptTokenCount",
+            "label": "Prompt Tokens"
+          },
+          {
+            "key": "usageMetadata.candidatesTokenCount",
+            "label": "Output Tokens"
+          },
+          {
+            "key": "usageMetadata.totalTokenCount",
+            "label": "Total Tokens"
+          }
+        ]
+      },
+      "example_parameters": {
+        "model": "gemini-3.5-flash",
+        "systemInstruction": {
+          "parts": [
+            {
+              "text": "You are a helpful assistant."
+            }
+          ]
+        },
+        "contents": [
+          {
+            "role": "user",
+            "parts": [
+              {
+                "text": "What is the capital of France?"
+              }
+            ]
+          }
+        ],
+        "generationConfig": {
+          "temperature": 0.7,
+          "maxOutputTokens": 1024
+        }
+      },
+      "ui_hints": {
+        "color": "#4285F4",
+        "icon": "message-square",
+        "sections": {
+          "basic": {
+            "title": "Basic",
+            "collapsed": false,
+            "order": 1
+          },
+          "tools": {
+            "title": "Function Calling",
+            "collapsed": true,
+            "order": 2
+          },
+          "advanced": {
+            "title": "Safety & Advanced",
+            "collapsed": true,
+            "order": 3
+          }
+        },
+        "categories": [
+          "ai"
+        ]
+      }
+    },
+    "gemini_multimodal": {
+      "display_name": "Multimodal (Vision)",
+      "description": "Analyze images and documents with Gemini. Send images as base64 or URLs.",
+      "service_type": "AI",
+      "path": "/models/{model}:generateContent",
+      "method": "POST",
+      "requires_credentials": true,
+      "parameter_mapping": {
+        "path": [
+          "model"
+        ],
+        "body": [
+          "contents",
+          "systemInstruction",
+          "generationConfig"
+        ]
+      },
+      "parameter_schema": {
+        "type": "object",
+        "required": [
+          "model",
+          "contents"
+        ],
+        "properties": {
+          "model": {
+            "type": "string",
+            "title": "Model",
+            "description": "The Gemini model to use (Pro and Flash support vision)",
+            "enum": [
+              "gemini-3.5-flash",
+              "gemini-3.1-pro",
+              "gemini-3-flash",
+              "gemini-3.1-flash-lite"
+            ],
+            "enumNames": [
+              "Gemini 3.5 Flash (Recommended)",
+              "Gemini 3.1 Pro (Most Capable)",
+              "Gemini 3 Flash (Balanced)",
+              "Gemini 3.1 Flash-Lite (Cheapest)"
+            ],
+            "default": "gemini-3.5-flash",
+            "ui": {
+              "section": "basic",
+              "order": 1
+            }
+          },
+          "systemInstruction": {
+            "type": "object",
+            "title": "System Instruction",
+            "description": "Instructions for how to analyze the content.",
+            "properties": {
+              "parts": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "text": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            },
+            "ui": {
+              "section": "basic",
+              "order": 2,
+              "widget": "system-instruction"
+            }
+          },
+          "contents": {
+            "type": "array",
+            "title": "Contents",
+            "description": "Content with text and images. Use inlineData for base64 images.",
+            "items": {
+              "type": "object",
+              "required": [
+                "role",
+                "parts"
+              ],
+              "properties": {
+                "role": {
+                  "type": "string",
+                  "title": "Role",
+                  "enum": [
+                    "user",
+                    "model"
+                  ],
+                  "default": "user"
+                },
+                "parts": {
+                  "type": "array",
+                  "title": "Parts",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "text": {
+                        "type": "string",
+                        "title": "Text"
+                      },
+                      "inlineData": {
+                        "type": "object",
+                        "title": "Inline Data (Image)",
+                        "properties": {
+                          "mimeType": {
+                            "type": "string",
+                            "enum": [
+                              "image/jpeg",
+                              "image/png",
+                              "image/gif",
+                              "image/webp",
+                              "application/pdf"
+                            ]
+                          },
+                          "data": {
+                            "type": "string",
+                            "description": "Base64-encoded data"
+                          }
+                        }
+                      },
+                      "fileData": {
+                        "type": "object",
+                        "title": "File Data (URL)",
+                        "properties": {
+                          "mimeType": {
+                            "type": "string"
+                          },
+                          "fileUri": {
+                            "type": "string",
+                            "description": "Cloud Storage URI (gs://)"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "ui": {
+              "section": "basic",
+              "order": 3,
+              "widget": "json-editor"
+            }
+          },
+          "generationConfig": {
+            "type": "object",
+            "title": "Generation Config",
+            "properties": {
+              "temperature": {
+                "type": "number",
+                "title": "Temperature",
+                "default": 0.7,
+                "minimum": 0,
+                "maximum": 2
+              },
+              "maxOutputTokens": {
+                "type": "integer",
+                "title": "Max Output Tokens",
+                "default": 2048,
+                "minimum": 1,
+                "maximum": 65536
+              }
+            },
+            "ui": {
+              "section": "basic",
+              "order": 4
+            }
+          }
+        }
+      },
+      "result_schema": {
+        "type": "object",
+        "properties": {
+          "candidates": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "content": {
+                  "type": "object",
+                  "properties": {
+                    "parts": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "text": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    },
+                    "role": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "finishReason": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "usageMetadata": {
+            "type": "object",
+            "properties": {
+              "promptTokenCount": {
+                "type": "integer"
+              },
+              "candidatesTokenCount": {
+                "type": "integer"
+              },
+              "totalTokenCount": {
+                "type": "integer"
+              }
+            }
+          }
+        }
+      },
+      "outputs": {
+        "response": {
+          "path": "candidates[0].content.parts[0].text",
+          "type": "string",
+          "description": "The model's reply text."
+        }
+      },
+      "output_view": {
+        "type": "key_value",
+        "fields": [
+          {
+            "key": "candidates.0.content.parts.0.text",
+            "label": "Analysis"
+          },
+          {
+            "key": "candidates.0.finishReason",
+            "label": "Finish Reason"
+          },
+          {
+            "key": "usageMetadata.totalTokenCount",
+            "label": "Total Tokens"
+          }
+        ]
+      },
+      "example_parameters": {
+        "model": "gemini-3.5-flash",
+        "systemInstruction": {
+          "parts": [
+            {
+              "text": "You are an expert image analyst. Describe what you see in detail."
+            }
+          ]
+        },
+        "contents": [
+          {
+            "role": "user",
+            "parts": [
+              {
+                "inlineData": {
+                  "mimeType": "image/jpeg",
+                  "data": "BASE64_ENCODED_IMAGE_DATA"
+                }
+              },
+              {
+                "text": "What is in this image?"
+              }
+            ]
+          }
+        ],
+        "generationConfig": {
+          "temperature": 0.5,
+          "maxOutputTokens": 1024
+        }
+      },
+      "ui_hints": {
+        "color": "#4285F4",
+        "icon": "eye",
+        "categories": [
+          "ai"
+        ]
+      }
+    },
+    "gemini_embeddings": {
+      "display_name": "Embeddings",
+      "description": "Generate vector embeddings for text. Use for semantic search and similarity.",
+      "service_type": "AI",
+      "path": "/models/{model}:embedContent",
+      "method": "POST",
+      "requires_credentials": true,
+      "parameter_mapping": {
+        "path": [
+          "model"
+        ],
+        "body": [
+          "content",
+          "taskType",
+          "title",
+          "outputDimensionality"
+        ]
+      },
+      "parameter_schema": {
+        "type": "object",
+        "required": [
+          "model",
+          "content"
+        ],
+        "properties": {
+          "model": {
+            "type": "string",
+            "title": "Model",
+            "description": "The embedding model to use",
+            "enum": [
+              "gemini-embedding-2",
+              "text-embedding-004"
+            ],
+            "enumNames": [
+              "Gemini Embedding 2 (Recommended)",
+              "text-embedding-004 (Previous Gen)"
+            ],
+            "default": "gemini-embedding-2",
+            "ui": {
+              "section": "basic",
+              "order": 1
+            }
+          },
+          "content": {
+            "type": "object",
+            "title": "Content",
+            "description": "The content to embed",
+            "required": [
+              "parts"
+            ],
+            "properties": {
+              "parts": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "text": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            },
+            "ui": {
+              "section": "basic",
+              "order": 2,
+              "widget": "embed-content"
+            }
+          },
+          "taskType": {
+            "type": "string",
+            "title": "Task Type",
+            "description": "The intended use of the embedding",
+            "enum": [
+              "RETRIEVAL_QUERY",
+              "RETRIEVAL_DOCUMENT",
+              "SEMANTIC_SIMILARITY",
+              "CLASSIFICATION",
+              "CLUSTERING"
+            ],
+            "enumNames": [
+              "Retrieval Query (search queries)",
+              "Retrieval Document (documents to search)",
+              "Semantic Similarity",
+              "Classification",
+              "Clustering"
+            ],
+            "ui": {
+              "section": "basic",
+              "order": 3
+            }
+          },
+          "title": {
+            "type": "string",
+            "title": "Title",
+            "description": "Optional title for the content (improves retrieval quality)",
+            "ui": {
+              "section": "advanced",
+              "order": 4
+            }
+          },
+          "outputDimensionality": {
+            "type": "integer",
+            "title": "Output Dimensions",
+            "description": "Reduced dimension size (optional, for text-embedding-004)",
+            "minimum": 1,
+            "maximum": 768,
+            "ui": {
+              "section": "advanced",
+              "order": 5
+            }
+          }
+        }
+      },
+      "result_schema": {
+        "type": "object",
+        "properties": {
+          "embedding": {
+            "type": "object",
+            "properties": {
+              "values": {
+                "type": "array",
+                "items": {
+                  "type": "number"
+                }
+              }
+            }
+          }
+        }
+      },
+      "output_view": {
+        "type": "key_value",
+        "fields": [
+          {
+            "key": "embedding.values.length",
+            "label": "Dimensions"
+          }
+        ]
+      },
+      "example_parameters": {
+        "model": "gemini-embedding-2",
+        "content": {
+          "parts": [
+            {
+              "text": "The quick brown fox jumps over the lazy dog."
+            }
+          ]
+        },
+        "taskType": "SEMANTIC_SIMILARITY"
+      },
+      "ui_hints": {
+        "color": "#4285F4",
+        "icon": "hash",
+        "categories": [
+          "ai"
+        ]
+      }
+    }
+  },
+  "default_queue": "step_jobs"
+}

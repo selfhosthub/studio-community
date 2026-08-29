@@ -1,0 +1,1170 @@
+{
+  "$schema": "https://raw.githubusercontent.com/selfhosthub/studio-community/main/schemas/provider.schema.json",
+  "slug": "shs/airtable",
+  "version": "1.0.0",
+  "name": "Airtable",
+  "description": "Database and spreadsheet platform for managing structured data",
+  "provider_type": "API",
+  "category": "data",
+  "status": "ACTIVE",
+  "tier": "community",
+  "credential_provider": null,
+  "requires": [],
+  "services_preview": [
+    "List Records",
+    "Get Record",
+    "Create Record",
+    "Update Record",
+    "Delete Record"
+  ],
+  "credential_schema": {
+    "type": "object",
+    "required": [
+      "api_key"
+    ],
+    "properties": {
+      "api_key": {
+        "type": "string",
+        "title": "Personal Access Token",
+        "description": "Airtable Personal Access Token (starts with pat). Get one from airtable.com/create/tokens",
+        "format": "password"
+      }
+    }
+  },
+  "base_url": "https://api.airtable.com/v0",
+  "icon_url": "/providers/airtable.svg",
+  "auth": {
+    "type": "bearer"
+  },
+  "services": {
+    "airtable_list_records": {
+      "display_name": "List Records",
+      "description": "Retrieve records from an Airtable table with optional filtering, sorting, and pagination.",
+      "service_type": "PRODUCTIVITY",
+      "path": "/{base_id}/{table_id}",
+      "method": "GET",
+      "requires_credentials": true,
+      "parameter_mapping": {
+        "path": [
+          "base_id",
+          "table_id"
+        ],
+        "query": [
+          "view",
+          "fields",
+          "filterByFormula",
+          "maxRecords",
+          "pageSize",
+          "offset",
+          "sort"
+        ]
+      },
+      "parameter_schema": {
+        "type": "object",
+        "required": [
+          "base_id",
+          "table_id"
+        ],
+        "properties": {
+          "base_id": {
+            "type": "string",
+            "title": "Base",
+            "description": "Select an Airtable base or enter a base ID (starts with 'app')",
+            "pattern": "^app[a-zA-Z0-9]+$",
+            "ui": {
+              "section": "basic",
+              "order": 1
+            },
+            "dynamicOptions": {
+              "service": "airtable_list_bases",
+              "optionsPath": "bases",
+              "valueField": "id",
+              "labelField": "name"
+            }
+          },
+          "table_id": {
+            "type": "string",
+            "title": "Table",
+            "description": "Select a table or enter a table name/ID",
+            "ui": {
+              "section": "basic",
+              "order": 2
+            },
+            "dynamicOptions": {
+              "service": "airtable_get_base_schema",
+              "optionsPath": "tables",
+              "valueField": "name",
+              "labelField": "name",
+              "dependsOn": {
+                "field": "base_id",
+                "param": "base_id"
+              }
+            }
+          },
+          "view": {
+            "type": "string",
+            "title": "View",
+            "description": "The name or ID of a view in the table. If set, only records visible in that view will be returned.",
+            "ui": {
+              "section": "basic",
+              "order": 3
+            },
+            "dynamicOptions": {
+              "service": "airtable_get_base_schema",
+              "optionsPath": "tables[name=${table_id}].views",
+              "valueField": "name",
+              "labelField": "name",
+              "dependsOn": [
+                {
+                  "field": "base_id",
+                  "param": "base_id"
+                },
+                {
+                  "field": "table_id",
+                  "param": "table_id"
+                }
+              ]
+            }
+          },
+          "fields": {
+            "type": "array",
+            "title": "Fields",
+            "description": "Only return data for specific field names. Leave empty to return all fields.",
+            "items": {
+              "type": "string"
+            },
+            "ui": {
+              "section": "basic",
+              "order": 4
+            },
+            "dynamicOptions": {
+              "service": "airtable_get_base_schema",
+              "optionsPath": "tables[name=${table_id}].fields",
+              "valueField": "name",
+              "labelField": "name",
+              "dependsOn": [
+                {
+                  "field": "base_id",
+                  "param": "base_id"
+                },
+                {
+                  "field": "table_id",
+                  "param": "table_id"
+                }
+              ]
+            }
+          },
+          "filterByFormula": {
+            "type": "string",
+            "title": "Filter Formula",
+            "description": "Airtable formula to filter records. Example: {Status} = 'Active'",
+            "ui": {
+              "section": "filtering",
+              "order": 1,
+              "widget": "textarea",
+              "rows": 2
+            }
+          },
+          "maxRecords": {
+            "type": "integer",
+            "title": "Max Records",
+            "description": "Maximum total records to return (across all pages)",
+            "minimum": 1,
+            "ui": {
+              "section": "filtering",
+              "order": 2
+            }
+          },
+          "pageSize": {
+            "type": "integer",
+            "title": "Page Size",
+            "description": "Number of records per page (max 100)",
+            "minimum": 1,
+            "maximum": 100,
+            "default": 100,
+            "ui": {
+              "section": "filtering",
+              "order": 3
+            }
+          },
+          "offset": {
+            "type": "string",
+            "title": "Offset",
+            "description": "Pagination offset from a previous response",
+            "ui": {
+              "section": "filtering",
+              "order": 4
+            }
+          },
+          "sort": {
+            "type": "array",
+            "title": "Sort",
+            "description": "Sort records by field(s)",
+            "items": {
+              "type": "object",
+              "properties": {
+                "field": {
+                  "type": "string",
+                  "title": "Field Name"
+                },
+                "direction": {
+                  "type": "string",
+                  "enum": [
+                    "asc",
+                    "desc"
+                  ],
+                  "default": "asc",
+                  "title": "Direction"
+                }
+              },
+              "required": [
+                "field"
+              ]
+            },
+            "ui": {
+              "section": "sorting",
+              "order": 1
+            }
+          }
+        }
+      },
+      "result_schema": {
+        "type": "object",
+        "properties": {
+          "records": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "description": "Record ID"
+                },
+                "createdTime": {
+                  "type": "string",
+                  "description": "ISO timestamp of record creation"
+                },
+                "fields": {
+                  "type": "object",
+                  "description": "Field values keyed by field name"
+                }
+              }
+            }
+          },
+          "offset": {
+            "type": "string",
+            "description": "Pagination offset for next page"
+          }
+        }
+      },
+      "output_view": {
+        "type": "table",
+        "source": "records",
+        "row_path": "fields",
+        "columns": "auto",
+        "id_field": "id",
+        "metadata_fields": [
+          "createdTime"
+        ]
+      },
+      "example_parameters": {
+        "base_id": "appXXXXXXXXXXXXXX",
+        "table_id": "Tasks",
+        "filterByFormula": "{Status} = 'Active'",
+        "maxRecords": 50,
+        "sort": [
+          {
+            "field": "Created",
+            "direction": "desc"
+          }
+        ]
+      },
+      "ui_hints": {
+        "color": "#18BFFF",
+        "icon": "list",
+        "sections": {
+          "basic": {
+            "title": "Basic",
+            "collapsed": false,
+            "order": 1
+          },
+          "filtering": {
+            "title": "Filtering & Pagination",
+            "collapsed": true,
+            "order": 2
+          },
+          "sorting": {
+            "title": "Sorting",
+            "collapsed": true,
+            "order": 3
+          }
+        },
+        "categories": [
+          "productivity"
+        ]
+      }
+    },
+    "airtable_get_record": {
+      "display_name": "Get Record",
+      "description": "Retrieve a single record by its ID.",
+      "service_type": "PRODUCTIVITY",
+      "path": "/{base_id}/{table_id}/{record_id}",
+      "method": "GET",
+      "requires_credentials": true,
+      "parameter_mapping": {
+        "path": [
+          "base_id",
+          "table_id",
+          "record_id"
+        ]
+      },
+      "parameter_schema": {
+        "type": "object",
+        "required": [
+          "base_id",
+          "table_id",
+          "record_id"
+        ],
+        "properties": {
+          "base_id": {
+            "type": "string",
+            "title": "Base",
+            "description": "Select an Airtable base or enter a base ID",
+            "pattern": "^app[a-zA-Z0-9]+$",
+            "ui": {
+              "section": "basic",
+              "order": 1
+            },
+            "dynamicOptions": {
+              "service": "airtable_list_bases",
+              "optionsPath": "bases",
+              "valueField": "id",
+              "labelField": "name"
+            }
+          },
+          "table_id": {
+            "type": "string",
+            "title": "Table",
+            "description": "Select a table or enter a table name/ID",
+            "ui": {
+              "section": "basic",
+              "order": 2
+            },
+            "dynamicOptions": {
+              "service": "airtable_get_base_schema",
+              "optionsPath": "tables",
+              "valueField": "name",
+              "labelField": "name",
+              "dependsOn": {
+                "field": "base_id",
+                "param": "base_id"
+              }
+            }
+          },
+          "record_id": {
+            "type": "string",
+            "title": "Record ID",
+            "description": "The record ID (starts with 'rec')",
+            "pattern": "^rec[a-zA-Z0-9]+$",
+            "ui": {
+              "section": "basic",
+              "order": 3
+            }
+          }
+        }
+      },
+      "result_schema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Record ID"
+          },
+          "createdTime": {
+            "type": "string",
+            "description": "ISO timestamp of record creation"
+          },
+          "fields": {
+            "type": "object",
+            "description": "Field values keyed by field name"
+          }
+        }
+      },
+      "output_view": {
+        "type": "key_value",
+        "source": "fields",
+        "id_field": "id",
+        "metadata_fields": [
+          "createdTime"
+        ]
+      },
+      "example_parameters": {
+        "base_id": "appXXXXXXXXXXXXXX",
+        "table_id": "Tasks",
+        "record_id": "recXXXXXXXXXXXXXX"
+      },
+      "ui_hints": {
+        "color": "#18BFFF",
+        "icon": "file-text",
+        "categories": [
+          "productivity"
+        ]
+      }
+    },
+    "airtable_create_records": {
+      "display_name": "Create Records",
+      "description": "Create one or more new records in an Airtable table.",
+      "service_type": "PRODUCTIVITY",
+      "path": "/{base_id}/{table_id}",
+      "method": "POST",
+      "requires_credentials": true,
+      "parameter_mapping": {
+        "path": [
+          "base_id",
+          "table_id"
+        ],
+        "body": [
+          "records",
+          "typecast",
+          "returnFieldsByFieldId"
+        ]
+      },
+      "parameter_schema": {
+        "type": "object",
+        "required": [
+          "base_id",
+          "table_id",
+          "records"
+        ],
+        "properties": {
+          "base_id": {
+            "type": "string",
+            "title": "Base",
+            "description": "Select an Airtable base or enter a base ID",
+            "pattern": "^app[a-zA-Z0-9]+$",
+            "ui": {
+              "section": "basic",
+              "order": 1
+            },
+            "dynamicOptions": {
+              "service": "airtable_list_bases",
+              "optionsPath": "bases",
+              "valueField": "id",
+              "labelField": "name"
+            }
+          },
+          "table_id": {
+            "type": "string",
+            "title": "Table",
+            "description": "Select a table or enter a table name/ID",
+            "ui": {
+              "section": "basic",
+              "order": 2
+            },
+            "dynamicOptions": {
+              "service": "airtable_get_base_schema",
+              "optionsPath": "tables",
+              "valueField": "name",
+              "labelField": "name",
+              "dependsOn": {
+                "field": "base_id",
+                "param": "base_id"
+              }
+            }
+          },
+          "records": {
+            "type": "array",
+            "title": "Records",
+            "description": "Array of records to create. Each record has a 'fields' object.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "fields": {
+                  "type": "object",
+                  "title": "Fields",
+                  "description": "Field values keyed by field name",
+                  "additionalProperties": true
+                }
+              },
+              "required": [
+                "fields"
+              ]
+            },
+            "minItems": 1,
+            "maxItems": 10,
+            "ui": {
+              "section": "basic",
+              "order": 3,
+              "widget": "record-editor",
+              "schemaConfig": {
+                "schemaService": "airtable_get_base_schema",
+                "tableParam": "table_id",
+                "dependsOn": [
+                  "base_id",
+                  "table_id"
+                ],
+                "schemaParams": {
+                  "base_id": "base_id",
+                  "table_id": "table_id"
+                },
+                "isUpdate": false
+              }
+            }
+          },
+          "typecast": {
+            "type": "boolean",
+            "title": "Typecast",
+            "description": "Automatically convert string values to the appropriate cell type (select, date, etc.)",
+            "default": false,
+            "ui": {
+              "section": "options",
+              "order": 1
+            }
+          },
+          "returnFieldsByFieldId": {
+            "type": "boolean",
+            "title": "Return Fields by ID",
+            "description": "Return field values keyed by field ID instead of field name",
+            "default": false,
+            "ui": {
+              "section": "options",
+              "order": 2
+            }
+          }
+        }
+      },
+      "result_schema": {
+        "type": "object",
+        "properties": {
+          "records": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "createdTime": {
+                  "type": "string"
+                },
+                "fields": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      },
+      "output_view": {
+        "type": "table",
+        "source": "records",
+        "row_path": "fields",
+        "columns": "auto",
+        "id_field": "id",
+        "metadata_fields": [
+          "createdTime"
+        ]
+      },
+      "example_parameters": {
+        "base_id": "appXXXXXXXXXXXXXX",
+        "table_id": "Tasks",
+        "records": [
+          {
+            "fields": {
+              "Name": "New Task",
+              "Status": "Todo",
+              "Priority": "High"
+            }
+          }
+        ],
+        "typecast": true
+      },
+      "ui_hints": {
+        "color": "#18BFFF",
+        "icon": "plus-circle",
+        "sections": {
+          "basic": {
+            "title": "Basic",
+            "collapsed": false,
+            "order": 1
+          },
+          "options": {
+            "title": "Options",
+            "collapsed": true,
+            "order": 2
+          }
+        },
+        "categories": [
+          "productivity"
+        ]
+      }
+    },
+    "airtable_update_records": {
+      "display_name": "Update Records",
+      "description": "Update one or more existing records. Only specified fields will be updated (PATCH behavior).",
+      "service_type": "PRODUCTIVITY",
+      "path": "/{base_id}/{table_id}",
+      "method": "PATCH",
+      "requires_credentials": true,
+      "parameter_mapping": {
+        "path": [
+          "base_id",
+          "table_id"
+        ],
+        "body": [
+          "records",
+          "typecast",
+          "returnFieldsByFieldId"
+        ]
+      },
+      "parameter_schema": {
+        "type": "object",
+        "required": [
+          "base_id",
+          "table_id",
+          "records"
+        ],
+        "properties": {
+          "base_id": {
+            "type": "string",
+            "title": "Base",
+            "description": "Select an Airtable base or enter a base ID",
+            "pattern": "^app[a-zA-Z0-9]+$",
+            "ui": {
+              "section": "basic",
+              "order": 1
+            },
+            "dynamicOptions": {
+              "service": "airtable_list_bases",
+              "optionsPath": "bases",
+              "valueField": "id",
+              "labelField": "name"
+            }
+          },
+          "table_id": {
+            "type": "string",
+            "title": "Table",
+            "description": "Select a table or enter a table name/ID",
+            "ui": {
+              "section": "basic",
+              "order": 2
+            },
+            "dynamicOptions": {
+              "service": "airtable_get_base_schema",
+              "optionsPath": "tables",
+              "valueField": "name",
+              "labelField": "name",
+              "dependsOn": {
+                "field": "base_id",
+                "param": "base_id"
+              }
+            }
+          },
+          "records": {
+            "type": "array",
+            "title": "Records",
+            "description": "Array of records to update. Each must include 'id' and 'fields'.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "title": "Record ID",
+                  "description": "The record ID to update (starts with 'rec')"
+                },
+                "fields": {
+                  "type": "object",
+                  "title": "Fields",
+                  "description": "Fields to update (only these fields will be modified)",
+                  "additionalProperties": true
+                }
+              },
+              "required": [
+                "id",
+                "fields"
+              ]
+            },
+            "minItems": 1,
+            "maxItems": 10,
+            "ui": {
+              "section": "basic",
+              "order": 3,
+              "widget": "record-editor",
+              "schemaConfig": {
+                "schemaService": "airtable_get_base_schema",
+                "tableParam": "table_id",
+                "dependsOn": [
+                  "base_id",
+                  "table_id"
+                ],
+                "schemaParams": {
+                  "base_id": "base_id",
+                  "table_id": "table_id"
+                },
+                "isUpdate": true
+              }
+            }
+          },
+          "typecast": {
+            "type": "boolean",
+            "title": "Typecast",
+            "description": "Automatically convert string values to the appropriate cell type",
+            "default": false,
+            "ui": {
+              "section": "options",
+              "order": 1
+            }
+          },
+          "returnFieldsByFieldId": {
+            "type": "boolean",
+            "title": "Return Fields by ID",
+            "description": "Return field values keyed by field ID instead of field name",
+            "default": false,
+            "ui": {
+              "section": "options",
+              "order": 2
+            }
+          }
+        }
+      },
+      "result_schema": {
+        "type": "object",
+        "properties": {
+          "records": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "createdTime": {
+                  "type": "string"
+                },
+                "fields": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      },
+      "output_view": {
+        "type": "table",
+        "source": "records",
+        "row_path": "fields",
+        "columns": "auto",
+        "id_field": "id",
+        "metadata_fields": [
+          "createdTime"
+        ]
+      },
+      "example_parameters": {
+        "base_id": "appXXXXXXXXXXXXXX",
+        "table_id": "Tasks",
+        "records": [
+          {
+            "id": "recXXXXXXXXXXXXXX",
+            "fields": {
+              "Status": "Done"
+            }
+          }
+        ]
+      },
+      "ui_hints": {
+        "color": "#18BFFF",
+        "icon": "edit",
+        "sections": {
+          "basic": {
+            "title": "Basic",
+            "collapsed": false,
+            "order": 1
+          },
+          "options": {
+            "title": "Options",
+            "collapsed": true,
+            "order": 2
+          }
+        },
+        "categories": [
+          "productivity"
+        ]
+      }
+    },
+    "airtable_delete_records": {
+      "display_name": "Delete Records",
+      "description": "Delete one or more records by their IDs.",
+      "service_type": "PRODUCTIVITY",
+      "path": "/{base_id}/{table_id}",
+      "method": "DELETE",
+      "requires_credentials": true,
+      "parameter_mapping": {
+        "path": [
+          "base_id",
+          "table_id"
+        ],
+        "query": [
+          "records"
+        ]
+      },
+      "parameter_schema": {
+        "type": "object",
+        "required": [
+          "base_id",
+          "table_id",
+          "records"
+        ],
+        "properties": {
+          "base_id": {
+            "type": "string",
+            "title": "Base ID",
+            "description": "The Airtable base ID (starts with 'app')",
+            "pattern": "^app[a-zA-Z0-9]+$",
+            "ui": {
+              "section": "basic",
+              "order": 1
+            },
+            "dynamicOptions": {
+              "service": "airtable_list_bases",
+              "optionsPath": "bases",
+              "valueField": "id",
+              "labelField": "name"
+            }
+          },
+          "table_id": {
+            "type": "string",
+            "title": "Table Name or ID",
+            "description": "The table name or ID",
+            "ui": {
+              "section": "basic",
+              "order": 2
+            },
+            "dynamicOptions": {
+              "service": "airtable_get_base_schema",
+              "optionsPath": "tables",
+              "valueField": "name",
+              "labelField": "name",
+              "dependsOn": {
+                "field": "base_id",
+                "param": "base_id"
+              }
+            }
+          },
+          "records": {
+            "type": "array",
+            "title": "Record IDs",
+            "description": "Array of record IDs to delete (max 10)",
+            "items": {
+              "type": "string",
+              "pattern": "^rec[a-zA-Z0-9]+$"
+            },
+            "minItems": 1,
+            "maxItems": 10,
+            "ui": {
+              "section": "basic",
+              "order": 3,
+              "widget": "tags"
+            }
+          }
+        }
+      },
+      "result_schema": {
+        "type": "object",
+        "properties": {
+          "records": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "deleted": {
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        }
+      },
+      "output_view": {
+        "type": "table",
+        "source": "records",
+        "columns": [
+          {
+            "key": "id",
+            "label": "Record ID"
+          },
+          {
+            "key": "deleted",
+            "label": "Deleted"
+          }
+        ]
+      },
+      "example_parameters": {
+        "base_id": "appXXXXXXXXXXXXXX",
+        "table_id": "Tasks",
+        "records": [
+          "recXXXXXXXXXXXXXX"
+        ]
+      },
+      "ui_hints": {
+        "color": "#18BFFF",
+        "icon": "trash-2",
+        "categories": [
+          "productivity"
+        ]
+      }
+    },
+    "airtable_list_bases": {
+      "display_name": "List Bases",
+      "description": "List all bases the authenticated user has access to. Use this to discover available bases and their IDs.",
+      "service_type": "PRODUCTIVITY",
+      "path": "/meta/bases",
+      "method": "GET",
+      "requires_credentials": true,
+      "parameter_mapping": {
+        "query": [
+          "offset"
+        ]
+      },
+      "parameter_schema": {
+        "type": "object",
+        "properties": {
+          "offset": {
+            "type": "string",
+            "title": "Offset",
+            "description": "Pagination offset from a previous response",
+            "ui": {
+              "section": "basic",
+              "order": 1
+            }
+          }
+        }
+      },
+      "result_schema": {
+        "type": "object",
+        "properties": {
+          "bases": {
+            "type": "array",
+            "description": "List of bases",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "description": "Base ID (use this as base_id in other operations)"
+                },
+                "name": {
+                  "type": "string",
+                  "description": "Human-readable base name"
+                },
+                "permissionLevel": {
+                  "type": "string",
+                  "description": "User's permission level (owner, editor, etc.)"
+                }
+              }
+            }
+          },
+          "offset": {
+            "type": "string",
+            "description": "Pagination offset for next page"
+          }
+        }
+      },
+      "output_view": {
+        "type": "table",
+        "source": "bases",
+        "columns": [
+          {
+            "key": "name",
+            "label": "Base Name"
+          },
+          {
+            "key": "id",
+            "label": "Base ID"
+          },
+          {
+            "key": "permissionLevel",
+            "label": "Permission"
+          }
+        ]
+      },
+      "example_parameters": {},
+      "ui_hints": {
+        "color": "#18BFFF",
+        "icon": "database",
+        "categories": [
+          "productivity"
+        ]
+      }
+    },
+    "airtable_get_base_schema": {
+      "display_name": "Get Base Schema",
+      "description": "Get the schema for a base, including all tables and their fields. Use this to discover table names, field names, and field types.",
+      "service_type": "PRODUCTIVITY",
+      "path": "/meta/bases/{base_id}/tables",
+      "method": "GET",
+      "requires_credentials": true,
+      "parameter_mapping": {
+        "path": [
+          "base_id"
+        ]
+      },
+      "parameter_schema": {
+        "type": "object",
+        "required": [
+          "base_id"
+        ],
+        "properties": {
+          "base_id": {
+            "type": "string",
+            "title": "Base ID",
+            "description": "The Airtable base ID (starts with 'app'). Get this from List Bases.",
+            "pattern": "^app[a-zA-Z0-9]+$",
+            "ui": {
+              "section": "basic",
+              "order": 1
+            },
+            "dynamicOptions": {
+              "service": "airtable_list_bases",
+              "optionsPath": "bases",
+              "valueField": "id",
+              "labelField": "name"
+            }
+          }
+        }
+      },
+      "result_schema": {
+        "type": "object",
+        "properties": {
+          "tables": {
+            "type": "array",
+            "description": "List of tables in the base",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "description": "Table ID (can use as table_id)"
+                },
+                "name": {
+                  "type": "string",
+                  "description": "Human-readable table name (can also use as table_id)"
+                },
+                "primaryFieldId": {
+                  "type": "string",
+                  "description": "ID of the primary field"
+                },
+                "fields": {
+                  "type": "array",
+                  "description": "List of fields in the table",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "description": "Field ID"
+                      },
+                      "name": {
+                        "type": "string",
+                        "description": "Field name (use this in records)"
+                      },
+                      "type": {
+                        "type": "string",
+                        "description": "Field type (singleLineText, number, singleSelect, etc.)"
+                      },
+                      "options": {
+                        "type": "object",
+                        "description": "Field-specific options (e.g., choices for select fields)"
+                      }
+                    }
+                  }
+                },
+                "views": {
+                  "type": "array",
+                  "description": "List of views in the table",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "description": "View ID"
+                      },
+                      "name": {
+                        "type": "string",
+                        "description": "View name"
+                      },
+                      "type": {
+                        "type": "string",
+                        "description": "View type (grid, form, calendar, etc.)"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "output_view": {
+        "type": "table",
+        "source": "tables",
+        "columns": [
+          {
+            "key": "name",
+            "label": "Table Name"
+          },
+          {
+            "key": "id",
+            "label": "Table ID"
+          },
+          {
+            "key": "primaryFieldId",
+            "label": "Primary Field ID"
+          }
+        ]
+      },
+      "example_parameters": {
+        "base_id": "appXXXXXXXXXXXXXX"
+      },
+      "ui_hints": {
+        "color": "#18BFFF",
+        "icon": "layout",
+        "categories": [
+          "productivity"
+        ]
+      }
+    }
+  },
+  "default_queue": "step_jobs",
+  "field_type_mapping": {
+    "singleLineText": "text",
+    "email": "text",
+    "url": "text",
+    "phoneNumber": "text",
+    "multilineText": "textarea",
+    "richText": "textarea",
+    "number": "number",
+    "percent": "number",
+    "currency": "number",
+    "rating": "number",
+    "duration": "number",
+    "singleSelect": "select",
+    "multipleSelects": "multiselect",
+    "checkbox": "checkbox",
+    "date": "date",
+    "dateTime": "datetime",
+    "multipleAttachments": "array",
+    "multipleRecordLinks": "reference",
+    "formula": "computed",
+    "lookup": "computed",
+    "rollup": "computed",
+    "count": "computed",
+    "createdTime": "computed",
+    "lastModifiedTime": "computed",
+    "createdBy": "computed",
+    "lastModifiedBy": "computed",
+    "autoNumber": "computed"
+  }
+}

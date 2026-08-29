@@ -1,0 +1,700 @@
+{
+  "$schema": "https://raw.githubusercontent.com/selfhosthub/studio-community/main/schemas/provider.schema.json",
+  "slug": "shs/claude",
+  "version": "1.1.0",
+  "name": "Claude",
+  "description": "Anthropic's Claude AI models for chat, analysis, and tool use",
+  "provider_type": "API",
+  "category": "ai",
+  "status": "ACTIVE",
+  "tier": "community",
+  "credential_provider": null,
+  "requires": [],
+  "services_preview": [
+    "Chat (Messages API)",
+    "Tool Use"
+  ],
+  "credential_schema": {
+    "type": "object",
+    "required": [
+      "api_key"
+    ],
+    "properties": {
+      "api_key": {
+        "type": "string",
+        "title": "API Key",
+        "description": "Anthropic API key (starts with sk-ant-)",
+        "format": "password"
+      }
+    }
+  },
+  "base_url": "https://api.anthropic.com/v1",
+  "icon_url": "/providers/claude.svg",
+  "auth": {
+    "type": "custom_header",
+    "header_name": "x-api-key",
+    "header_value_source": "api_key"
+  },
+  "default_headers": {
+    "anthropic-version": "2023-06-01",
+    "content-type": "application/json"
+  },
+  "services": {
+    "claude_messages": {
+      "display_name": "Chat (Messages API)",
+      "description": "Generate responses using Claude models. Supports conversation history, system prompts, vision, and tool use.",
+      "service_type": "AI",
+      "path": "/messages",
+      "method": "POST",
+      "requires_credentials": true,
+      "dispatch_shape": "chat",
+      "wire_dialect": "anthropic",
+      "request_transform": {
+        "body": {
+          "model": "{{ parameters.model }}",
+          "system": "{{ parameters._system_text if parameters._system_text is defined else '__omit__' }}",
+          "messages": "{{ parameters._turns }}",
+          "max_tokens": "{{ parameters.max_tokens if parameters.max_tokens is defined and parameters.max_tokens is not none else '__omit__' }}",
+          "temperature": "{{ parameters.temperature if parameters.temperature is defined and parameters.temperature is not none else '__omit__' }}",
+          "top_p": "{{ parameters.top_p if parameters.top_p is defined and parameters.top_p is not none else '__omit__' }}",
+          "top_k": "{{ parameters.top_k if parameters.top_k is defined and parameters.top_k is not none else '__omit__' }}",
+          "stop_sequences": "{{ parameters.stop_sequences if parameters.stop_sequences is defined and parameters.stop_sequences is not none else '__omit__' }}",
+          "tools": "{{ parameters.tools if parameters.tools is defined and parameters.tools is not none else '__omit__' }}",
+          "tool_choice": "{{ parameters.tool_choice if parameters.tool_choice is defined and parameters.tool_choice is not none else '__omit__' }}",
+          "metadata": "{{ parameters.metadata if parameters.metadata is defined and parameters.metadata is not none else '__omit__' }}"
+        }
+      },
+      "parameter_schema": {
+        "type": "object",
+        "required": [
+          "model",
+          "messages",
+          "max_tokens"
+        ],
+        "properties": {
+          "model": {
+            "type": "string",
+            "title": "Model",
+            "description": "The Claude model to use",
+            "enum": [
+              "claude-opus-4-8",
+              "claude-sonnet-4-6",
+              "claude-haiku-4-5-20251001",
+              "claude-opus-4-6"
+            ],
+            "enumNames": [
+              "Claude Opus 4.8 (Most Capable)",
+              "Claude Sonnet 4.6 (Balanced)",
+              "Claude Haiku 4.5 (Fast & Cheap)",
+              "Claude Opus 4.6 (Previous Gen)"
+            ],
+            "default": "claude-sonnet-4-6",
+            "ui": {
+              "section": "basic",
+              "order": 1
+            }
+          },
+          "system": {
+            "type": "string",
+            "title": "System Prompt",
+            "description": "System prompt to set context and behavior for the conversation. Ignored when the bound AI Prompt provides system content.",
+            "ui": {
+              "section": "basic",
+              "order": 2,
+              "widget": "textarea",
+              "rows": 4,
+              "system_slot": true
+            }
+          },
+          "messages": {
+            "type": "array",
+            "title": "Messages",
+            "description": "The conversation messages. Alternating user and assistant messages.",
+            "items": {
+              "type": "object",
+              "required": [
+                "role",
+                "content"
+              ],
+              "properties": {
+                "role": {
+                  "type": "string",
+                  "title": "Role",
+                  "enum": [
+                    "user",
+                    "assistant"
+                  ],
+                  "default": "user"
+                },
+                "content": {
+                  "type": "string",
+                  "title": "Content",
+                  "description": "The message content (text)"
+                }
+              }
+            },
+            "minItems": 1,
+            "ui": {
+              "section": "basic",
+              "order": 3,
+              "widget": "messages-editor",
+              "prompt": true
+            }
+          },
+          "max_tokens": {
+            "type": "integer",
+            "title": "Max Tokens",
+            "description": "Maximum number of tokens to generate. Required by Claude API.",
+            "default": 4096,
+            "minimum": 1,
+            "maximum": 128000,
+            "ui": {
+              "section": "basic",
+              "order": 4
+            }
+          },
+          "temperature": {
+            "type": "number",
+            "title": "Temperature",
+            "description": "Controls randomness. 0 = deterministic, 1 = more creative.",
+            "default": 1,
+            "minimum": 0,
+            "maximum": 1,
+            "ui": {
+              "section": "basic",
+              "order": 5
+            }
+          },
+          "top_p": {
+            "type": "number",
+            "title": "Top P",
+            "description": "Nucleus sampling. Use temperature OR top_p, not both.",
+            "minimum": 0,
+            "maximum": 1,
+            "ui": {
+              "section": "advanced",
+              "order": 1
+            }
+          },
+          "top_k": {
+            "type": "integer",
+            "title": "Top K",
+            "description": "Only sample from the top K options for each token.",
+            "minimum": 1,
+            "ui": {
+              "section": "advanced",
+              "order": 2
+            }
+          },
+          "stop_sequences": {
+            "type": "array",
+            "title": "Stop Sequences",
+            "description": "Custom strings that will cause the model to stop generating.",
+            "items": {
+              "type": "string"
+            },
+            "ui": {
+              "section": "advanced",
+              "order": 3,
+              "widget": "tags"
+            }
+          },
+          "tools": {
+            "type": "array",
+            "title": "Tools",
+            "description": "Tools (functions) the model can use. Each tool has a name, description, and input_schema.",
+            "items": {
+              "type": "object",
+              "required": [
+                "name",
+                "description",
+                "input_schema"
+              ],
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "title": "Tool Name",
+                  "description": "Name of the tool (function name)",
+                  "pattern": "^[a-zA-Z0-9_-]{1,64}$"
+                },
+                "description": {
+                  "type": "string",
+                  "title": "Description",
+                  "description": "Description of what the tool does"
+                },
+                "input_schema": {
+                  "type": "object",
+                  "title": "Input Schema",
+                  "description": "JSON Schema for the tool's input parameters"
+                }
+              }
+            },
+            "ui": {
+              "section": "tools",
+              "order": 1,
+              "widget": "json-editor"
+            }
+          },
+          "tool_choice": {
+            "type": "object",
+            "title": "Tool Choice",
+            "description": "How the model should choose tools. Options: auto, any, specific tool.",
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
+                  "auto",
+                  "any",
+                  "tool"
+                ],
+                "default": "auto"
+              },
+              "name": {
+                "type": "string",
+                "description": "Name of specific tool to use (when type is 'tool')"
+              }
+            },
+            "ui": {
+              "section": "tools",
+              "order": 2
+            }
+          },
+          "metadata": {
+            "type": "object",
+            "title": "Metadata",
+            "description": "Request metadata for tracking.",
+            "properties": {
+              "user_id": {
+                "type": "string",
+                "title": "User ID",
+                "description": "Unique identifier for the end user"
+              }
+            },
+            "ui": {
+              "section": "advanced",
+              "order": 4
+            }
+          }
+        }
+      },
+      "result_schema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique message ID"
+          },
+          "type": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string",
+            "description": "Always 'assistant'"
+          },
+          "content": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "enum": [
+                    "text",
+                    "tool_use"
+                  ]
+                },
+                "text": {
+                  "type": "string"
+                },
+                "id": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "input": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "model": {
+            "type": "string",
+            "description": "Model used"
+          },
+          "stop_reason": {
+            "type": "string",
+            "enum": [
+              "end_turn",
+              "max_tokens",
+              "stop_sequence",
+              "tool_use"
+            ],
+            "description": "Why the model stopped generating"
+          },
+          "stop_sequence": {
+            "type": "string",
+            "description": "The stop sequence that caused the stop (if applicable)"
+          },
+          "usage": {
+            "type": "object",
+            "properties": {
+              "input_tokens": {
+                "type": "integer"
+              },
+              "output_tokens": {
+                "type": "integer"
+              }
+            }
+          }
+        }
+      },
+      "outputs": {
+        "response": {
+          "path": "content[0].text",
+          "type": "string",
+          "description": "The model's reply text."
+        }
+      },
+      "output_view": {
+        "type": "key_value",
+        "fields": [
+          {
+            "key": "content.0.text",
+            "label": "Response"
+          },
+          {
+            "key": "model",
+            "label": "Model"
+          },
+          {
+            "key": "stop_reason",
+            "label": "Stop Reason"
+          },
+          {
+            "key": "usage.input_tokens",
+            "label": "Input Tokens"
+          },
+          {
+            "key": "usage.output_tokens",
+            "label": "Output Tokens"
+          }
+        ]
+      },
+      "example_parameters": {
+        "model": "claude-sonnet-4-6",
+        "system": "You are a helpful assistant.",
+        "messages": [
+          {
+            "role": "user",
+            "content": "What is the capital of France?"
+          }
+        ],
+        "max_tokens": 1024,
+        "temperature": 0.7
+      },
+      "ui_hints": {
+        "color": "#d97706",
+        "icon": "message-square",
+        "sections": {
+          "basic": {
+            "title": "Basic",
+            "collapsed": false,
+            "order": 1
+          },
+          "tools": {
+            "title": "Tool Use",
+            "collapsed": true,
+            "order": 2
+          },
+          "advanced": {
+            "title": "Advanced Options",
+            "collapsed": true,
+            "order": 3
+          }
+        },
+        "categories": [
+          "ai"
+        ]
+      }
+    },
+    "claude_messages_vision": {
+      "display_name": "Vision Analysis",
+      "description": "Analyze images with Claude. Send images as base64 or URLs for visual understanding tasks.",
+      "service_type": "AI",
+      "path": "/messages",
+      "method": "POST",
+      "requires_credentials": true,
+      "parameter_mapping": {
+        "body": [
+          "model",
+          "messages",
+          "system",
+          "max_tokens",
+          "temperature"
+        ]
+      },
+      "parameter_schema": {
+        "type": "object",
+        "required": [
+          "model",
+          "messages",
+          "max_tokens"
+        ],
+        "properties": {
+          "model": {
+            "type": "string",
+            "title": "Model",
+            "description": "The Claude model to use (all current Claude models support vision)",
+            "enum": [
+              "claude-opus-4-8",
+              "claude-sonnet-4-6",
+              "claude-haiku-4-5-20251001",
+              "claude-opus-4-6"
+            ],
+            "enumNames": [
+              "Claude Opus 4.8 (Most Capable)",
+              "Claude Sonnet 4.6 (Balanced)",
+              "Claude Haiku 4.5 (Fast & Cheap)",
+              "Claude Opus 4.6 (Previous Gen)"
+            ],
+            "default": "claude-sonnet-4-6",
+            "ui": {
+              "section": "basic",
+              "order": 1
+            }
+          },
+          "system": {
+            "type": "string",
+            "title": "System Prompt",
+            "description": "System prompt to set context for the image analysis.",
+            "ui": {
+              "section": "basic",
+              "order": 2,
+              "widget": "textarea",
+              "rows": 3
+            }
+          },
+          "messages": {
+            "type": "array",
+            "title": "Messages",
+            "description": "Messages containing images and text. Use content blocks for multi-modal input.",
+            "items": {
+              "type": "object",
+              "required": [
+                "role",
+                "content"
+              ],
+              "properties": {
+                "role": {
+                  "type": "string",
+                  "title": "Role",
+                  "enum": [
+                    "user",
+                    "assistant"
+                  ],
+                  "default": "user"
+                },
+                "content": {
+                  "title": "Content",
+                  "description": "Array of content blocks (text and images)",
+                  "oneOf": [
+                    {
+                      "type": "string",
+                      "title": "Text content"
+                    },
+                    {
+                      "type": "array",
+                      "title": "Content blocks",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "type": {
+                            "type": "string",
+                            "enum": [
+                              "text",
+                              "image"
+                            ]
+                          },
+                          "text": {
+                            "type": "string",
+                            "description": "Text content (when type is 'text')"
+                          },
+                          "source": {
+                            "type": "object",
+                            "description": "Image source (when type is 'image')",
+                            "properties": {
+                              "type": {
+                                "type": "string",
+                                "enum": [
+                                  "base64",
+                                  "url"
+                                ]
+                              },
+                              "media_type": {
+                                "type": "string",
+                                "enum": [
+                                  "image/jpeg",
+                                  "image/png",
+                                  "image/gif",
+                                  "image/webp"
+                                ]
+                              },
+                              "data": {
+                                "type": "string",
+                                "description": "Base64-encoded image data"
+                              },
+                              "url": {
+                                "type": "string",
+                                "description": "URL of the image"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            "minItems": 1,
+            "ui": {
+              "section": "basic",
+              "order": 3,
+              "widget": "json-editor"
+            }
+          },
+          "max_tokens": {
+            "type": "integer",
+            "title": "Max Tokens",
+            "description": "Maximum number of tokens to generate.",
+            "default": 4096,
+            "minimum": 1,
+            "maximum": 128000,
+            "ui": {
+              "section": "basic",
+              "order": 4
+            }
+          },
+          "temperature": {
+            "type": "number",
+            "title": "Temperature",
+            "description": "Controls randomness. 0 = deterministic, 1 = more creative.",
+            "default": 0.7,
+            "minimum": 0,
+            "maximum": 1,
+            "ui": {
+              "section": "basic",
+              "order": 5
+            }
+          }
+        }
+      },
+      "result_schema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string"
+          },
+          "content": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string"
+                },
+                "text": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "model": {
+            "type": "string"
+          },
+          "stop_reason": {
+            "type": "string"
+          },
+          "usage": {
+            "type": "object",
+            "properties": {
+              "input_tokens": {
+                "type": "integer"
+              },
+              "output_tokens": {
+                "type": "integer"
+              }
+            }
+          }
+        }
+      },
+      "outputs": {
+        "response": {
+          "path": "content[0].text",
+          "type": "string",
+          "description": "The model's reply text."
+        }
+      },
+      "output_view": {
+        "type": "key_value",
+        "fields": [
+          {
+            "key": "content.0.text",
+            "label": "Analysis"
+          },
+          {
+            "key": "model",
+            "label": "Model"
+          },
+          {
+            "key": "usage.input_tokens",
+            "label": "Input Tokens"
+          },
+          {
+            "key": "usage.output_tokens",
+            "label": "Output Tokens"
+          }
+        ]
+      },
+      "example_parameters": {
+        "model": "claude-sonnet-4-6",
+        "system": "You are an expert image analyst. Describe what you see in detail.",
+        "messages": [
+          {
+            "role": "user",
+            "content": [
+              {
+                "type": "image",
+                "source": {
+                  "type": "url",
+                  "url": "https://example.com/image.jpg"
+                }
+              },
+              {
+                "type": "text",
+                "text": "What is in this image?"
+              }
+            ]
+          }
+        ],
+        "max_tokens": 1024,
+        "temperature": 0.5
+      },
+      "ui_hints": {
+        "color": "#d97706",
+        "icon": "eye",
+        "categories": [
+          "ai"
+        ]
+      }
+    }
+  },
+  "default_queue": "step_jobs"
+}

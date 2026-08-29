@@ -1,0 +1,1194 @@
+{
+  "$schema": "https://raw.githubusercontent.com/selfhosthub/studio-community/main/schemas/provider.schema.json",
+  "slug": "shs/telegram",
+  "version": "1.0.0",
+  "name": "Telegram",
+  "description": "Messaging and bot automation for Telegram",
+  "provider_type": "API",
+  "category": "communication",
+  "status": "ACTIVE",
+  "tier": "community",
+  "credential_provider": null,
+  "requires": [],
+  "services_preview": [
+    "Send Message",
+    "Send Photo",
+    "Get Updates",
+    "Get Chat"
+  ],
+  "credential_schema": {
+    "type": "object",
+    "required": [
+      "bot_token"
+    ],
+    "properties": {
+      "bot_token": {
+        "type": "string",
+        "title": "Bot Token",
+        "description": "Telegram bot token from @BotFather",
+        "format": "password"
+      }
+    }
+  },
+  "base_url": "https://api.telegram.org",
+  "auth": {
+    "type": "custom",
+    "config": {
+      "token_location": "path"
+    }
+  },
+  "default_headers": {
+    "Content-Type": "application/json"
+  },
+  "services": {
+    "telegram_send_message": {
+      "display_name": "Send Message",
+      "description": "Send a text message to a Telegram chat or channel. Supports Markdown and HTML formatting, reply markup, and threading.",
+      "service_type": "COMMUNICATION",
+      "endpoint_url": "https://api.telegram.org/bot{bot_token}",
+      "path": "/sendMessage",
+      "method": "POST",
+      "requires_credentials": true,
+      "parameter_mapping": {
+        "path": [
+          "bot_token"
+        ],
+        "body": [
+          "chat_id",
+          "text",
+          "parse_mode",
+          "entities",
+          "disable_web_page_preview",
+          "disable_notification",
+          "protect_content",
+          "reply_to_message_id",
+          "allow_sending_without_reply",
+          "reply_markup"
+        ]
+      },
+      "parameter_schema": {
+        "type": "object",
+        "required": [
+          "bot_token",
+          "chat_id",
+          "text"
+        ],
+        "properties": {
+          "bot_token": {
+            "type": "string",
+            "title": "Bot Token",
+            "description": "Your Telegram bot token from @BotFather",
+            "ui": {
+              "section": "Main",
+              "order": 1
+            },
+            "x-ui-hints": {
+              "format": "credential_field"
+            }
+          },
+          "chat_id": {
+            "type": [
+              "string",
+              "integer"
+            ],
+            "title": "Chat ID",
+            "description": "Unique identifier for the target chat or username of the target channel (e.g., @channelusername)",
+            "examples": [
+              "123456789",
+              "@mychannel"
+            ],
+            "ui": {
+              "section": "Main",
+              "order": 2
+            }
+          },
+          "text": {
+            "type": "string",
+            "title": "Message Text",
+            "description": "Text of the message to be sent, 1-4096 characters",
+            "maxLength": 4096,
+            "ui": {
+              "section": "Main",
+              "order": 3
+            },
+            "x-ui-hints": {
+              "format": "textarea"
+            }
+          },
+          "parse_mode": {
+            "type": "string",
+            "title": "Parse Mode",
+            "description": "Mode for parsing entities in the message text",
+            "enum": [
+              "Markdown",
+              "MarkdownV2",
+              "HTML"
+            ],
+            "enumNames": [
+              "Markdown",
+              "Markdown V2",
+              "HTML"
+            ],
+            "ui": {
+              "section": "Main",
+              "order": 4
+            },
+            "x-ui-hints": {
+              "format": "select"
+            }
+          },
+          "disable_web_page_preview": {
+            "type": "boolean",
+            "title": "Disable Web Page Preview",
+            "description": "Disables link previews for links in this message",
+            "default": false,
+            "ui": {
+              "section": "Advanced",
+              "order": 1
+            }
+          },
+          "disable_notification": {
+            "type": "boolean",
+            "title": "Silent Message",
+            "description": "Sends the message silently. Users will receive a notification with no sound.",
+            "default": false,
+            "ui": {
+              "section": "Advanced",
+              "order": 2
+            }
+          },
+          "protect_content": {
+            "type": "boolean",
+            "title": "Protect Content",
+            "description": "Protects the contents of the sent message from forwarding and saving",
+            "default": false,
+            "ui": {
+              "section": "Advanced",
+              "order": 3
+            }
+          },
+          "reply_to_message_id": {
+            "type": "integer",
+            "title": "Reply to Message ID",
+            "description": "If the message is a reply, ID of the original message",
+            "ui": {
+              "section": "Advanced",
+              "order": 4
+            }
+          },
+          "allow_sending_without_reply": {
+            "type": "boolean",
+            "title": "Allow Sending Without Reply",
+            "description": "Pass True if the message should be sent even if the specified replied-to message is not found",
+            "default": false,
+            "ui": {
+              "section": "Advanced",
+              "order": 5
+            }
+          },
+          "reply_markup": {
+            "type": "object",
+            "title": "Reply Markup",
+            "description": "Additional interface options (inline keyboard, custom reply keyboard, etc.)",
+            "ui": {
+              "section": "Advanced",
+              "order": 6
+            },
+            "x-ui-hints": {
+              "format": "json-editor"
+            }
+          }
+        }
+      },
+      "result_schema": {
+        "type": "object",
+        "properties": {
+          "ok": {
+            "type": "boolean",
+            "description": "True if the request was successful"
+          },
+          "result": {
+            "type": "object",
+            "properties": {
+              "message_id": {
+                "type": "integer",
+                "description": "Unique message identifier"
+              },
+              "chat": {
+                "type": "object",
+                "description": "Chat information"
+              },
+              "date": {
+                "type": "integer",
+                "description": "Date the message was sent in Unix time"
+              },
+              "text": {
+                "type": "string",
+                "description": "The sent message text"
+              }
+            }
+          }
+        }
+      },
+      "output_view": {
+        "type": "key_value",
+        "fields": [
+          {
+            "key": "ok",
+            "label": "Success"
+          },
+          {
+            "key": "result.message_id",
+            "label": "Message ID"
+          },
+          {
+            "key": "result.date",
+            "label": "Date"
+          },
+          {
+            "key": "result.text",
+            "label": "Text Sent"
+          }
+        ]
+      },
+      "example_parameters": {
+        "bot_token": "123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11",
+        "chat_id": "123456789",
+        "text": "Hello from Studio workflow!",
+        "parse_mode": "Markdown"
+      },
+      "ui_hints": {
+        "sections": {
+          "Main": {
+            "title": "Main",
+            "collapsed": false,
+            "order": 1
+          },
+          "Advanced": {
+            "title": "Advanced",
+            "collapsed": true,
+            "order": 2
+          }
+        },
+        "categories": [
+          "communication"
+        ]
+      }
+    },
+    "telegram_send_photo": {
+      "display_name": "Send Photo",
+      "description": "Send a photo to a Telegram chat or channel. Supports captions, reply markup, and photo URLs or file IDs.",
+      "service_type": "COMMUNICATION",
+      "endpoint_url": "https://api.telegram.org/bot{bot_token}",
+      "path": "/sendPhoto",
+      "method": "POST",
+      "requires_credentials": true,
+      "parameter_mapping": {
+        "path": [
+          "bot_token"
+        ],
+        "body": [
+          "chat_id",
+          "photo",
+          "caption",
+          "parse_mode",
+          "caption_entities",
+          "disable_notification",
+          "protect_content",
+          "reply_to_message_id",
+          "allow_sending_without_reply",
+          "reply_markup"
+        ]
+      },
+      "parameter_schema": {
+        "type": "object",
+        "required": [
+          "bot_token",
+          "chat_id",
+          "photo"
+        ],
+        "properties": {
+          "bot_token": {
+            "type": "string",
+            "title": "Bot Token",
+            "description": "Your Telegram bot token from @BotFather",
+            "ui": {
+              "section": "Main",
+              "order": 1
+            },
+            "x-ui-hints": {
+              "format": "credential_field"
+            }
+          },
+          "chat_id": {
+            "type": [
+              "string",
+              "integer"
+            ],
+            "title": "Chat ID",
+            "description": "Unique identifier for the target chat or username of the target channel (e.g., @channelusername)",
+            "examples": [
+              "123456789",
+              "@mychannel"
+            ],
+            "ui": {
+              "section": "Main",
+              "order": 2
+            }
+          },
+          "photo": {
+            "type": "string",
+            "title": "Photo",
+            "description": "Photo to send. Pass a file_id (string) to send a photo that exists on Telegram servers, or an HTTP URL for Telegram to get a photo from the Internet",
+            "examples": [
+              "https://example.com/image.jpg",
+              "AgACAgIAAxkBAAI..."
+            ],
+            "ui": {
+              "section": "Main",
+              "order": 3
+            }
+          },
+          "caption": {
+            "type": "string",
+            "title": "Caption",
+            "description": "Photo caption (may also be used when resending photos), 0-1024 characters",
+            "maxLength": 1024,
+            "ui": {
+              "section": "Main",
+              "order": 4
+            },
+            "x-ui-hints": {
+              "format": "textarea"
+            }
+          },
+          "parse_mode": {
+            "type": "string",
+            "title": "Parse Mode",
+            "description": "Mode for parsing entities in the photo caption",
+            "enum": [
+              "Markdown",
+              "MarkdownV2",
+              "HTML"
+            ],
+            "enumNames": [
+              "Markdown",
+              "Markdown V2",
+              "HTML"
+            ],
+            "ui": {
+              "section": "Main",
+              "order": 5
+            },
+            "x-ui-hints": {
+              "format": "select"
+            }
+          },
+          "disable_notification": {
+            "type": "boolean",
+            "title": "Silent Message",
+            "description": "Sends the message silently. Users will receive a notification with no sound.",
+            "default": false,
+            "ui": {
+              "section": "Advanced",
+              "order": 1
+            }
+          },
+          "protect_content": {
+            "type": "boolean",
+            "title": "Protect Content",
+            "description": "Protects the contents of the sent message from forwarding and saving",
+            "default": false,
+            "ui": {
+              "section": "Advanced",
+              "order": 2
+            }
+          },
+          "reply_to_message_id": {
+            "type": "integer",
+            "title": "Reply to Message ID",
+            "description": "If the message is a reply, ID of the original message",
+            "ui": {
+              "section": "Advanced",
+              "order": 3
+            }
+          },
+          "allow_sending_without_reply": {
+            "type": "boolean",
+            "title": "Allow Sending Without Reply",
+            "description": "Pass True if the message should be sent even if the specified replied-to message is not found",
+            "default": false,
+            "ui": {
+              "section": "Advanced",
+              "order": 4
+            }
+          },
+          "reply_markup": {
+            "type": "object",
+            "title": "Reply Markup",
+            "description": "Additional interface options (inline keyboard, custom reply keyboard, etc.)",
+            "ui": {
+              "section": "Advanced",
+              "order": 5
+            },
+            "x-ui-hints": {
+              "format": "json-editor"
+            }
+          }
+        }
+      },
+      "result_schema": {
+        "type": "object",
+        "properties": {
+          "ok": {
+            "type": "boolean",
+            "description": "True if the request was successful"
+          },
+          "result": {
+            "type": "object",
+            "properties": {
+              "message_id": {
+                "type": "integer",
+                "description": "Unique message identifier"
+              },
+              "chat": {
+                "type": "object",
+                "description": "Chat information"
+              },
+              "date": {
+                "type": "integer",
+                "description": "Date the message was sent in Unix time"
+              },
+              "photo": {
+                "type": "array",
+                "description": "Available sizes of the photo",
+                "items": {
+                  "type": "object"
+                }
+              },
+              "caption": {
+                "type": "string",
+                "description": "Caption for the photo"
+              }
+            }
+          }
+        }
+      },
+      "output_view": {
+        "type": "key_value",
+        "fields": [
+          {
+            "key": "ok",
+            "label": "Success"
+          },
+          {
+            "key": "result.message_id",
+            "label": "Message ID"
+          },
+          {
+            "key": "result.date",
+            "label": "Date"
+          },
+          {
+            "key": "result.caption",
+            "label": "Caption"
+          }
+        ]
+      },
+      "example_parameters": {
+        "bot_token": "123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11",
+        "chat_id": "123456789",
+        "photo": "https://example.com/image.jpg",
+        "caption": "Check out this image!"
+      },
+      "ui_hints": {
+        "sections": {
+          "Main": {
+            "title": "Main",
+            "collapsed": false,
+            "order": 1
+          },
+          "Advanced": {
+            "title": "Advanced",
+            "collapsed": true,
+            "order": 2
+          }
+        },
+        "categories": [
+          "communication"
+        ]
+      }
+    },
+    "telegram_send_document": {
+      "display_name": "Send Document",
+      "description": "Send a document file to a Telegram chat or channel. Supports PDFs, ZIP files, and other document formats.",
+      "service_type": "COMMUNICATION",
+      "endpoint_url": "https://api.telegram.org/bot{bot_token}",
+      "path": "/sendDocument",
+      "method": "POST",
+      "requires_credentials": true,
+      "parameter_mapping": {
+        "path": [
+          "bot_token"
+        ],
+        "body": [
+          "chat_id",
+          "document",
+          "caption",
+          "parse_mode",
+          "disable_content_type_detection",
+          "disable_notification",
+          "protect_content",
+          "reply_to_message_id",
+          "allow_sending_without_reply",
+          "reply_markup"
+        ]
+      },
+      "parameter_schema": {
+        "type": "object",
+        "required": [
+          "bot_token",
+          "chat_id",
+          "document"
+        ],
+        "properties": {
+          "bot_token": {
+            "type": "string",
+            "title": "Bot Token",
+            "description": "Your Telegram bot token from @BotFather",
+            "ui": {
+              "section": "Main",
+              "order": 1
+            },
+            "x-ui-hints": {
+              "format": "credential_field"
+            }
+          },
+          "chat_id": {
+            "type": [
+              "string",
+              "integer"
+            ],
+            "title": "Chat ID",
+            "description": "Unique identifier for the target chat or username of the target channel",
+            "examples": [
+              "123456789",
+              "@mychannel"
+            ],
+            "ui": {
+              "section": "Main",
+              "order": 2
+            }
+          },
+          "document": {
+            "type": "string",
+            "title": "Document",
+            "description": "File to send. Pass a file_id to send a file that exists on Telegram servers, or an HTTP URL for Telegram to get a file from the Internet",
+            "examples": [
+              "https://example.com/document.pdf",
+              "BQACAgIAAxkBAAI..."
+            ],
+            "ui": {
+              "section": "Main",
+              "order": 3
+            }
+          },
+          "caption": {
+            "type": "string",
+            "title": "Caption",
+            "description": "Document caption, 0-1024 characters",
+            "maxLength": 1024,
+            "ui": {
+              "section": "Main",
+              "order": 4
+            },
+            "x-ui-hints": {
+              "format": "textarea"
+            }
+          },
+          "parse_mode": {
+            "type": "string",
+            "title": "Parse Mode",
+            "description": "Mode for parsing entities in the document caption",
+            "enum": [
+              "Markdown",
+              "MarkdownV2",
+              "HTML"
+            ],
+            "enumNames": [
+              "Markdown",
+              "Markdown V2",
+              "HTML"
+            ],
+            "ui": {
+              "section": "Main",
+              "order": 5
+            },
+            "x-ui-hints": {
+              "format": "select"
+            }
+          },
+          "disable_content_type_detection": {
+            "type": "boolean",
+            "title": "Disable Content Type Detection",
+            "description": "Disables automatic server-side content type detection for files",
+            "default": false,
+            "ui": {
+              "section": "Advanced",
+              "order": 1
+            }
+          },
+          "disable_notification": {
+            "type": "boolean",
+            "title": "Silent Message",
+            "description": "Sends the message silently",
+            "default": false,
+            "ui": {
+              "section": "Advanced",
+              "order": 2
+            }
+          },
+          "protect_content": {
+            "type": "boolean",
+            "title": "Protect Content",
+            "description": "Protects the contents from forwarding and saving",
+            "default": false,
+            "ui": {
+              "section": "Advanced",
+              "order": 3
+            }
+          },
+          "reply_to_message_id": {
+            "type": "integer",
+            "title": "Reply to Message ID",
+            "description": "If the message is a reply, ID of the original message",
+            "ui": {
+              "section": "Advanced",
+              "order": 4
+            }
+          },
+          "allow_sending_without_reply": {
+            "type": "boolean",
+            "title": "Allow Sending Without Reply",
+            "description": "Pass True if the message should be sent even if the specified replied-to message is not found",
+            "default": false,
+            "ui": {
+              "section": "Advanced",
+              "order": 5
+            }
+          },
+          "reply_markup": {
+            "type": "object",
+            "title": "Reply Markup",
+            "description": "Additional interface options",
+            "ui": {
+              "section": "Advanced",
+              "order": 6
+            },
+            "x-ui-hints": {
+              "format": "json-editor"
+            }
+          }
+        }
+      },
+      "result_schema": {
+        "type": "object",
+        "properties": {
+          "ok": {
+            "type": "boolean"
+          },
+          "result": {
+            "type": "object",
+            "properties": {
+              "message_id": {
+                "type": "integer"
+              },
+              "document": {
+                "type": "object",
+                "properties": {
+                  "file_id": {
+                    "type": "string"
+                  },
+                  "file_unique_id": {
+                    "type": "string"
+                  },
+                  "file_name": {
+                    "type": "string"
+                  },
+                  "mime_type": {
+                    "type": "string"
+                  },
+                  "file_size": {
+                    "type": "integer"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "output_view": {
+        "type": "key_value",
+        "fields": [
+          {
+            "key": "ok",
+            "label": "Success"
+          },
+          {
+            "key": "result.message_id",
+            "label": "Message ID"
+          },
+          {
+            "key": "result.document.file_name",
+            "label": "File Name"
+          },
+          {
+            "key": "result.document.file_size",
+            "label": "File Size"
+          }
+        ]
+      },
+      "example_parameters": {
+        "bot_token": "123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11",
+        "chat_id": "123456789",
+        "document": "https://example.com/report.pdf",
+        "caption": "Monthly report"
+      },
+      "ui_hints": {
+        "sections": {
+          "Main": {
+            "title": "Main",
+            "collapsed": false,
+            "order": 1
+          },
+          "Advanced": {
+            "title": "Advanced",
+            "collapsed": true,
+            "order": 2
+          }
+        },
+        "categories": [
+          "communication"
+        ]
+      }
+    },
+    "telegram_get_updates": {
+      "display_name": "Get Updates",
+      "description": "Receive incoming updates (messages, commands, callbacks) using long polling. Use for polling-based workflows instead of webhooks.",
+      "service_type": "COMMUNICATION",
+      "endpoint_url": "https://api.telegram.org/bot{bot_token}",
+      "path": "/getUpdates",
+      "method": "POST",
+      "requires_credentials": true,
+      "parameter_mapping": {
+        "path": [
+          "bot_token"
+        ],
+        "body": [
+          "offset",
+          "limit",
+          "timeout",
+          "allowed_updates"
+        ]
+      },
+      "parameter_schema": {
+        "type": "object",
+        "required": [
+          "bot_token"
+        ],
+        "properties": {
+          "bot_token": {
+            "type": "string",
+            "title": "Bot Token",
+            "description": "Your Telegram bot token from @BotFather",
+            "ui": {
+              "section": "Main",
+              "order": 1
+            },
+            "x-ui-hints": {
+              "format": "credential_field"
+            }
+          },
+          "offset": {
+            "type": "integer",
+            "title": "Offset",
+            "description": "Identifier of the first update to be returned. Updates with IDs less than this will be ignored.",
+            "default": 0,
+            "ui": {
+              "section": "Advanced",
+              "order": 1
+            }
+          },
+          "limit": {
+            "type": "integer",
+            "title": "Limit",
+            "description": "Limits the number of updates to be retrieved. Values between 1-100 are accepted.",
+            "minimum": 1,
+            "maximum": 100,
+            "default": 100,
+            "ui": {
+              "section": "Main",
+              "order": 2
+            }
+          },
+          "timeout": {
+            "type": "integer",
+            "title": "Timeout",
+            "description": "Timeout in seconds for long polling. Should be positive, short polling is used by default (0).",
+            "minimum": 0,
+            "default": 0,
+            "ui": {
+              "section": "Advanced",
+              "order": 2
+            }
+          },
+          "allowed_updates": {
+            "type": "array",
+            "title": "Allowed Updates",
+            "description": "List of update types you want to receive. Leave empty to receive all update types.",
+            "items": {
+              "type": "string",
+              "enum": [
+                "message",
+                "edited_message",
+                "channel_post",
+                "edited_channel_post",
+                "inline_query",
+                "chosen_inline_result",
+                "callback_query",
+                "shipping_query",
+                "pre_checkout_query",
+                "poll",
+                "poll_answer",
+                "my_chat_member",
+                "chat_member",
+                "chat_join_request"
+              ]
+            },
+            "ui": {
+              "section": "Advanced",
+              "order": 3
+            },
+            "x-ui-hints": {
+              "format": "multi-select"
+            }
+          }
+        }
+      },
+      "result_schema": {
+        "type": "object",
+        "properties": {
+          "ok": {
+            "type": "boolean"
+          },
+          "result": {
+            "type": "array",
+            "description": "Array of Update objects",
+            "items": {
+              "type": "object",
+              "properties": {
+                "update_id": {
+                  "type": "integer"
+                },
+                "message": {
+                  "type": "object",
+                  "description": "New incoming message"
+                },
+                "callback_query": {
+                  "type": "object",
+                  "description": "New incoming callback query"
+                }
+              }
+            }
+          }
+        }
+      },
+      "output_view": {
+        "type": "key_value",
+        "fields": [
+          {
+            "key": "ok",
+            "label": "Success"
+          },
+          {
+            "key": "result.length",
+            "label": "Updates Count"
+          }
+        ]
+      },
+      "example_parameters": {
+        "bot_token": "123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11",
+        "limit": 10,
+        "timeout": 0
+      },
+      "ui_hints": {
+        "sections": {
+          "Main": {
+            "title": "Main",
+            "collapsed": false,
+            "order": 1
+          },
+          "Advanced": {
+            "title": "Advanced",
+            "collapsed": true,
+            "order": 2
+          }
+        },
+        "categories": [
+          "communication"
+        ]
+      }
+    },
+    "telegram_send_location": {
+      "display_name": "Send Location",
+      "description": "Send a geographic location (latitude and longitude) to a Telegram chat or channel.",
+      "service_type": "COMMUNICATION",
+      "endpoint_url": "https://api.telegram.org/bot{bot_token}",
+      "path": "/sendLocation",
+      "method": "POST",
+      "requires_credentials": true,
+      "parameter_mapping": {
+        "path": [
+          "bot_token"
+        ],
+        "body": [
+          "chat_id",
+          "latitude",
+          "longitude",
+          "horizontal_accuracy",
+          "live_period",
+          "heading",
+          "proximity_alert_radius",
+          "disable_notification",
+          "protect_content",
+          "reply_to_message_id",
+          "allow_sending_without_reply",
+          "reply_markup"
+        ]
+      },
+      "parameter_schema": {
+        "type": "object",
+        "required": [
+          "bot_token",
+          "chat_id",
+          "latitude",
+          "longitude"
+        ],
+        "properties": {
+          "bot_token": {
+            "type": "string",
+            "title": "Bot Token",
+            "description": "Your Telegram bot token from @BotFather",
+            "ui": {
+              "section": "Main",
+              "order": 1
+            },
+            "x-ui-hints": {
+              "format": "credential_field"
+            }
+          },
+          "chat_id": {
+            "type": [
+              "string",
+              "integer"
+            ],
+            "title": "Chat ID",
+            "description": "Unique identifier for the target chat or username",
+            "examples": [
+              "123456789",
+              "@mychannel"
+            ],
+            "ui": {
+              "section": "Main",
+              "order": 2
+            }
+          },
+          "latitude": {
+            "type": "number",
+            "title": "Latitude",
+            "description": "Latitude of the location",
+            "minimum": -90,
+            "maximum": 90,
+            "ui": {
+              "section": "Main",
+              "order": 3
+            }
+          },
+          "longitude": {
+            "type": "number",
+            "title": "Longitude",
+            "description": "Longitude of the location",
+            "minimum": -180,
+            "maximum": 180,
+            "ui": {
+              "section": "Main",
+              "order": 4
+            }
+          },
+          "horizontal_accuracy": {
+            "type": "number",
+            "title": "Horizontal Accuracy",
+            "description": "The radius of uncertainty for the location, measured in meters; 0-1500",
+            "minimum": 0,
+            "maximum": 1500,
+            "ui": {
+              "section": "Advanced",
+              "order": 1
+            }
+          },
+          "live_period": {
+            "type": "integer",
+            "title": "Live Period",
+            "description": "Period in seconds for which the location will be updated (for live locations, from 60 to 86400)",
+            "minimum": 60,
+            "maximum": 86400,
+            "ui": {
+              "section": "Advanced",
+              "order": 2
+            }
+          },
+          "heading": {
+            "type": "integer",
+            "title": "Heading",
+            "description": "For live locations, a direction in which the user is moving, in degrees. Must be between 1 and 360.",
+            "minimum": 1,
+            "maximum": 360,
+            "ui": {
+              "section": "Advanced",
+              "order": 3
+            }
+          },
+          "proximity_alert_radius": {
+            "type": "integer",
+            "title": "Proximity Alert Radius",
+            "description": "For live locations, a maximum distance for proximity alerts about approaching another chat member, in meters (1-100000)",
+            "minimum": 1,
+            "maximum": 100000,
+            "ui": {
+              "section": "Advanced",
+              "order": 4
+            }
+          },
+          "disable_notification": {
+            "type": "boolean",
+            "title": "Silent Message",
+            "default": false,
+            "ui": {
+              "section": "Advanced",
+              "order": 5
+            }
+          },
+          "protect_content": {
+            "type": "boolean",
+            "title": "Protect Content",
+            "default": false,
+            "ui": {
+              "section": "Advanced",
+              "order": 6
+            }
+          },
+          "reply_to_message_id": {
+            "type": "integer",
+            "title": "Reply to Message ID",
+            "ui": {
+              "section": "Advanced",
+              "order": 7
+            }
+          },
+          "allow_sending_without_reply": {
+            "type": "boolean",
+            "title": "Allow Sending Without Reply",
+            "default": false,
+            "ui": {
+              "section": "Advanced",
+              "order": 8
+            }
+          },
+          "reply_markup": {
+            "type": "object",
+            "title": "Reply Markup",
+            "ui": {
+              "section": "Advanced",
+              "order": 9
+            },
+            "x-ui-hints": {
+              "format": "json-editor"
+            }
+          }
+        }
+      },
+      "result_schema": {
+        "type": "object",
+        "properties": {
+          "ok": {
+            "type": "boolean"
+          },
+          "result": {
+            "type": "object",
+            "properties": {
+              "message_id": {
+                "type": "integer"
+              },
+              "location": {
+                "type": "object",
+                "properties": {
+                  "latitude": {
+                    "type": "number"
+                  },
+                  "longitude": {
+                    "type": "number"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "output_view": {
+        "type": "key_value",
+        "fields": [
+          {
+            "key": "ok",
+            "label": "Success"
+          },
+          {
+            "key": "result.message_id",
+            "label": "Message ID"
+          },
+          {
+            "key": "result.location.latitude",
+            "label": "Latitude"
+          },
+          {
+            "key": "result.location.longitude",
+            "label": "Longitude"
+          }
+        ]
+      },
+      "example_parameters": {
+        "bot_token": "123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11",
+        "chat_id": "123456789",
+        "latitude": 37.7749,
+        "longitude": -122.4194
+      },
+      "ui_hints": {
+        "sections": {
+          "Main": {
+            "title": "Main",
+            "collapsed": false,
+            "order": 1
+          },
+          "Advanced": {
+            "title": "Advanced",
+            "collapsed": true,
+            "order": 2
+          }
+        },
+        "categories": [
+          "communication"
+        ]
+      }
+    }
+  },
+  "default_queue": "step_jobs"
+}

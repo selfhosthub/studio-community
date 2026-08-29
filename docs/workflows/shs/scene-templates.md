@@ -2,7 +2,7 @@
 
 Some steps don't run once per item. Instead, they take your **whole list at once** and combine everything into a single result. A video render step is the clearest example: you give it a list of scenes, and it assembles them into **one video**.
 
-You build this with a **scene template** — one scene you design once, that repeats into as many scenes as you need.
+You build this with a **scene template**: one scene you design once, that repeats into as many scenes as you need.
 
 ---
 
@@ -21,7 +21,7 @@ You configure a single scene template. You tell it **how many scenes** to create
 └────────────┘   └────────────┘      └──────────────┘
 ```
 
-The step creates **5 scenes** from your template — one per item — and combines them into **one video**.
+The step creates **5 scenes** from your template, one per item, and combines them into **one video**.
 
 ---
 
@@ -35,7 +35,7 @@ These look similar but produce opposite results:
 | **You get** | N separate outputs | one combined output |
 | **Example** | Generate 5 narration clips | Combine 5 scenes into 1 video |
 
-A step that uses scene templates handles the whole list internally — so there's no "run once per item" toggle. It always takes everything and combines it.
+A step that uses scene templates handles the whole list internally, so there's no "run once per item" toggle. It always takes everything and combines it.
 
 See [Run Once Per Item](item-groups.md) for the other mode.
 
@@ -55,4 +55,4 @@ If you leave it empty, the step creates as many scenes as your connected lists c
 
 ## What Comes Next
 
-A scene-template step outputs **one item** (one video). The next step receives a list of one — so it does **not** need "run once per item" turned on.
+A scene-template step outputs **one item** (one video). The next step receives a list of one, so it does **not** need "run once per item" turned on.

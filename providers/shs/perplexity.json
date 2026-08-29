@@ -1,0 +1,358 @@
+{
+  "$schema": "https://raw.githubusercontent.com/selfhosthub/studio-community/main/schemas/provider.schema.json",
+  "slug": "shs/perplexity",
+  "version": "1.1.0",
+  "name": "Perplexity",
+  "description": "Perplexity AI search-augmented language models with built-in web citations",
+  "provider_type": "API",
+  "category": "ai",
+  "status": "ACTIVE",
+  "tier": "community",
+  "credential_provider": null,
+  "requires": [],
+  "services_preview": [
+    "Chat Completion (Sonar)"
+  ],
+  "credential_schema": {
+    "type": "object",
+    "required": [
+      "api_key"
+    ],
+    "properties": {
+      "api_key": {
+        "type": "string",
+        "title": "API Key",
+        "description": "Perplexity API key (starts with pplx-)",
+        "format": "password"
+      }
+    }
+  },
+  "base_url": "https://api.perplexity.ai",
+  "icon_url": "/providers/perplexity.svg",
+  "auth": {
+    "type": "bearer"
+  },
+  "services": {
+    "perplexity_chat": {
+      "display_name": "Chat Completion (Sonar)",
+      "description": "Generate responses using Perplexity Sonar models with built-in web search. Responses include citations from real-time web sources.",
+      "service_type": "AI",
+      "path": "/chat/completions",
+      "method": "POST",
+      "requires_credentials": true,
+      "parameter_mapping": {
+        "body": [
+          "model",
+          "messages",
+          "temperature",
+          "max_tokens",
+          "top_p",
+          "frequency_penalty",
+          "presence_penalty",
+          "search_recency_filter",
+          "return_related_questions",
+          "search_domain_filter"
+        ]
+      },
+      "parameter_schema": {
+        "type": "object",
+        "required": [
+          "model",
+          "messages"
+        ],
+        "properties": {
+          "model": {
+            "type": "string",
+            "title": "Model",
+            "description": "The Sonar model to use",
+            "enum": [
+              "sonar",
+              "sonar-pro",
+              "sonar-reasoning-pro",
+              "sonar-deep-research"
+            ],
+            "enumNames": [
+              "Sonar (Fast, lightweight search)",
+              "Sonar Pro (Advanced search, more sources)",
+              "Sonar Reasoning Pro (Reasoning + live web search)",
+              "Sonar Deep Research (Exhaustive research reports)"
+            ],
+            "default": "sonar",
+            "ui": {
+              "section": "basic",
+              "order": 1
+            }
+          },
+          "messages": {
+            "type": "array",
+            "title": "Messages",
+            "description": "The conversation messages. Each message has a role (system, user, assistant) and content.",
+            "items": {
+              "type": "object",
+              "required": [
+                "role",
+                "content"
+              ],
+              "properties": {
+                "role": {
+                  "type": "string",
+                  "title": "Role",
+                  "enum": [
+                    "system",
+                    "user",
+                    "assistant"
+                  ],
+                  "default": "user"
+                },
+                "content": {
+                  "type": "string",
+                  "title": "Content",
+                  "description": "The message content",
+                  "format": "textarea"
+                }
+              }
+            },
+            "minItems": 1,
+            "ui": {
+              "section": "basic",
+              "order": 2,
+              "prompt": true
+            }
+          },
+          "temperature": {
+            "type": "number",
+            "title": "Temperature",
+            "description": "Controls randomness. 0 = deterministic, 2 = very random.",
+            "default": 0.2,
+            "minimum": 0,
+            "maximum": 2,
+            "ui": {
+              "section": "basic",
+              "order": 3
+            }
+          },
+          "max_tokens": {
+            "type": "integer",
+            "title": "Max Tokens",
+            "description": "Maximum tokens in the response.",
+            "minimum": 1,
+            "ui": {
+              "section": "basic",
+              "order": 4
+            }
+          },
+          "top_p": {
+            "type": "number",
+            "title": "Top P",
+            "description": "Nucleus sampling. Consider tokens with top_p probability mass.",
+            "default": 0.9,
+            "minimum": 0,
+            "maximum": 1,
+            "ui": {
+              "section": "advanced",
+              "order": 1
+            }
+          },
+          "frequency_penalty": {
+            "type": "number",
+            "title": "Frequency Penalty",
+            "description": "Penalize tokens based on frequency. Greater than 0 reduces repetition.",
+            "default": 1,
+            "minimum": 0,
+            "ui": {
+              "section": "advanced",
+              "order": 2
+            }
+          },
+          "presence_penalty": {
+            "type": "number",
+            "title": "Presence Penalty",
+            "description": "Penalize tokens based on presence in text so far.",
+            "default": 0,
+            "minimum": -2,
+            "maximum": 2,
+            "ui": {
+              "section": "advanced",
+              "order": 3
+            }
+          },
+          "search_recency_filter": {
+            "type": "string",
+            "title": "Search Recency",
+            "description": "Filter search results by recency. Limits web sources to the specified time window.",
+            "enum": [
+              "month",
+              "week",
+              "day",
+              "hour"
+            ],
+            "enumNames": [
+              "Past Month",
+              "Past Week",
+              "Past Day",
+              "Past Hour"
+            ],
+            "ui": {
+              "section": "search",
+              "order": 1
+            }
+          },
+          "return_related_questions": {
+            "type": "boolean",
+            "title": "Return Related Questions",
+            "description": "Include related follow-up questions in the response.",
+            "default": false,
+            "ui": {
+              "section": "search",
+              "order": 2
+            }
+          },
+          "search_domain_filter": {
+            "type": "array",
+            "title": "Domain Filter",
+            "description": "Limit search to specific domains (e.g., wikipedia.org). Use '-' prefix to exclude domains.",
+            "items": {
+              "type": "string"
+            },
+            "ui": {
+              "section": "search",
+              "order": 3,
+              "widget": "tags"
+            }
+          }
+        }
+      },
+      "result_schema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique completion ID"
+          },
+          "model": {
+            "type": "string",
+            "description": "Model used"
+          },
+          "choices": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "index": {
+                  "type": "integer"
+                },
+                "message": {
+                  "type": "object",
+                  "properties": {
+                    "role": {
+                      "type": "string"
+                    },
+                    "content": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "finish_reason": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "citations": {
+            "type": "array",
+            "description": "Web sources cited in the response",
+            "items": {
+              "type": "string"
+            }
+          },
+          "usage": {
+            "type": "object",
+            "properties": {
+              "prompt_tokens": {
+                "type": "integer"
+              },
+              "completion_tokens": {
+                "type": "integer"
+              },
+              "total_tokens": {
+                "type": "integer"
+              }
+            }
+          }
+        }
+      },
+      "outputs": {
+        "response": {
+          "path": "choices[0].message.content",
+          "type": "string",
+          "description": "The model's reply text."
+        }
+      },
+      "output_view": {
+        "type": "key_value",
+        "fields": [
+          {
+            "key": "choices.0.message.content",
+            "label": "Response"
+          },
+          {
+            "key": "citations",
+            "label": "Citations"
+          },
+          {
+            "key": "model",
+            "label": "Model"
+          },
+          {
+            "key": "choices.0.finish_reason",
+            "label": "Finish Reason"
+          },
+          {
+            "key": "usage.total_tokens",
+            "label": "Total Tokens"
+          }
+        ]
+      },
+      "example_parameters": {
+        "model": "sonar",
+        "messages": [
+          {
+            "role": "system",
+            "content": "You are a helpful research assistant. Provide accurate, well-cited answers."
+          },
+          {
+            "role": "user",
+            "content": "What are the latest developments in quantum computing?"
+          }
+        ],
+        "temperature": 0.2,
+        "max_tokens": 1024
+      },
+      "ui_hints": {
+        "color": "#1fb8cd",
+        "icon": "search",
+        "sections": {
+          "basic": {
+            "title": "Basic",
+            "collapsed": false,
+            "order": 1
+          },
+          "search": {
+            "title": "Search Options",
+            "collapsed": false,
+            "order": 2
+          },
+          "advanced": {
+            "title": "Advanced Options",
+            "collapsed": true,
+            "order": 3
+          }
+        },
+        "categories": [
+          "ai"
+        ]
+      }
+    }
+  },
+  "default_queue": "step_jobs"
+}

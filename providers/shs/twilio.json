@@ -1,0 +1,1097 @@
+{
+  "$schema": "https://raw.githubusercontent.com/selfhosthub/studio-community/main/schemas/provider.schema.json",
+  "slug": "shs/twilio",
+  "version": "1.0.0",
+  "name": "Twilio",
+  "description": "SMS, WhatsApp, and voice call automation via Twilio",
+  "provider_type": "API",
+  "category": "communication",
+  "status": "ACTIVE",
+  "tier": "community",
+  "credential_provider": null,
+  "requires": [],
+  "services_preview": [
+    "Send SMS",
+    "Send WhatsApp",
+    "Make Call",
+    "List Messages",
+    "Get Message"
+  ],
+  "credential_schema": {
+    "type": "object",
+    "required": [
+      "account_sid",
+      "auth_token"
+    ],
+    "properties": {
+      "account_sid": {
+        "type": "string",
+        "title": "Account SID",
+        "description": "Your Twilio Account SID from the console dashboard"
+      },
+      "auth_token": {
+        "type": "string",
+        "title": "Auth Token",
+        "description": "Your Twilio Auth Token from the console dashboard",
+        "format": "password"
+      },
+      "from_number": {
+        "type": "string",
+        "title": "From Number",
+        "description": "Your Twilio phone number (e.g. +15551234567)"
+      }
+    }
+  },
+  "base_url": null,
+  "auth": {
+    "type": "custom",
+    "config": {
+      "token_location": "header",
+      "scheme": "basic",
+      "basic_auth_fields": [
+        "account_sid",
+        "auth_token"
+      ]
+    }
+  },
+  "default_headers": {
+    "Content-Type": "application/x-www-form-urlencoded"
+  },
+  "services": {
+    "twilio_send_sms": {
+      "display_name": "Send SMS",
+      "description": "Send an SMS message to any phone number. Supports standard SMS up to 1600 characters with automatic segmentation for longer messages.",
+      "service_type": "COMMUNICATION",
+      "endpoint_url": "https://api.twilio.com/2010-04-01/Accounts/{account_sid}/Messages.json",
+      "method": "POST",
+      "requires_credentials": true,
+      "parameter_mapping": {
+        "path": [
+          "account_sid"
+        ],
+        "body": [
+          "To",
+          "From",
+          "Body",
+          "StatusCallback",
+          "MessagingServiceSid"
+        ]
+      },
+      "parameter_schema": {
+        "type": "object",
+        "required": [
+          "account_sid",
+          "auth_token",
+          "To",
+          "From",
+          "Body"
+        ],
+        "properties": {
+          "account_sid": {
+            "type": "string",
+            "title": "Account SID",
+            "description": "Your Twilio Account SID",
+            "ui": {
+              "section": "Main",
+              "order": 1
+            },
+            "x-ui-hints": {
+              "format": "credential_field"
+            }
+          },
+          "auth_token": {
+            "type": "string",
+            "title": "Auth Token",
+            "description": "Your Twilio Auth Token",
+            "ui": {
+              "section": "Main",
+              "order": 2
+            },
+            "x-ui-hints": {
+              "format": "credential_field"
+            }
+          },
+          "To": {
+            "type": "string",
+            "title": "To",
+            "description": "Destination phone number in E.164 format (e.g. +15551234567)",
+            "examples": [
+              "+15551234567"
+            ],
+            "ui": {
+              "section": "Main",
+              "order": 3
+            }
+          },
+          "From": {
+            "type": "string",
+            "title": "From",
+            "description": "Your Twilio phone number in E.164 format (e.g. +15559876543)",
+            "examples": [
+              "+15559876543"
+            ],
+            "ui": {
+              "section": "Main",
+              "order": 4
+            }
+          },
+          "Body": {
+            "type": "string",
+            "title": "Message Body",
+            "description": "Text content of the SMS message, up to 1600 characters",
+            "maxLength": 1600,
+            "ui": {
+              "section": "Main",
+              "order": 5
+            },
+            "x-ui-hints": {
+              "format": "textarea"
+            }
+          },
+          "StatusCallback": {
+            "type": "string",
+            "title": "Status Callback URL",
+            "description": "URL to receive message status webhooks (queued, sent, delivered, failed)",
+            "format": "uri",
+            "ui": {
+              "section": "Advanced",
+              "order": 1
+            }
+          },
+          "MessagingServiceSid": {
+            "type": "string",
+            "title": "Messaging Service SID",
+            "description": "Optional Messaging Service SID for sender pool routing",
+            "ui": {
+              "section": "Advanced",
+              "order": 2
+            }
+          }
+        }
+      },
+      "result_schema": {
+        "type": "object",
+        "properties": {
+          "sid": {
+            "type": "string",
+            "description": "Unique message identifier (e.g. SM...)"
+          },
+          "status": {
+            "type": "string",
+            "description": "Message status: queued, sending, sent, delivered, undelivered, failed"
+          },
+          "to": {
+            "type": "string",
+            "description": "Destination phone number"
+          },
+          "from": {
+            "type": "string",
+            "description": "Sender phone number"
+          },
+          "body": {
+            "type": "string",
+            "description": "Message body text"
+          },
+          "date_created": {
+            "type": "string",
+            "description": "RFC 2822 date string"
+          },
+          "price": {
+            "type": "string",
+            "description": "Cost of the message"
+          },
+          "error_code": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "description": "Twilio error code if failed"
+          },
+          "error_message": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Error description if failed"
+          }
+        }
+      },
+      "output_view": {
+        "type": "key_value",
+        "fields": [
+          {
+            "key": "sid",
+            "label": "Message SID"
+          },
+          {
+            "key": "status",
+            "label": "Status"
+          },
+          {
+            "key": "to",
+            "label": "To"
+          },
+          {
+            "key": "from",
+            "label": "From"
+          },
+          {
+            "key": "date_created",
+            "label": "Created"
+          }
+        ]
+      },
+      "example_parameters": {
+        "account_sid": "ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "auth_token": "your_auth_token",
+        "To": "+15551234567",
+        "From": "+15559876543",
+        "Body": "Hello from Studio workflow!"
+      },
+      "ui_hints": {
+        "sections": {
+          "Main": {
+            "title": "Main",
+            "collapsed": false,
+            "order": 1
+          },
+          "Advanced": {
+            "title": "Advanced",
+            "collapsed": true,
+            "order": 2
+          }
+        },
+        "categories": [
+          "communication"
+        ]
+      }
+    },
+    "twilio_send_whatsapp": {
+      "display_name": "Send WhatsApp",
+      "description": "Send a WhatsApp message via Twilio. Requires a Twilio WhatsApp-enabled sender. Prefix destination with 'whatsapp:' (e.g. whatsapp:+15551234567).",
+      "service_type": "COMMUNICATION",
+      "endpoint_url": "https://api.twilio.com/2010-04-01/Accounts/{account_sid}/Messages.json",
+      "method": "POST",
+      "requires_credentials": true,
+      "parameter_mapping": {
+        "path": [
+          "account_sid"
+        ],
+        "body": [
+          "To",
+          "From",
+          "Body",
+          "MediaUrl",
+          "StatusCallback"
+        ]
+      },
+      "parameter_schema": {
+        "type": "object",
+        "required": [
+          "account_sid",
+          "auth_token",
+          "To",
+          "From",
+          "Body"
+        ],
+        "properties": {
+          "account_sid": {
+            "type": "string",
+            "title": "Account SID",
+            "description": "Your Twilio Account SID",
+            "ui": {
+              "section": "Main",
+              "order": 1
+            },
+            "x-ui-hints": {
+              "format": "credential_field"
+            }
+          },
+          "auth_token": {
+            "type": "string",
+            "title": "Auth Token",
+            "description": "Your Twilio Auth Token",
+            "ui": {
+              "section": "Main",
+              "order": 2
+            },
+            "x-ui-hints": {
+              "format": "credential_field"
+            }
+          },
+          "To": {
+            "type": "string",
+            "title": "To",
+            "description": "WhatsApp destination in format whatsapp:+15551234567",
+            "examples": [
+              "whatsapp:+15551234567"
+            ],
+            "ui": {
+              "section": "Main",
+              "order": 3
+            }
+          },
+          "From": {
+            "type": "string",
+            "title": "From",
+            "description": "Your Twilio WhatsApp-enabled number in format whatsapp:+15559876543",
+            "examples": [
+              "whatsapp:+15559876543"
+            ],
+            "ui": {
+              "section": "Main",
+              "order": 4
+            }
+          },
+          "Body": {
+            "type": "string",
+            "title": "Message Body",
+            "description": "Text content of the WhatsApp message",
+            "maxLength": 1600,
+            "ui": {
+              "section": "Main",
+              "order": 5
+            },
+            "x-ui-hints": {
+              "format": "textarea"
+            }
+          },
+          "MediaUrl": {
+            "type": "string",
+            "title": "Media URL",
+            "description": "URL of media to attach (image, PDF, etc.)",
+            "format": "uri",
+            "ui": {
+              "section": "Advanced",
+              "order": 1
+            }
+          },
+          "StatusCallback": {
+            "type": "string",
+            "title": "Status Callback URL",
+            "description": "URL to receive message status webhooks",
+            "format": "uri",
+            "ui": {
+              "section": "Advanced",
+              "order": 2
+            }
+          }
+        }
+      },
+      "result_schema": {
+        "type": "object",
+        "properties": {
+          "sid": {
+            "type": "string",
+            "description": "Unique message identifier"
+          },
+          "status": {
+            "type": "string",
+            "description": "Message status"
+          },
+          "to": {
+            "type": "string",
+            "description": "Destination WhatsApp number"
+          },
+          "from": {
+            "type": "string",
+            "description": "Sender WhatsApp number"
+          },
+          "body": {
+            "type": "string",
+            "description": "Message body text"
+          },
+          "date_created": {
+            "type": "string",
+            "description": "RFC 2822 date string"
+          }
+        }
+      },
+      "output_view": {
+        "type": "key_value",
+        "fields": [
+          {
+            "key": "sid",
+            "label": "Message SID"
+          },
+          {
+            "key": "status",
+            "label": "Status"
+          },
+          {
+            "key": "to",
+            "label": "To"
+          },
+          {
+            "key": "from",
+            "label": "From"
+          },
+          {
+            "key": "date_created",
+            "label": "Created"
+          }
+        ]
+      },
+      "example_parameters": {
+        "account_sid": "ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "auth_token": "your_auth_token",
+        "To": "whatsapp:+15551234567",
+        "From": "whatsapp:+15559876543",
+        "Body": "Hello from Studio workflow!"
+      },
+      "ui_hints": {
+        "sections": {
+          "Main": {
+            "title": "Main",
+            "collapsed": false,
+            "order": 1
+          },
+          "Advanced": {
+            "title": "Advanced",
+            "collapsed": true,
+            "order": 2
+          }
+        },
+        "categories": [
+          "communication"
+        ]
+      }
+    },
+    "twilio_make_call": {
+      "display_name": "Make Call",
+      "description": "Initiate an outbound voice call. Requires a TwiML URL or TwiML content that instructs Twilio what to do when the call connects (e.g. play audio, say text, gather input).",
+      "service_type": "COMMUNICATION",
+      "endpoint_url": "https://api.twilio.com/2010-04-01/Accounts/{account_sid}/Calls.json",
+      "method": "POST",
+      "requires_credentials": true,
+      "parameter_mapping": {
+        "path": [
+          "account_sid"
+        ],
+        "body": [
+          "To",
+          "From",
+          "Url",
+          "Twiml",
+          "StatusCallback",
+          "StatusCallbackEvent",
+          "Timeout",
+          "Record",
+          "MachineDetection"
+        ]
+      },
+      "parameter_schema": {
+        "type": "object",
+        "required": [
+          "account_sid",
+          "auth_token",
+          "To",
+          "From"
+        ],
+        "properties": {
+          "account_sid": {
+            "type": "string",
+            "title": "Account SID",
+            "description": "Your Twilio Account SID",
+            "ui": {
+              "section": "Main",
+              "order": 1
+            },
+            "x-ui-hints": {
+              "format": "credential_field"
+            }
+          },
+          "auth_token": {
+            "type": "string",
+            "title": "Auth Token",
+            "description": "Your Twilio Auth Token",
+            "ui": {
+              "section": "Main",
+              "order": 2
+            },
+            "x-ui-hints": {
+              "format": "credential_field"
+            }
+          },
+          "To": {
+            "type": "string",
+            "title": "To",
+            "description": "Phone number to call in E.164 format",
+            "examples": [
+              "+15551234567"
+            ],
+            "ui": {
+              "section": "Main",
+              "order": 3
+            }
+          },
+          "From": {
+            "type": "string",
+            "title": "From",
+            "description": "Your Twilio phone number in E.164 format",
+            "examples": [
+              "+15559876543"
+            ],
+            "ui": {
+              "section": "Main",
+              "order": 4
+            }
+          },
+          "Url": {
+            "type": "string",
+            "title": "TwiML URL",
+            "description": "URL returning TwiML instructions for the call. Required if Twiml is not set.",
+            "format": "uri",
+            "ui": {
+              "section": "Main",
+              "order": 5
+            }
+          },
+          "Twiml": {
+            "type": "string",
+            "title": "TwiML Content",
+            "description": "Inline TwiML XML instructions. Required if Url is not set.",
+            "examples": [
+              "<Response><Say>Hello from Studio!</Say></Response>"
+            ],
+            "ui": {
+              "section": "Main",
+              "order": 6
+            },
+            "x-ui-hints": {
+              "format": "textarea"
+            }
+          },
+          "StatusCallback": {
+            "type": "string",
+            "title": "Status Callback URL",
+            "description": "URL to receive call status webhooks",
+            "format": "uri",
+            "ui": {
+              "section": "Advanced",
+              "order": 1
+            }
+          },
+          "StatusCallbackEvent": {
+            "type": "array",
+            "title": "Status Callback Events",
+            "description": "Call events to send to the status callback",
+            "items": {
+              "type": "string",
+              "enum": [
+                "initiated",
+                "ringing",
+                "answered",
+                "completed"
+              ]
+            },
+            "ui": {
+              "section": "Advanced",
+              "order": 2
+            },
+            "x-ui-hints": {
+              "format": "multi-select"
+            }
+          },
+          "Timeout": {
+            "type": "integer",
+            "title": "Timeout",
+            "description": "Seconds to wait for answer before giving up (default 60)",
+            "minimum": 5,
+            "maximum": 600,
+            "default": 60,
+            "ui": {
+              "section": "Advanced",
+              "order": 3
+            }
+          },
+          "Record": {
+            "type": "boolean",
+            "title": "Record Call",
+            "description": "Whether to record the entire call",
+            "default": false,
+            "ui": {
+              "section": "Advanced",
+              "order": 4
+            }
+          },
+          "MachineDetection": {
+            "type": "string",
+            "title": "Answering Machine Detection",
+            "description": "Enable answering machine detection",
+            "enum": [
+              "Enable",
+              "DetectMessageEnd"
+            ],
+            "enumNames": [
+              "Enable",
+              "Detect Message End"
+            ],
+            "ui": {
+              "section": "Advanced",
+              "order": 5
+            },
+            "x-ui-hints": {
+              "format": "select"
+            }
+          }
+        }
+      },
+      "result_schema": {
+        "type": "object",
+        "properties": {
+          "sid": {
+            "type": "string",
+            "description": "Unique call identifier (e.g. CA...)"
+          },
+          "status": {
+            "type": "string",
+            "description": "Call status: queued, ringing, in-progress, completed, busy, no-answer, canceled, failed"
+          },
+          "to": {
+            "type": "string",
+            "description": "Called phone number"
+          },
+          "from": {
+            "type": "string",
+            "description": "Caller phone number"
+          },
+          "direction": {
+            "type": "string",
+            "description": "Call direction: outbound-api"
+          },
+          "date_created": {
+            "type": "string",
+            "description": "RFC 2822 date string"
+          },
+          "duration": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Call duration in seconds (null if not yet completed)"
+          },
+          "price": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Cost of the call"
+          }
+        }
+      },
+      "output_view": {
+        "type": "key_value",
+        "fields": [
+          {
+            "key": "sid",
+            "label": "Call SID"
+          },
+          {
+            "key": "status",
+            "label": "Status"
+          },
+          {
+            "key": "to",
+            "label": "To"
+          },
+          {
+            "key": "from",
+            "label": "From"
+          },
+          {
+            "key": "direction",
+            "label": "Direction"
+          }
+        ]
+      },
+      "example_parameters": {
+        "account_sid": "ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "auth_token": "your_auth_token",
+        "To": "+15551234567",
+        "From": "+15559876543",
+        "Twiml": "<Response><Say>Hello from Studio!</Say></Response>"
+      },
+      "ui_hints": {
+        "sections": {
+          "Main": {
+            "title": "Main",
+            "collapsed": false,
+            "order": 1
+          },
+          "Advanced": {
+            "title": "Advanced",
+            "collapsed": true,
+            "order": 2
+          }
+        },
+        "categories": [
+          "communication"
+        ]
+      }
+    },
+    "twilio_list_messages": {
+      "display_name": "List Messages",
+      "description": "Retrieve a list of sent and received messages with optional filters by date, sender, or recipient. Returns up to 50 messages per page.",
+      "service_type": "COMMUNICATION",
+      "endpoint_url": "https://api.twilio.com/2010-04-01/Accounts/{account_sid}/Messages.json",
+      "method": "GET",
+      "requires_credentials": true,
+      "parameter_mapping": {
+        "path": [
+          "account_sid"
+        ],
+        "query": [
+          "To",
+          "From",
+          "DateSent",
+          "PageSize"
+        ]
+      },
+      "parameter_schema": {
+        "type": "object",
+        "required": [
+          "account_sid",
+          "auth_token"
+        ],
+        "properties": {
+          "account_sid": {
+            "type": "string",
+            "title": "Account SID",
+            "description": "Your Twilio Account SID",
+            "ui": {
+              "section": "Main",
+              "order": 1
+            },
+            "x-ui-hints": {
+              "format": "credential_field"
+            }
+          },
+          "auth_token": {
+            "type": "string",
+            "title": "Auth Token",
+            "description": "Your Twilio Auth Token",
+            "ui": {
+              "section": "Main",
+              "order": 2
+            },
+            "x-ui-hints": {
+              "format": "credential_field"
+            }
+          },
+          "To": {
+            "type": "string",
+            "title": "To",
+            "description": "Filter by destination phone number",
+            "ui": {
+              "section": "Advanced",
+              "order": 1
+            }
+          },
+          "From": {
+            "type": "string",
+            "title": "From",
+            "description": "Filter by sender phone number",
+            "ui": {
+              "section": "Advanced",
+              "order": 2
+            }
+          },
+          "DateSent": {
+            "type": "string",
+            "title": "Date Sent",
+            "description": "Filter by date sent (YYYY-MM-DD format). Use > or < prefix for ranges.",
+            "examples": [
+              "2025-01-15",
+              ">2025-01-01",
+              "<2025-02-01"
+            ],
+            "ui": {
+              "section": "Advanced",
+              "order": 3
+            }
+          },
+          "PageSize": {
+            "type": "integer",
+            "title": "Page Size",
+            "description": "Number of messages to return per page (max 1000)",
+            "minimum": 1,
+            "maximum": 1000,
+            "default": 50,
+            "ui": {
+              "section": "Advanced",
+              "order": 4
+            }
+          }
+        }
+      },
+      "result_schema": {
+        "type": "object",
+        "properties": {
+          "messages": {
+            "type": "array",
+            "description": "Array of message resources",
+            "items": {
+              "type": "object",
+              "properties": {
+                "sid": {
+                  "type": "string",
+                  "description": "Message SID"
+                },
+                "to": {
+                  "type": "string"
+                },
+                "from": {
+                  "type": "string"
+                },
+                "body": {
+                  "type": "string"
+                },
+                "status": {
+                  "type": "string"
+                },
+                "direction": {
+                  "type": "string",
+                  "description": "inbound, outbound-api, outbound-call, outbound-reply"
+                },
+                "date_sent": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "price": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              }
+            }
+          },
+          "page_size": {
+            "type": "integer"
+          },
+          "page": {
+            "type": "integer"
+          }
+        }
+      },
+      "output_view": {
+        "type": "table",
+        "source": "messages",
+        "columns": [
+          {
+            "key": "sid",
+            "label": "SID"
+          },
+          {
+            "key": "to",
+            "label": "To"
+          },
+          {
+            "key": "from",
+            "label": "From"
+          },
+          {
+            "key": "body",
+            "label": "Body"
+          },
+          {
+            "key": "status",
+            "label": "Status"
+          }
+        ]
+      },
+      "example_parameters": {
+        "account_sid": "ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "auth_token": "your_auth_token",
+        "PageSize": 20
+      },
+      "ui_hints": {
+        "sections": {
+          "Main": {
+            "title": "Main",
+            "collapsed": false,
+            "order": 1
+          },
+          "Advanced": {
+            "title": "Advanced",
+            "collapsed": true,
+            "order": 2
+          }
+        },
+        "categories": [
+          "communication"
+        ]
+      }
+    },
+    "twilio_get_message": {
+      "display_name": "Get Message",
+      "description": "Retrieve details of a single message by its SID, including delivery status, price, and error information.",
+      "service_type": "COMMUNICATION",
+      "endpoint_url": "https://api.twilio.com/2010-04-01/Accounts/{account_sid}/Messages/{message_sid}.json",
+      "method": "GET",
+      "requires_credentials": true,
+      "parameter_mapping": {
+        "path": [
+          "account_sid",
+          "message_sid"
+        ]
+      },
+      "parameter_schema": {
+        "type": "object",
+        "required": [
+          "account_sid",
+          "auth_token",
+          "message_sid"
+        ],
+        "properties": {
+          "account_sid": {
+            "type": "string",
+            "title": "Account SID",
+            "description": "Your Twilio Account SID",
+            "ui": {
+              "section": "Main",
+              "order": 1
+            },
+            "x-ui-hints": {
+              "format": "credential_field"
+            }
+          },
+          "auth_token": {
+            "type": "string",
+            "title": "Auth Token",
+            "description": "Your Twilio Auth Token",
+            "ui": {
+              "section": "Main",
+              "order": 2
+            },
+            "x-ui-hints": {
+              "format": "credential_field"
+            }
+          },
+          "message_sid": {
+            "type": "string",
+            "title": "Message SID",
+            "description": "The SID of the message to retrieve (e.g. SM...)",
+            "examples": [
+              "SM1234567890abcdef1234567890abcdef"
+            ],
+            "ui": {
+              "section": "Main",
+              "order": 3
+            }
+          }
+        }
+      },
+      "result_schema": {
+        "type": "object",
+        "properties": {
+          "sid": {
+            "type": "string",
+            "description": "Unique message identifier"
+          },
+          "status": {
+            "type": "string",
+            "description": "Message delivery status"
+          },
+          "to": {
+            "type": "string"
+          },
+          "from": {
+            "type": "string"
+          },
+          "body": {
+            "type": "string"
+          },
+          "direction": {
+            "type": "string"
+          },
+          "date_created": {
+            "type": "string"
+          },
+          "date_sent": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "date_updated": {
+            "type": "string"
+          },
+          "price": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "price_unit": {
+            "type": "string"
+          },
+          "error_code": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "description": "Twilio error code if delivery failed"
+          },
+          "error_message": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Error description if delivery failed"
+          },
+          "num_segments": {
+            "type": "string",
+            "description": "Number of SMS segments"
+          }
+        }
+      },
+      "output_view": {
+        "type": "key_value",
+        "fields": [
+          {
+            "key": "sid",
+            "label": "Message SID"
+          },
+          {
+            "key": "status",
+            "label": "Status"
+          },
+          {
+            "key": "to",
+            "label": "To"
+          },
+          {
+            "key": "from",
+            "label": "From"
+          },
+          {
+            "key": "body",
+            "label": "Body"
+          }
+        ]
+      },
+      "example_parameters": {
+        "account_sid": "ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "auth_token": "your_auth_token",
+        "message_sid": "SM1234567890abcdef1234567890abcdef"
+      },
+      "ui_hints": {
+        "sections": {
+          "Main": {
+            "title": "Main",
+            "collapsed": false,
+            "order": 1
+          }
+        },
+        "categories": [
+          "communication"
+        ]
+      }
+    }
+  },
+  "default_queue": "step_jobs"
+}

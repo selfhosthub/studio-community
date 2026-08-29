@@ -1,0 +1,788 @@
+{
+  "$schema": "https://raw.githubusercontent.com/selfhosthub/studio-community/main/schemas/provider.schema.json",
+  "slug": "shs/typeform",
+  "version": "1.0.0",
+  "name": "Typeform",
+  "description": "Form responses and survey data from Typeform",
+  "provider_type": "API",
+  "category": "productivity",
+  "status": "ACTIVE",
+  "tier": "community",
+  "credential_provider": null,
+  "requires": [],
+  "services_preview": [
+    "Get Form",
+    "List Responses",
+    "Get Response"
+  ],
+  "credential_schema": {
+    "type": "object",
+    "required": [
+      "personal_token"
+    ],
+    "properties": {
+      "personal_token": {
+        "type": "string",
+        "title": "Personal Token",
+        "description": "Typeform personal access token",
+        "format": "password"
+      }
+    }
+  },
+  "base_url": "https://api.typeform.com",
+  "auth": {
+    "type": "bearer",
+    "config": {
+      "token_field": "personal_token"
+    }
+  },
+  "default_headers": {
+    "Content-Type": "application/json"
+  },
+  "services": {
+    "typeform_get_form": {
+      "display_name": "Get Form",
+      "description": "Retrieve a form's complete definition including fields, logic, and settings. Use to understand form structure.",
+      "service_type": "PRODUCTIVITY",
+      "endpoint_url": "https://api.typeform.com",
+      "path": "/forms/{form_id}",
+      "method": "GET",
+      "requires_credentials": true,
+      "parameter_mapping": {
+        "header": [
+          "personal_token"
+        ],
+        "path": [
+          "form_id"
+        ]
+      },
+      "parameter_schema": {
+        "type": "object",
+        "required": [
+          "personal_token",
+          "form_id"
+        ],
+        "properties": {
+          "personal_token": {
+            "type": "string",
+            "title": "Personal Access Token",
+            "description": "Your Typeform personal access token",
+            "ui": {
+              "section": "Main",
+              "order": 1
+            },
+            "x-ui-hints": {
+              "format": "credential_field"
+            }
+          },
+          "form_id": {
+            "type": "string",
+            "title": "Form ID",
+            "description": "The unique ID of the form to retrieve",
+            "examples": [
+              "aBcD1234"
+            ],
+            "ui": {
+              "section": "Main",
+              "order": 2
+            }
+          }
+        }
+      },
+      "result_schema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "fields": {
+            "type": "array",
+            "description": "Form fields definition"
+          },
+          "settings": {
+            "type": "object"
+          }
+        }
+      },
+      "output_view": {
+        "type": "key_value",
+        "fields": [
+          {
+            "key": "id",
+            "label": "Form ID"
+          },
+          {
+            "key": "title",
+            "label": "Title"
+          }
+        ]
+      },
+      "example_parameters": {
+        "personal_token": "tfp_abc123def456",
+        "form_id": "aBcD1234"
+      },
+      "ui_hints": {
+        "sections": {
+          "Main": {
+            "title": "Main",
+            "collapsed": false,
+            "order": 1
+          }
+        },
+        "categories": [
+          "productivity"
+        ]
+      }
+    },
+    "typeform_list_responses": {
+      "display_name": "List Responses",
+      "description": "Retrieve form submissions/responses with filtering and pagination. Use for processing form data in workflows.",
+      "service_type": "PRODUCTIVITY",
+      "endpoint_url": "https://api.typeform.com",
+      "path": "/forms/{form_id}/responses",
+      "method": "GET",
+      "requires_credentials": true,
+      "parameter_mapping": {
+        "header": [
+          "personal_token"
+        ],
+        "path": [
+          "form_id"
+        ],
+        "query": [
+          "page_size",
+          "since",
+          "until",
+          "after",
+          "before",
+          "included_response_ids",
+          "completed",
+          "sort",
+          "query",
+          "fields"
+        ]
+      },
+      "parameter_schema": {
+        "type": "object",
+        "required": [
+          "personal_token",
+          "form_id"
+        ],
+        "properties": {
+          "personal_token": {
+            "type": "string",
+            "title": "Personal Access Token",
+            "ui": {
+              "section": "Main",
+              "order": 1
+            },
+            "x-ui-hints": {
+              "format": "credential_field"
+            }
+          },
+          "form_id": {
+            "type": "string",
+            "title": "Form ID",
+            "description": "The unique ID of the form",
+            "examples": [
+              "aBcD1234"
+            ],
+            "ui": {
+              "section": "Main",
+              "order": 2
+            }
+          },
+          "page_size": {
+            "type": "integer",
+            "title": "Page Size",
+            "description": "Number of responses to return per request (max 1000)",
+            "minimum": 1,
+            "maximum": 1000,
+            "default": 25,
+            "ui": {
+              "section": "Advanced",
+              "order": 1
+            }
+          },
+          "since": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Since (Date)",
+            "description": "Limit to responses submitted after this date (ISO 8601 format)",
+            "examples": [
+              "2024-01-01T00:00:00Z"
+            ],
+            "ui": {
+              "section": "Advanced",
+              "order": 2
+            }
+          },
+          "until": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Until (Date)",
+            "description": "Limit to responses submitted before this date (ISO 8601 format)",
+            "examples": [
+              "2024-12-31T23:59:59Z"
+            ],
+            "ui": {
+              "section": "Advanced",
+              "order": 3
+            }
+          },
+          "after": {
+            "type": "string",
+            "title": "After (Token)",
+            "description": "Pagination token for next page of results",
+            "ui": {
+              "section": "Advanced",
+              "order": 4
+            }
+          },
+          "before": {
+            "type": "string",
+            "title": "Before (Token)",
+            "description": "Pagination token for previous page of results",
+            "ui": {
+              "section": "Advanced",
+              "order": 5
+            }
+          },
+          "included_response_ids": {
+            "type": "string",
+            "title": "Included Response IDs",
+            "description": "Comma-separated list of response IDs to include",
+            "examples": [
+              "id1,id2,id3"
+            ],
+            "ui": {
+              "section": "Advanced",
+              "order": 6
+            }
+          },
+          "completed": {
+            "type": "boolean",
+            "title": "Completed Only",
+            "description": "Return only completed responses (true) or all responses (false)",
+            "default": true,
+            "ui": {
+              "section": "Advanced",
+              "order": 7
+            }
+          },
+          "sort": {
+            "type": "string",
+            "title": "Sort Order",
+            "description": "Sort responses by submission time",
+            "enum": [
+              "submitted_at,asc",
+              "submitted_at,desc"
+            ],
+            "default": "submitted_at,desc",
+            "ui": {
+              "section": "Advanced",
+              "order": 8
+            },
+            "x-ui-hints": {
+              "format": "select"
+            }
+          },
+          "query": {
+            "type": "string",
+            "title": "Search Query",
+            "description": "Search responses by answer text",
+            "ui": {
+              "section": "Advanced",
+              "order": 9
+            }
+          },
+          "fields": {
+            "type": "string",
+            "title": "Fields",
+            "description": "Comma-separated list of field IDs to include in response",
+            "examples": [
+              "field_id1,field_id2"
+            ],
+            "ui": {
+              "section": "Advanced",
+              "order": 10
+            }
+          }
+        }
+      },
+      "result_schema": {
+        "type": "object",
+        "properties": {
+          "total_items": {
+            "type": "integer"
+          },
+          "page_count": {
+            "type": "integer"
+          },
+          "items": {
+            "type": "array",
+            "description": "Array of response objects",
+            "items": {
+              "type": "object",
+              "properties": {
+                "landing_id": {
+                  "type": "string"
+                },
+                "token": {
+                  "type": "string"
+                },
+                "submitted_at": {
+                  "type": "string"
+                },
+                "answers": {
+                  "type": "array"
+                }
+              }
+            }
+          }
+        }
+      },
+      "output_view": {
+        "type": "key_value",
+        "fields": [
+          {
+            "key": "total_items",
+            "label": "Total Responses"
+          },
+          {
+            "key": "page_count",
+            "label": "Pages"
+          }
+        ]
+      },
+      "example_parameters": {
+        "personal_token": "tfp_abc123def456",
+        "form_id": "aBcD1234",
+        "page_size": 25,
+        "completed": true
+      },
+      "ui_hints": {
+        "sections": {
+          "Main": {
+            "title": "Main",
+            "collapsed": false,
+            "order": 1
+          },
+          "Advanced": {
+            "title": "Advanced",
+            "collapsed": true,
+            "order": 2
+          }
+        },
+        "categories": [
+          "productivity"
+        ]
+      }
+    },
+    "typeform_get_response": {
+      "display_name": "Get Response",
+      "description": "Retrieve a single form response by token. Returns complete submission data with all answers.",
+      "service_type": "PRODUCTIVITY",
+      "endpoint_url": "https://api.typeform.com",
+      "path": "/forms/{form_id}/responses",
+      "method": "GET",
+      "requires_credentials": true,
+      "parameter_mapping": {
+        "header": [
+          "personal_token"
+        ],
+        "path": [
+          "form_id"
+        ],
+        "query": [
+          "included_response_ids"
+        ]
+      },
+      "parameter_schema": {
+        "type": "object",
+        "required": [
+          "personal_token",
+          "form_id",
+          "response_token"
+        ],
+        "properties": {
+          "personal_token": {
+            "type": "string",
+            "title": "Personal Access Token",
+            "ui": {
+              "section": "Main",
+              "order": 1
+            },
+            "x-ui-hints": {
+              "format": "credential_field"
+            }
+          },
+          "form_id": {
+            "type": "string",
+            "title": "Form ID",
+            "examples": [
+              "aBcD1234"
+            ],
+            "ui": {
+              "section": "Main",
+              "order": 2
+            }
+          },
+          "response_token": {
+            "type": "string",
+            "title": "Response Token",
+            "description": "The unique token of the response to retrieve",
+            "examples": [
+              "abc123def456"
+            ],
+            "ui": {
+              "section": "Main",
+              "order": 3
+            }
+          },
+          "included_response_ids": {
+            "type": "string",
+            "title": "Response Token (Query)",
+            "description": "Internal mapping for response token",
+            "ui": {
+              "section": "Main",
+              "order": 4
+            },
+            "x-ui-hints": {
+              "hidden": true
+            }
+          }
+        }
+      },
+      "result_schema": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "landing_id": {
+                  "type": "string"
+                },
+                "token": {
+                  "type": "string"
+                },
+                "submitted_at": {
+                  "type": "string"
+                },
+                "answers": {
+                  "type": "array"
+                },
+                "calculated": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      },
+      "output_view": {
+        "type": "key_value",
+        "fields": [
+          {
+            "key": "items.0.token",
+            "label": "Response Token"
+          },
+          {
+            "key": "items.0.submitted_at",
+            "label": "Submitted At"
+          }
+        ]
+      },
+      "example_parameters": {
+        "personal_token": "tfp_abc123def456",
+        "form_id": "aBcD1234",
+        "response_token": "abc123def456"
+      },
+      "ui_hints": {
+        "sections": {
+          "Main": {
+            "title": "Main",
+            "collapsed": false,
+            "order": 1
+          }
+        },
+        "categories": [
+          "productivity"
+        ]
+      }
+    },
+    "typeform_create_webhook": {
+      "display_name": "Create Webhook",
+      "description": "Create a webhook to receive real-time notifications when forms are submitted. Enables instant workflow triggers.",
+      "service_type": "PRODUCTIVITY",
+      "endpoint_url": "https://api.typeform.com",
+      "path": "/forms/{form_id}/webhooks/{tag}",
+      "method": "PUT",
+      "requires_credentials": true,
+      "parameter_mapping": {
+        "header": [
+          "personal_token"
+        ],
+        "path": [
+          "form_id",
+          "tag"
+        ],
+        "body": [
+          "url",
+          "enabled",
+          "verify_ssl"
+        ]
+      },
+      "parameter_schema": {
+        "type": "object",
+        "required": [
+          "personal_token",
+          "form_id",
+          "tag",
+          "url"
+        ],
+        "properties": {
+          "personal_token": {
+            "type": "string",
+            "title": "Personal Access Token",
+            "ui": {
+              "section": "Main",
+              "order": 1
+            },
+            "x-ui-hints": {
+              "format": "credential_field"
+            }
+          },
+          "form_id": {
+            "type": "string",
+            "title": "Form ID",
+            "description": "The form to create webhook for",
+            "examples": [
+              "aBcD1234"
+            ],
+            "ui": {
+              "section": "Main",
+              "order": 2
+            }
+          },
+          "tag": {
+            "type": "string",
+            "title": "Webhook Tag",
+            "description": "Unique identifier for this webhook (use for management)",
+            "examples": [
+              "studio_webhook_1",
+              "production"
+            ],
+            "ui": {
+              "section": "Main",
+              "order": 3
+            }
+          },
+          "url": {
+            "type": "string",
+            "title": "Webhook URL",
+            "description": "The URL where Typeform will send form submissions",
+            "format": "uri",
+            "examples": [
+              "https://studio.example.com/webhooks/typeform"
+            ],
+            "ui": {
+              "section": "Main",
+              "order": 4
+            }
+          },
+          "enabled": {
+            "type": "boolean",
+            "title": "Enabled",
+            "description": "Whether the webhook is active",
+            "default": true,
+            "ui": {
+              "section": "Advanced",
+              "order": 1
+            }
+          },
+          "verify_ssl": {
+            "type": "boolean",
+            "title": "Verify SSL",
+            "description": "Whether to verify SSL certificate of webhook URL",
+            "default": true,
+            "ui": {
+              "section": "Advanced",
+              "order": 2
+            }
+          }
+        }
+      },
+      "result_schema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "form_id": {
+            "type": "string"
+          },
+          "tag": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          },
+          "enabled": {
+            "type": "boolean"
+          },
+          "created_at": {
+            "type": "string"
+          }
+        }
+      },
+      "output_view": {
+        "type": "key_value",
+        "fields": [
+          {
+            "key": "id",
+            "label": "Webhook ID"
+          },
+          {
+            "key": "tag",
+            "label": "Tag"
+          },
+          {
+            "key": "url",
+            "label": "URL"
+          },
+          {
+            "key": "enabled",
+            "label": "Enabled"
+          }
+        ]
+      },
+      "example_parameters": {
+        "personal_token": "tfp_abc123def456",
+        "form_id": "aBcD1234",
+        "tag": "studio_webhook_1",
+        "url": "https://studio.example.com/webhooks/typeform",
+        "enabled": true
+      },
+      "ui_hints": {
+        "sections": {
+          "Main": {
+            "title": "Main",
+            "collapsed": false,
+            "order": 1
+          },
+          "Advanced": {
+            "title": "Advanced",
+            "collapsed": true,
+            "order": 2
+          }
+        },
+        "categories": [
+          "productivity"
+        ]
+      }
+    },
+    "typeform_delete_webhook": {
+      "display_name": "Delete Webhook",
+      "description": "Remove a webhook by tag. Use to clean up unused webhooks or change configurations.",
+      "service_type": "PRODUCTIVITY",
+      "endpoint_url": "https://api.typeform.com",
+      "path": "/forms/{form_id}/webhooks/{tag}",
+      "method": "DELETE",
+      "requires_credentials": true,
+      "parameter_mapping": {
+        "header": [
+          "personal_token"
+        ],
+        "path": [
+          "form_id",
+          "tag"
+        ]
+      },
+      "parameter_schema": {
+        "type": "object",
+        "required": [
+          "personal_token",
+          "form_id",
+          "tag"
+        ],
+        "properties": {
+          "personal_token": {
+            "type": "string",
+            "title": "Personal Access Token",
+            "ui": {
+              "section": "Main",
+              "order": 1
+            },
+            "x-ui-hints": {
+              "format": "credential_field"
+            }
+          },
+          "form_id": {
+            "type": "string",
+            "title": "Form ID",
+            "examples": [
+              "aBcD1234"
+            ],
+            "ui": {
+              "section": "Main",
+              "order": 2
+            }
+          },
+          "tag": {
+            "type": "string",
+            "title": "Webhook Tag",
+            "description": "The tag/ID of the webhook to delete",
+            "examples": [
+              "studio_webhook_1"
+            ],
+            "ui": {
+              "section": "Main",
+              "order": 3
+            }
+          }
+        }
+      },
+      "result_schema": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          }
+        }
+      },
+      "output_view": {
+        "type": "key_value",
+        "fields": [
+          {
+            "key": "success",
+            "label": "Success"
+          }
+        ]
+      },
+      "example_parameters": {
+        "personal_token": "tfp_abc123def456",
+        "form_id": "aBcD1234",
+        "tag": "studio_webhook_1"
+      },
+      "ui_hints": {
+        "sections": {
+          "Main": {
+            "title": "Main",
+            "collapsed": false,
+            "order": 1
+          }
+        },
+        "categories": [
+          "productivity"
+        ]
+      }
+    }
+  },
+  "default_queue": "step_jobs"
+}

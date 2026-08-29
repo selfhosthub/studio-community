@@ -1,0 +1,2200 @@
+{
+  "$schema": "https://raw.githubusercontent.com/selfhosthub/studio-community/main/schemas/provider.schema.json",
+  "slug": "shs/instagram",
+  "version": "1.0.0",
+  "name": "Instagram",
+  "description": "Instagram integration for content publishing, comments, and insights. Requires a Business or Creator account linked to a Facebook Page.",
+  "provider_type": "API",
+  "category": "social_media",
+  "status": "ACTIVE",
+  "tier": "community",
+  "credential_provider": "shs/facebook",
+  "requires": [],
+  "services_preview": [
+    "Publish Image",
+    "Publish Video",
+    "Carousel",
+    "List Media",
+    "Insights",
+    "Comments",
+    "Reply",
+    "Hashtag Search",
+    "Business Discovery"
+  ],
+  "credential_schema": {
+    "type": "object",
+    "required": [
+      "client_id",
+      "client_secret"
+    ],
+    "properties": {
+      "client_id": {
+        "type": "string",
+        "title": "Facebook App ID",
+        "description": "Your Facebook App ID from Meta for Developers",
+        "ui": {
+          "order": 1,
+          "placeholder": "123456789012345",
+          "help_url": "https://developers.facebook.com/apps/"
+        }
+      },
+      "client_secret": {
+        "type": "string",
+        "title": "Facebook App Secret",
+        "description": "Your Facebook App Secret",
+        "format": "password",
+        "ui": {
+          "order": 2
+        }
+      },
+      "access_token": {
+        "type": "string",
+        "title": "Access Token",
+        "description": "OAuth access token (populated automatically after authorization)",
+        "format": "password",
+        "ui": {
+          "order": 3,
+          "readonly": true,
+          "hidden": true
+        }
+      },
+      "refresh_token": {
+        "type": "string",
+        "title": "Refresh Token",
+        "description": "OAuth refresh token (populated automatically after authorization)",
+        "format": "password",
+        "ui": {
+          "order": 4,
+          "readonly": true,
+          "hidden": true
+        }
+      },
+      "instagram_user_id": {
+        "type": "string",
+        "title": "Instagram Business Account ID",
+        "description": "Your Instagram Business or Creator Account ID (found in Facebook Page settings > Instagram > Connected Account)",
+        "ui": {
+          "order": 5,
+          "placeholder": "17841400000000000"
+        }
+      }
+    }
+  },
+  "base_url": null,
+  "icon_url": "/providers/instagram.svg",
+  "auth": {
+    "type": "oauth2",
+    "config": {
+      "oauth_provider": "facebook",
+      "token_field": "access_token"
+    }
+  },
+  "oauth": {
+    "oauth_provider": "facebook",
+    "authorization_url": "https://www.facebook.com/v21.0/dialog/oauth",
+    "token_url": "https://graph.facebook.com/v21.0/oauth/access_token",
+    "scopes": [
+      "instagram_basic",
+      "instagram_content_publish",
+      "instagram_manage_comments",
+      "instagram_manage_insights",
+      "pages_show_list",
+      "pages_read_engagement"
+    ],
+    "client_id_env": "SHS_FACEBOOK_CLIENT_ID",
+    "client_secret_env": "SHS_FACEBOOK_CLIENT_SECRET"
+  },
+  "services": {
+    "instagram_create_image_container": {
+      "display_name": "Create Image Container",
+      "description": "Create a media container for an image post. Use publish_media to publish it after creation.",
+      "service_type": "SOCIAL_MEDIA",
+      "endpoint_url": "https://graph.instagram.com/v21.0",
+      "path": "/{ig_user_id}/media",
+      "method": "POST",
+      "requires_credentials": true,
+      "parameter_mapping": {
+        "path": [
+          "ig_user_id"
+        ],
+        "body": [
+          "image_url",
+          "caption",
+          "location_id",
+          "user_tags"
+        ]
+      },
+      "parameter_schema": {
+        "type": "object",
+        "required": [
+          "ig_user_id",
+          "image_url"
+        ],
+        "properties": {
+          "ig_user_id": {
+            "type": "string",
+            "title": "Instagram User ID",
+            "description": "Instagram Business/Creator Account ID",
+            "ui": {
+              "section": "basic",
+              "order": 1,
+              "placeholder": "17841400000000000"
+            }
+          },
+          "image_url": {
+            "type": "string",
+            "format": "uri",
+            "title": "Image URL",
+            "description": "Publicly accessible URL of the image to publish",
+            "ui": {
+              "section": "basic",
+              "order": 2,
+              "placeholder": "https://example.com/image.jpg"
+            }
+          },
+          "caption": {
+            "type": "string",
+            "title": "Caption",
+            "description": "Post caption (max 2,200 characters). Supports hashtags and @mentions.",
+            "maxLength": 2200,
+            "ui": {
+              "section": "basic",
+              "order": 3,
+              "widget": "textarea"
+            }
+          },
+          "location_id": {
+            "type": "string",
+            "title": "Location ID",
+            "description": "Facebook Page location ID to tag",
+            "ui": {
+              "section": "options",
+              "order": 1
+            }
+          },
+          "user_tags": {
+            "type": "array",
+            "title": "User Tags",
+            "description": "Users to tag in the image. Each tag: { username, x, y } where x/y are 0-1 coordinates.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "username": {
+                  "type": "string"
+                },
+                "x": {
+                  "type": "number"
+                },
+                "y": {
+                  "type": "number"
+                }
+              }
+            },
+            "ui": {
+              "section": "options",
+              "order": 2
+            }
+          }
+        }
+      },
+      "result_schema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        }
+      },
+      "example_parameters": {
+        "ig_user_id": "17841400123456789",
+        "image_url": "https://example.com/image.jpg",
+        "caption": "Check out our latest post! #studio"
+      },
+      "ui_hints": {
+        "color": "#E1306C",
+        "icon": "image",
+        "sections": {
+          "basic": {
+            "title": "Basic",
+            "collapsed": false,
+            "order": 1
+          },
+          "options": {
+            "title": "Options",
+            "collapsed": true,
+            "order": 2
+          }
+        },
+        "categories": [
+          "social_media"
+        ]
+      }
+    },
+    "instagram_create_video_container": {
+      "display_name": "Create Video/Reel Container",
+      "description": "Create a media container for a video or Reel. Processing is async, so use check_container_status to poll, then publish_media when FINISHED.",
+      "service_type": "SOCIAL_MEDIA",
+      "endpoint_url": "https://graph.instagram.com/v21.0",
+      "path": "/{ig_user_id}/media",
+      "method": "POST",
+      "requires_credentials": true,
+      "parameter_mapping": {
+        "path": [
+          "ig_user_id"
+        ],
+        "body": [
+          "video_url",
+          "caption",
+          "media_type",
+          "share_to_feed",
+          "thumb_offset",
+          "location_id"
+        ]
+      },
+      "parameter_schema": {
+        "type": "object",
+        "required": [
+          "ig_user_id",
+          "video_url"
+        ],
+        "properties": {
+          "ig_user_id": {
+            "type": "string",
+            "title": "Instagram User ID",
+            "description": "Instagram Business/Creator Account ID",
+            "ui": {
+              "section": "basic",
+              "order": 1
+            }
+          },
+          "video_url": {
+            "type": "string",
+            "format": "uri",
+            "title": "Video URL",
+            "description": "Publicly accessible URL of the video to publish",
+            "ui": {
+              "section": "basic",
+              "order": 2,
+              "placeholder": "https://example.com/video.mp4"
+            }
+          },
+          "caption": {
+            "type": "string",
+            "title": "Caption",
+            "description": "Post caption (max 2,200 characters)",
+            "maxLength": 2200,
+            "ui": {
+              "section": "basic",
+              "order": 3,
+              "widget": "textarea"
+            }
+          },
+          "media_type": {
+            "type": "string",
+            "title": "Media Type",
+            "enum": [
+              "REELS",
+              "VIDEO"
+            ],
+            "enumNames": [
+              "Reel",
+              "Video"
+            ],
+            "default": "REELS",
+            "ui": {
+              "section": "basic",
+              "order": 4
+            }
+          },
+          "share_to_feed": {
+            "type": "boolean",
+            "title": "Share to Feed",
+            "description": "Whether to also share the reel to the main feed",
+            "default": true,
+            "ui": {
+              "section": "options",
+              "order": 1
+            }
+          },
+          "thumb_offset": {
+            "type": "integer",
+            "title": "Thumbnail Offset (ms)",
+            "description": "Time in milliseconds for the video thumbnail",
+            "ui": {
+              "section": "options",
+              "order": 2
+            }
+          },
+          "location_id": {
+            "type": "string",
+            "title": "Location ID",
+            "description": "Facebook Page location ID to tag",
+            "ui": {
+              "section": "options",
+              "order": 3
+            }
+          }
+        }
+      },
+      "result_schema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        }
+      },
+      "example_parameters": {
+        "ig_user_id": "17841400123456789",
+        "video_url": "https://example.com/video.mp4",
+        "caption": "New reel dropping now! #reels #studio",
+        "media_type": "REELS",
+        "share_to_feed": true
+      },
+      "ui_hints": {
+        "color": "#E1306C",
+        "icon": "video",
+        "sections": {
+          "basic": {
+            "title": "Basic",
+            "collapsed": false,
+            "order": 1
+          },
+          "options": {
+            "title": "Options",
+            "collapsed": true,
+            "order": 2
+          }
+        },
+        "categories": [
+          "social_media"
+        ]
+      }
+    },
+    "instagram_create_carousel_container": {
+      "display_name": "Create Carousel Container",
+      "description": "Create a carousel media container from child containers. Create image/video containers first, then pass their IDs as children.",
+      "service_type": "SOCIAL_MEDIA",
+      "endpoint_url": "https://graph.instagram.com/v21.0",
+      "path": "/{ig_user_id}/media",
+      "method": "POST",
+      "requires_credentials": true,
+      "parameter_mapping": {
+        "path": [
+          "ig_user_id"
+        ],
+        "body": [
+          "media_type",
+          "caption",
+          "children",
+          "location_id"
+        ]
+      },
+      "parameter_schema": {
+        "type": "object",
+        "required": [
+          "ig_user_id",
+          "children"
+        ],
+        "properties": {
+          "ig_user_id": {
+            "type": "string",
+            "title": "Instagram User ID",
+            "description": "Instagram Business/Creator Account ID",
+            "ui": {
+              "section": "basic",
+              "order": 1
+            }
+          },
+          "children": {
+            "type": "array",
+            "title": "Child Container IDs",
+            "description": "Array of media container IDs to include in the carousel (2-10 items)",
+            "items": {
+              "type": "string"
+            },
+            "minItems": 2,
+            "maxItems": 10,
+            "ui": {
+              "section": "basic",
+              "order": 2
+            }
+          },
+          "caption": {
+            "type": "string",
+            "title": "Caption",
+            "description": "Post caption (max 2,200 characters)",
+            "maxLength": 2200,
+            "ui": {
+              "section": "basic",
+              "order": 3,
+              "widget": "textarea"
+            }
+          },
+          "media_type": {
+            "type": "string",
+            "default": "CAROUSEL",
+            "ui": {
+              "hidden": true
+            }
+          },
+          "location_id": {
+            "type": "string",
+            "title": "Location ID",
+            "description": "Facebook Page location ID to tag",
+            "ui": {
+              "section": "options",
+              "order": 1
+            }
+          }
+        }
+      },
+      "result_schema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        }
+      },
+      "example_parameters": {
+        "ig_user_id": "17841400123456789",
+        "children": [
+          "17895695668004550",
+          "17895695668004551"
+        ],
+        "caption": "Swipe through our latest collection! #carousel"
+      },
+      "ui_hints": {
+        "color": "#E1306C",
+        "icon": "layers",
+        "sections": {
+          "basic": {
+            "title": "Basic",
+            "collapsed": false,
+            "order": 1
+          },
+          "options": {
+            "title": "Options",
+            "collapsed": true,
+            "order": 2
+          }
+        },
+        "categories": [
+          "social_media"
+        ]
+      }
+    },
+    "instagram_check_container_status": {
+      "display_name": "Check Container Status",
+      "description": "Check the processing status of a media container. For video containers, poll until status_code is FINISHED before publishing.",
+      "service_type": "SOCIAL_MEDIA",
+      "endpoint_url": "https://graph.instagram.com/v21.0",
+      "path": "/{container_id}",
+      "method": "GET",
+      "requires_credentials": true,
+      "parameter_mapping": {
+        "path": [
+          "container_id"
+        ],
+        "query": [
+          "fields"
+        ]
+      },
+      "parameter_schema": {
+        "type": "object",
+        "required": [
+          "container_id"
+        ],
+        "properties": {
+          "container_id": {
+            "type": "string",
+            "title": "Container ID",
+            "description": "The media container ID returned from create_image/video/carousel_container",
+            "ui": {
+              "section": "basic",
+              "order": 1
+            }
+          },
+          "fields": {
+            "type": "string",
+            "title": "Fields",
+            "default": "status_code",
+            "ui": {
+              "section": "options",
+              "order": 1
+            }
+          }
+        }
+      },
+      "result_schema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "status_code": {
+            "type": "string"
+          }
+        }
+      },
+      "example_parameters": {
+        "container_id": "17895695668004550",
+        "fields": "status_code"
+      },
+      "ui_hints": {
+        "color": "#E1306C",
+        "icon": "loader",
+        "sections": {
+          "basic": {
+            "title": "Basic",
+            "collapsed": false,
+            "order": 1
+          },
+          "options": {
+            "title": "Options",
+            "collapsed": true,
+            "order": 2
+          }
+        },
+        "categories": [
+          "social_media"
+        ]
+      }
+    },
+    "instagram_publish_media": {
+      "display_name": "Publish Media",
+      "description": "Publish a prepared media container (image, video, or carousel). The container must be fully processed before publishing.",
+      "service_type": "SOCIAL_MEDIA",
+      "endpoint_url": "https://graph.instagram.com/v21.0",
+      "path": "/{ig_user_id}/media_publish",
+      "method": "POST",
+      "requires_credentials": true,
+      "parameter_mapping": {
+        "path": [
+          "ig_user_id"
+        ],
+        "body": [
+          "creation_id"
+        ]
+      },
+      "parameter_schema": {
+        "type": "object",
+        "required": [
+          "ig_user_id",
+          "creation_id"
+        ],
+        "properties": {
+          "ig_user_id": {
+            "type": "string",
+            "title": "Instagram User ID",
+            "description": "Instagram Business/Creator Account ID",
+            "ui": {
+              "section": "basic",
+              "order": 1
+            }
+          },
+          "creation_id": {
+            "type": "string",
+            "title": "Creation ID",
+            "description": "The container ID to publish (from create_image/video/carousel_container)",
+            "ui": {
+              "section": "basic",
+              "order": 2
+            }
+          }
+        }
+      },
+      "result_schema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        }
+      },
+      "example_parameters": {
+        "ig_user_id": "17841400123456789",
+        "creation_id": "17895695668004550"
+      },
+      "ui_hints": {
+        "color": "#E1306C",
+        "icon": "send",
+        "sections": {
+          "basic": {
+            "title": "Basic",
+            "collapsed": false,
+            "order": 1
+          }
+        },
+        "categories": [
+          "social_media"
+        ]
+      }
+    },
+    "instagram_get_account_info": {
+      "display_name": "Get Account Info",
+      "description": "Retrieve the connected Instagram Business or Creator account details",
+      "service_type": "SOCIAL_MEDIA",
+      "endpoint_url": "https://graph.instagram.com/v21.0",
+      "path": "/{ig_user_id}",
+      "method": "GET",
+      "requires_credentials": true,
+      "parameter_mapping": {
+        "path": [
+          "ig_user_id"
+        ],
+        "query": [
+          "fields"
+        ]
+      },
+      "parameter_schema": {
+        "type": "object",
+        "required": [
+          "ig_user_id"
+        ],
+        "properties": {
+          "ig_user_id": {
+            "type": "string",
+            "title": "Instagram User ID",
+            "description": "Instagram Business Account ID",
+            "ui": {
+              "section": "basic",
+              "order": 1,
+              "placeholder": "17841400000000000"
+            }
+          },
+          "fields": {
+            "type": "string",
+            "title": "Fields",
+            "description": "Comma-separated list of fields to return",
+            "default": "id,username,name,biography,followers_count,follows_count,media_count,profile_picture_url,website",
+            "ui": {
+              "section": "options",
+              "order": 1
+            }
+          }
+        }
+      },
+      "result_schema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "username": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "biography": {
+            "type": "string"
+          },
+          "followers_count": {
+            "type": "integer"
+          },
+          "follows_count": {
+            "type": "integer"
+          },
+          "media_count": {
+            "type": "integer"
+          },
+          "profile_picture_url": {
+            "type": "string"
+          },
+          "website": {
+            "type": "string"
+          }
+        }
+      },
+      "example_parameters": {
+        "ig_user_id": "17841400123456789"
+      },
+      "ui_hints": {
+        "color": "#E1306C",
+        "icon": "user",
+        "sections": {
+          "basic": {
+            "title": "Basic",
+            "collapsed": false,
+            "order": 1
+          },
+          "options": {
+            "title": "Options",
+            "collapsed": true,
+            "order": 2
+          }
+        },
+        "categories": [
+          "social_media"
+        ]
+      }
+    },
+    "instagram_list_media": {
+      "display_name": "List Media",
+      "description": "List the authenticated user's Instagram posts with engagement metrics",
+      "service_type": "SOCIAL_MEDIA",
+      "endpoint_url": "https://graph.instagram.com/v21.0",
+      "path": "/{ig_user_id}/media",
+      "method": "GET",
+      "requires_credentials": true,
+      "parameter_mapping": {
+        "path": [
+          "ig_user_id"
+        ],
+        "query": [
+          "fields",
+          "limit",
+          "after"
+        ]
+      },
+      "parameter_schema": {
+        "type": "object",
+        "required": [
+          "ig_user_id"
+        ],
+        "properties": {
+          "ig_user_id": {
+            "type": "string",
+            "title": "Instagram User ID",
+            "description": "Instagram Business Account ID",
+            "ui": {
+              "section": "basic",
+              "order": 1
+            }
+          },
+          "limit": {
+            "type": "integer",
+            "title": "Limit",
+            "description": "Number of posts to return",
+            "minimum": 1,
+            "maximum": 100,
+            "default": 25,
+            "ui": {
+              "section": "basic",
+              "order": 2
+            }
+          },
+          "fields": {
+            "type": "string",
+            "title": "Fields",
+            "default": "id,caption,media_type,media_url,thumbnail_url,permalink,timestamp,like_count,comments_count",
+            "ui": {
+              "section": "options",
+              "order": 1
+            }
+          },
+          "after": {
+            "type": "string",
+            "title": "After Cursor",
+            "description": "Pagination cursor for the next page",
+            "ui": {
+              "section": "options",
+              "order": 2
+            }
+          }
+        }
+      },
+      "result_schema": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "caption": {
+                  "type": "string"
+                },
+                "media_type": {
+                  "type": "string"
+                },
+                "media_url": {
+                  "type": "string"
+                },
+                "permalink": {
+                  "type": "string"
+                },
+                "timestamp": {
+                  "type": "string"
+                },
+                "like_count": {
+                  "type": "integer"
+                },
+                "comments_count": {
+                  "type": "integer"
+                }
+              }
+            }
+          },
+          "paging": {
+            "type": "object",
+            "properties": {
+              "cursors": {
+                "type": "object",
+                "properties": {
+                  "before": {
+                    "type": "string"
+                  },
+                  "after": {
+                    "type": "string"
+                  }
+                }
+              },
+              "next": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "output_view": {
+        "type": "table",
+        "source": "data",
+        "columns": [
+          "caption",
+          "media_type",
+          "like_count",
+          "comments_count",
+          "timestamp"
+        ]
+      },
+      "example_parameters": {
+        "ig_user_id": "17841400123456789",
+        "limit": 25
+      },
+      "ui_hints": {
+        "color": "#E1306C",
+        "icon": "grid",
+        "sections": {
+          "basic": {
+            "title": "Basic",
+            "collapsed": false,
+            "order": 1
+          },
+          "options": {
+            "title": "Options",
+            "collapsed": true,
+            "order": 2
+          }
+        },
+        "categories": [
+          "social_media"
+        ]
+      }
+    },
+    "instagram_get_media": {
+      "display_name": "Get Media Details",
+      "description": "Retrieve detailed information for a specific Instagram post",
+      "service_type": "SOCIAL_MEDIA",
+      "endpoint_url": "https://graph.instagram.com/v21.0",
+      "path": "/{media_id}",
+      "method": "GET",
+      "requires_credentials": true,
+      "parameter_mapping": {
+        "path": [
+          "media_id"
+        ],
+        "query": [
+          "fields"
+        ]
+      },
+      "parameter_schema": {
+        "type": "object",
+        "required": [
+          "media_id"
+        ],
+        "properties": {
+          "media_id": {
+            "type": "string",
+            "title": "Media ID",
+            "description": "The ID of the Instagram post",
+            "ui": {
+              "section": "basic",
+              "order": 1
+            }
+          },
+          "fields": {
+            "type": "string",
+            "title": "Fields",
+            "default": "id,caption,media_type,media_url,thumbnail_url,permalink,timestamp,like_count,comments_count,children{id,media_type,media_url}",
+            "ui": {
+              "section": "options",
+              "order": 1
+            }
+          }
+        }
+      },
+      "result_schema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "caption": {
+            "type": "string"
+          },
+          "media_type": {
+            "type": "string"
+          },
+          "media_url": {
+            "type": "string"
+          },
+          "permalink": {
+            "type": "string"
+          },
+          "timestamp": {
+            "type": "string"
+          },
+          "like_count": {
+            "type": "integer"
+          },
+          "comments_count": {
+            "type": "integer"
+          }
+        }
+      },
+      "example_parameters": {
+        "media_id": "17895695668004550"
+      },
+      "ui_hints": {
+        "color": "#E1306C",
+        "icon": "image",
+        "sections": {
+          "basic": {
+            "title": "Basic",
+            "collapsed": false,
+            "order": 1
+          },
+          "options": {
+            "title": "Options",
+            "collapsed": true,
+            "order": 2
+          }
+        },
+        "categories": [
+          "social_media"
+        ]
+      }
+    },
+    "instagram_get_media_insights": {
+      "display_name": "Get Post Insights",
+      "description": "Retrieve engagement metrics (impressions, reach, likes, comments, shares, saves) for a published post",
+      "service_type": "SOCIAL_MEDIA",
+      "endpoint_url": "https://graph.instagram.com/v21.0",
+      "path": "/{media_id}/insights",
+      "method": "GET",
+      "requires_credentials": true,
+      "parameter_mapping": {
+        "path": [
+          "media_id"
+        ],
+        "query": [
+          "metric"
+        ]
+      },
+      "parameter_schema": {
+        "type": "object",
+        "required": [
+          "media_id"
+        ],
+        "properties": {
+          "media_id": {
+            "type": "string",
+            "title": "Media ID",
+            "description": "The ID of the Instagram post to get insights for",
+            "ui": {
+              "section": "basic",
+              "order": 1
+            }
+          },
+          "metric": {
+            "type": "string",
+            "title": "Metrics",
+            "description": "Comma-separated list of metrics to retrieve",
+            "default": "impressions,reach,engagement,saved,likes,comments,shares",
+            "ui": {
+              "section": "basic",
+              "order": 2
+            }
+          }
+        }
+      },
+      "result_schema": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "period": {
+                  "type": "string"
+                },
+                "values": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "value": {
+                        "type": "integer"
+                      }
+                    }
+                  }
+                },
+                "title": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "id": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "output_view": {
+        "type": "table",
+        "source": "data",
+        "columns": [
+          "name",
+          "values"
+        ]
+      },
+      "example_parameters": {
+        "media_id": "17895695668004550",
+        "metric": "impressions,reach,engagement,saved,likes,comments,shares"
+      },
+      "ui_hints": {
+        "color": "#E1306C",
+        "icon": "bar-chart-2",
+        "sections": {
+          "basic": {
+            "title": "Basic",
+            "collapsed": false,
+            "order": 1
+          }
+        },
+        "categories": [
+          "social_media"
+        ]
+      }
+    },
+    "instagram_get_account_insights": {
+      "display_name": "Get Account Insights",
+      "description": "Retrieve account-level analytics (impressions, reach, follower count, profile views) over a time period",
+      "service_type": "SOCIAL_MEDIA",
+      "endpoint_url": "https://graph.instagram.com/v21.0",
+      "path": "/{ig_user_id}/insights",
+      "method": "GET",
+      "requires_credentials": true,
+      "parameter_mapping": {
+        "path": [
+          "ig_user_id"
+        ],
+        "query": [
+          "metric",
+          "period",
+          "since",
+          "until"
+        ]
+      },
+      "parameter_schema": {
+        "type": "object",
+        "required": [
+          "ig_user_id",
+          "metric",
+          "period"
+        ],
+        "properties": {
+          "ig_user_id": {
+            "type": "string",
+            "title": "Instagram User ID",
+            "description": "Instagram Business Account ID",
+            "ui": {
+              "section": "basic",
+              "order": 1
+            }
+          },
+          "metric": {
+            "type": "string",
+            "title": "Metrics",
+            "description": "Comma-separated list of account metrics",
+            "default": "impressions,reach,follower_count,profile_views",
+            "ui": {
+              "section": "basic",
+              "order": 2
+            }
+          },
+          "period": {
+            "type": "string",
+            "title": "Period",
+            "description": "Aggregation period for the metrics",
+            "enum": [
+              "day",
+              "week",
+              "days_28",
+              "month",
+              "lifetime"
+            ],
+            "enumNames": [
+              "Day",
+              "Week",
+              "28 Days",
+              "Month",
+              "Lifetime"
+            ],
+            "default": "day",
+            "ui": {
+              "section": "basic",
+              "order": 3
+            }
+          },
+          "since": {
+            "type": "string",
+            "title": "Since",
+            "description": "Unix timestamp for the start of the range",
+            "ui": {
+              "section": "options",
+              "order": 1
+            }
+          },
+          "until": {
+            "type": "string",
+            "title": "Until",
+            "description": "Unix timestamp for the end of the range",
+            "ui": {
+              "section": "options",
+              "order": 2
+            }
+          }
+        }
+      },
+      "result_schema": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "period": {
+                  "type": "string"
+                },
+                "values": {
+                  "type": "array"
+                },
+                "title": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "output_view": {
+        "type": "table",
+        "source": "data",
+        "columns": [
+          "name",
+          "period",
+          "values"
+        ]
+      },
+      "example_parameters": {
+        "ig_user_id": "17841400123456789",
+        "metric": "impressions,reach,follower_count,profile_views",
+        "period": "day"
+      },
+      "ui_hints": {
+        "color": "#E1306C",
+        "icon": "trending-up",
+        "sections": {
+          "basic": {
+            "title": "Basic",
+            "collapsed": false,
+            "order": 1
+          },
+          "options": {
+            "title": "Options",
+            "collapsed": true,
+            "order": 2
+          }
+        },
+        "categories": [
+          "social_media"
+        ]
+      }
+    },
+    "instagram_list_comments": {
+      "display_name": "List Post Comments",
+      "description": "Retrieve comments on an Instagram post, including nested replies",
+      "service_type": "SOCIAL_MEDIA",
+      "endpoint_url": "https://graph.instagram.com/v21.0",
+      "path": "/{media_id}/comments",
+      "method": "GET",
+      "requires_credentials": true,
+      "parameter_mapping": {
+        "path": [
+          "media_id"
+        ],
+        "query": [
+          "fields",
+          "limit",
+          "after"
+        ]
+      },
+      "parameter_schema": {
+        "type": "object",
+        "required": [
+          "media_id"
+        ],
+        "properties": {
+          "media_id": {
+            "type": "string",
+            "title": "Media ID",
+            "description": "The ID of the Instagram post",
+            "ui": {
+              "section": "basic",
+              "order": 1
+            }
+          },
+          "limit": {
+            "type": "integer",
+            "title": "Limit",
+            "description": "Number of comments to return",
+            "minimum": 1,
+            "maximum": 100,
+            "default": 50,
+            "ui": {
+              "section": "basic",
+              "order": 2
+            }
+          },
+          "fields": {
+            "type": "string",
+            "title": "Fields",
+            "default": "id,text,username,timestamp,like_count,replies{id,text,username,timestamp}",
+            "ui": {
+              "section": "options",
+              "order": 1
+            }
+          },
+          "after": {
+            "type": "string",
+            "title": "After Cursor",
+            "description": "Pagination cursor for the next page",
+            "ui": {
+              "section": "options",
+              "order": 2
+            }
+          }
+        }
+      },
+      "result_schema": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "text": {
+                  "type": "string"
+                },
+                "username": {
+                  "type": "string"
+                },
+                "timestamp": {
+                  "type": "string"
+                },
+                "like_count": {
+                  "type": "integer"
+                },
+                "replies": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "text": {
+                            "type": "string"
+                          },
+                          "username": {
+                            "type": "string"
+                          },
+                          "timestamp": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "paging": {
+            "type": "object",
+            "properties": {
+              "cursors": {
+                "type": "object",
+                "properties": {
+                  "before": {
+                    "type": "string"
+                  },
+                  "after": {
+                    "type": "string"
+                  }
+                }
+              },
+              "next": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "output_view": {
+        "type": "list",
+        "source": "data"
+      },
+      "example_parameters": {
+        "media_id": "17895695668004550",
+        "limit": 50
+      },
+      "ui_hints": {
+        "color": "#E1306C",
+        "icon": "message-circle",
+        "sections": {
+          "basic": {
+            "title": "Basic",
+            "collapsed": false,
+            "order": 1
+          },
+          "options": {
+            "title": "Options",
+            "collapsed": true,
+            "order": 2
+          }
+        },
+        "categories": [
+          "social_media"
+        ]
+      }
+    },
+    "instagram_reply_to_comment": {
+      "display_name": "Reply to Comment",
+      "description": "Post a reply to an existing comment on an Instagram post",
+      "service_type": "SOCIAL_MEDIA",
+      "endpoint_url": "https://graph.instagram.com/v21.0",
+      "path": "/{comment_id}/replies",
+      "method": "POST",
+      "requires_credentials": true,
+      "parameter_mapping": {
+        "path": [
+          "comment_id"
+        ],
+        "body": [
+          "message"
+        ]
+      },
+      "parameter_schema": {
+        "type": "object",
+        "required": [
+          "comment_id",
+          "message"
+        ],
+        "properties": {
+          "comment_id": {
+            "type": "string",
+            "title": "Comment ID",
+            "description": "The ID of the comment to reply to",
+            "ui": {
+              "section": "basic",
+              "order": 1
+            }
+          },
+          "message": {
+            "type": "string",
+            "title": "Reply Text",
+            "description": "The text of the reply",
+            "ui": {
+              "section": "basic",
+              "order": 2,
+              "widget": "textarea"
+            }
+          }
+        }
+      },
+      "result_schema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        }
+      },
+      "example_parameters": {
+        "comment_id": "17858893269000001",
+        "message": "Thanks for your comment! We appreciate the feedback."
+      },
+      "ui_hints": {
+        "color": "#E1306C",
+        "icon": "corner-down-right",
+        "sections": {
+          "basic": {
+            "title": "Basic",
+            "collapsed": false,
+            "order": 1
+          }
+        },
+        "categories": [
+          "social_media"
+        ]
+      }
+    },
+    "instagram_hide_comment": {
+      "display_name": "Hide/Unhide Comment",
+      "description": "Hide or unhide a comment on an Instagram post",
+      "service_type": "SOCIAL_MEDIA",
+      "endpoint_url": "https://graph.instagram.com/v21.0",
+      "path": "/{comment_id}",
+      "method": "POST",
+      "requires_credentials": true,
+      "parameter_mapping": {
+        "path": [
+          "comment_id"
+        ],
+        "body": [
+          "hide"
+        ]
+      },
+      "parameter_schema": {
+        "type": "object",
+        "required": [
+          "comment_id",
+          "hide"
+        ],
+        "properties": {
+          "comment_id": {
+            "type": "string",
+            "title": "Comment ID",
+            "description": "The ID of the comment to hide or unhide",
+            "ui": {
+              "section": "basic",
+              "order": 1
+            }
+          },
+          "hide": {
+            "type": "boolean",
+            "title": "Hide",
+            "description": "true to hide the comment, false to unhide",
+            "default": true,
+            "ui": {
+              "section": "basic",
+              "order": 2
+            }
+          }
+        }
+      },
+      "result_schema": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          }
+        }
+      },
+      "example_parameters": {
+        "comment_id": "17858893269000001",
+        "hide": true
+      },
+      "ui_hints": {
+        "color": "#E1306C",
+        "icon": "eye-off",
+        "sections": {
+          "basic": {
+            "title": "Basic",
+            "collapsed": false,
+            "order": 1
+          }
+        },
+        "categories": [
+          "social_media"
+        ]
+      }
+    },
+    "instagram_delete_comment": {
+      "display_name": "Delete Comment",
+      "description": "Delete a comment on an Instagram post",
+      "service_type": "SOCIAL_MEDIA",
+      "endpoint_url": "https://graph.instagram.com/v21.0",
+      "path": "/{comment_id}",
+      "method": "DELETE",
+      "requires_credentials": true,
+      "parameter_mapping": {
+        "path": [
+          "comment_id"
+        ]
+      },
+      "parameter_schema": {
+        "type": "object",
+        "required": [
+          "comment_id"
+        ],
+        "properties": {
+          "comment_id": {
+            "type": "string",
+            "title": "Comment ID",
+            "description": "The ID of the comment to delete",
+            "ui": {
+              "section": "basic",
+              "order": 1
+            }
+          }
+        }
+      },
+      "result_schema": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          }
+        }
+      },
+      "example_parameters": {
+        "comment_id": "17858893269000001"
+      },
+      "ui_hints": {
+        "color": "#E1306C",
+        "icon": "trash-2",
+        "sections": {
+          "basic": {
+            "title": "Basic",
+            "collapsed": false,
+            "order": 1
+          }
+        },
+        "categories": [
+          "social_media"
+        ]
+      }
+    },
+    "instagram_search_hashtag": {
+      "display_name": "Search Hashtag",
+      "description": "Search for a hashtag ID by name. Use the returned ID with get_hashtag_top_media or get_hashtag_recent_media.",
+      "service_type": "SOCIAL_MEDIA",
+      "endpoint_url": "https://graph.instagram.com/v21.0",
+      "path": "/ig_hashtag_search",
+      "method": "GET",
+      "requires_credentials": true,
+      "parameter_mapping": {
+        "query": [
+          "user_id",
+          "q"
+        ]
+      },
+      "parameter_schema": {
+        "type": "object",
+        "required": [
+          "user_id",
+          "q"
+        ],
+        "properties": {
+          "user_id": {
+            "type": "string",
+            "title": "Instagram User ID",
+            "description": "Your Instagram Business Account ID (required for rate limiting)",
+            "ui": {
+              "section": "basic",
+              "order": 1
+            }
+          },
+          "q": {
+            "type": "string",
+            "title": "Hashtag",
+            "description": "The hashtag name to search for (without #)",
+            "ui": {
+              "section": "basic",
+              "order": 2,
+              "placeholder": "travel"
+            }
+          }
+        }
+      },
+      "result_schema": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "example_parameters": {
+        "user_id": "17841400123456789",
+        "q": "travel"
+      },
+      "ui_hints": {
+        "color": "#E1306C",
+        "icon": "hash",
+        "sections": {
+          "basic": {
+            "title": "Basic",
+            "collapsed": false,
+            "order": 1
+          }
+        },
+        "categories": [
+          "social_media"
+        ]
+      }
+    },
+    "instagram_get_hashtag_top_media": {
+      "display_name": "Hashtag Top Media",
+      "description": "Get the top-performing media for a specific hashtag",
+      "service_type": "SOCIAL_MEDIA",
+      "endpoint_url": "https://graph.instagram.com/v21.0",
+      "path": "/{hashtag_id}/top_media",
+      "method": "GET",
+      "requires_credentials": true,
+      "parameter_mapping": {
+        "path": [
+          "hashtag_id"
+        ],
+        "query": [
+          "user_id",
+          "fields"
+        ]
+      },
+      "parameter_schema": {
+        "type": "object",
+        "required": [
+          "hashtag_id",
+          "user_id"
+        ],
+        "properties": {
+          "hashtag_id": {
+            "type": "string",
+            "title": "Hashtag ID",
+            "description": "The hashtag ID from search_hashtag",
+            "ui": {
+              "section": "basic",
+              "order": 1
+            }
+          },
+          "user_id": {
+            "type": "string",
+            "title": "Instagram User ID",
+            "description": "Your Instagram Business Account ID",
+            "ui": {
+              "section": "basic",
+              "order": 2
+            }
+          },
+          "fields": {
+            "type": "string",
+            "title": "Fields",
+            "default": "id,caption,media_type,media_url,permalink,timestamp,like_count,comments_count",
+            "ui": {
+              "section": "options",
+              "order": 1
+            }
+          }
+        }
+      },
+      "result_schema": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "caption": {
+                  "type": "string"
+                },
+                "media_type": {
+                  "type": "string"
+                },
+                "permalink": {
+                  "type": "string"
+                },
+                "timestamp": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "output_view": {
+        "type": "table",
+        "source": "data",
+        "columns": [
+          "caption",
+          "media_type",
+          "timestamp"
+        ]
+      },
+      "example_parameters": {
+        "hashtag_id": "17843853986012965",
+        "user_id": "17841400123456789"
+      },
+      "ui_hints": {
+        "color": "#E1306C",
+        "icon": "trending-up",
+        "sections": {
+          "basic": {
+            "title": "Basic",
+            "collapsed": false,
+            "order": 1
+          },
+          "options": {
+            "title": "Options",
+            "collapsed": true,
+            "order": 2
+          }
+        },
+        "categories": [
+          "social_media"
+        ]
+      }
+    },
+    "instagram_get_hashtag_recent_media": {
+      "display_name": "Hashtag Recent Media",
+      "description": "Get the most recent media for a specific hashtag",
+      "service_type": "SOCIAL_MEDIA",
+      "endpoint_url": "https://graph.instagram.com/v21.0",
+      "path": "/{hashtag_id}/recent_media",
+      "method": "GET",
+      "requires_credentials": true,
+      "parameter_mapping": {
+        "path": [
+          "hashtag_id"
+        ],
+        "query": [
+          "user_id",
+          "fields"
+        ]
+      },
+      "parameter_schema": {
+        "type": "object",
+        "required": [
+          "hashtag_id",
+          "user_id"
+        ],
+        "properties": {
+          "hashtag_id": {
+            "type": "string",
+            "title": "Hashtag ID",
+            "description": "The hashtag ID from search_hashtag",
+            "ui": {
+              "section": "basic",
+              "order": 1
+            }
+          },
+          "user_id": {
+            "type": "string",
+            "title": "Instagram User ID",
+            "description": "Your Instagram Business Account ID",
+            "ui": {
+              "section": "basic",
+              "order": 2
+            }
+          },
+          "fields": {
+            "type": "string",
+            "title": "Fields",
+            "default": "id,caption,media_type,media_url,permalink,timestamp,like_count,comments_count",
+            "ui": {
+              "section": "options",
+              "order": 1
+            }
+          }
+        }
+      },
+      "result_schema": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "caption": {
+                  "type": "string"
+                },
+                "media_type": {
+                  "type": "string"
+                },
+                "permalink": {
+                  "type": "string"
+                },
+                "timestamp": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "output_view": {
+        "type": "table",
+        "source": "data",
+        "columns": [
+          "caption",
+          "media_type",
+          "timestamp"
+        ]
+      },
+      "example_parameters": {
+        "hashtag_id": "17843853986012965",
+        "user_id": "17841400123456789"
+      },
+      "ui_hints": {
+        "color": "#E1306C",
+        "icon": "clock",
+        "sections": {
+          "basic": {
+            "title": "Basic",
+            "collapsed": false,
+            "order": 1
+          },
+          "options": {
+            "title": "Options",
+            "collapsed": true,
+            "order": 2
+          }
+        },
+        "categories": [
+          "social_media"
+        ]
+      }
+    },
+    "instagram_get_mentioned_media": {
+      "display_name": "Get Mentioned Media",
+      "description": "Retrieve media where the authenticated user is mentioned or tagged",
+      "service_type": "SOCIAL_MEDIA",
+      "endpoint_url": "https://graph.instagram.com/v21.0",
+      "path": "/{ig_user_id}/mentioned_media",
+      "method": "GET",
+      "requires_credentials": true,
+      "parameter_mapping": {
+        "path": [
+          "ig_user_id"
+        ],
+        "query": [
+          "fields"
+        ]
+      },
+      "parameter_schema": {
+        "type": "object",
+        "required": [
+          "ig_user_id"
+        ],
+        "properties": {
+          "ig_user_id": {
+            "type": "string",
+            "title": "Instagram User ID",
+            "description": "Instagram Business Account ID",
+            "ui": {
+              "section": "basic",
+              "order": 1
+            }
+          },
+          "fields": {
+            "type": "string",
+            "title": "Fields",
+            "default": "id,caption,media_type,media_url,permalink,timestamp",
+            "ui": {
+              "section": "options",
+              "order": 1
+            }
+          }
+        }
+      },
+      "result_schema": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "caption": {
+                  "type": "string"
+                },
+                "media_type": {
+                  "type": "string"
+                },
+                "permalink": {
+                  "type": "string"
+                },
+                "timestamp": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "output_view": {
+        "type": "list",
+        "source": "data"
+      },
+      "example_parameters": {
+        "ig_user_id": "17841400123456789"
+      },
+      "ui_hints": {
+        "color": "#E1306C",
+        "icon": "at-sign",
+        "sections": {
+          "basic": {
+            "title": "Basic",
+            "collapsed": false,
+            "order": 1
+          },
+          "options": {
+            "title": "Options",
+            "collapsed": true,
+            "order": 2
+          }
+        },
+        "categories": [
+          "social_media"
+        ]
+      }
+    },
+    "instagram_get_mentioned_comments": {
+      "display_name": "Get Mentioned Comments",
+      "description": "Retrieve comments where the authenticated user is mentioned",
+      "service_type": "SOCIAL_MEDIA",
+      "endpoint_url": "https://graph.instagram.com/v21.0",
+      "path": "/{ig_user_id}/mentioned_comment",
+      "method": "GET",
+      "requires_credentials": true,
+      "parameter_mapping": {
+        "path": [
+          "ig_user_id"
+        ],
+        "query": [
+          "fields"
+        ]
+      },
+      "parameter_schema": {
+        "type": "object",
+        "required": [
+          "ig_user_id"
+        ],
+        "properties": {
+          "ig_user_id": {
+            "type": "string",
+            "title": "Instagram User ID",
+            "description": "Instagram Business Account ID",
+            "ui": {
+              "section": "basic",
+              "order": 1
+            }
+          },
+          "fields": {
+            "type": "string",
+            "title": "Fields",
+            "default": "id,text,timestamp,media{id,media_url}",
+            "ui": {
+              "section": "options",
+              "order": 1
+            }
+          }
+        }
+      },
+      "result_schema": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "text": {
+                  "type": "string"
+                },
+                "timestamp": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "output_view": {
+        "type": "list",
+        "source": "data"
+      },
+      "example_parameters": {
+        "ig_user_id": "17841400123456789"
+      },
+      "ui_hints": {
+        "color": "#E1306C",
+        "icon": "at-sign",
+        "sections": {
+          "basic": {
+            "title": "Basic",
+            "collapsed": false,
+            "order": 1
+          },
+          "options": {
+            "title": "Options",
+            "collapsed": true,
+            "order": 2
+          }
+        },
+        "categories": [
+          "social_media"
+        ]
+      }
+    },
+    "instagram_business_discovery": {
+      "display_name": "Business Discovery",
+      "description": "Look up another Instagram Business/Creator account's public profile and recent media using Graph API field expansion",
+      "service_type": "SOCIAL_MEDIA",
+      "endpoint_url": "https://graph.instagram.com/v21.0",
+      "path": "/{ig_user_id}",
+      "method": "GET",
+      "requires_credentials": true,
+      "parameter_mapping": {
+        "path": [
+          "ig_user_id"
+        ],
+        "query": [
+          "fields"
+        ]
+      },
+      "parameter_schema": {
+        "type": "object",
+        "required": [
+          "ig_user_id",
+          "fields"
+        ],
+        "properties": {
+          "ig_user_id": {
+            "type": "string",
+            "title": "Your Instagram User ID",
+            "description": "Your Instagram Business Account ID (used for authentication context)",
+            "ui": {
+              "section": "basic",
+              "order": 1
+            }
+          },
+          "fields": {
+            "type": "string",
+            "title": "Fields (Graph API Expansion)",
+            "description": "Graph API field expansion query. Use business_discovery.fields(...) syntax with target username. Example: business_discovery.fields(username,name,followers_count,media.limit(5){caption,like_count,timestamp}){@targetusername}",
+            "default": "business_discovery.fields(username,name,biography,followers_count,follows_count,media_count,profile_picture_url,media.limit(5){caption,media_url,timestamp,like_count,comments_count})",
+            "ui": {
+              "section": "basic",
+              "order": 2,
+              "widget": "textarea"
+            }
+          }
+        }
+      },
+      "result_schema": {
+        "type": "object",
+        "properties": {
+          "business_discovery": {
+            "type": "object",
+            "properties": {
+              "username": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "biography": {
+                "type": "string"
+              },
+              "followers_count": {
+                "type": "integer"
+              },
+              "follows_count": {
+                "type": "integer"
+              },
+              "media_count": {
+                "type": "integer"
+              },
+              "media": {
+                "type": "object",
+                "properties": {
+                  "data": {
+                    "type": "array"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "example_parameters": {
+        "ig_user_id": "17841400123456789",
+        "fields": "business_discovery.fields(username,name,biography,followers_count,follows_count,media_count,profile_picture_url,media.limit(5){caption,media_url,timestamp,like_count,comments_count})"
+      },
+      "ui_hints": {
+        "color": "#E1306C",
+        "icon": "compass",
+        "sections": {
+          "basic": {
+            "title": "Basic",
+            "collapsed": false,
+            "order": 1
+          }
+        },
+        "categories": [
+          "social_media"
+        ]
+      }
+    }
+  },
+  "default_queue": "step_jobs"
+}

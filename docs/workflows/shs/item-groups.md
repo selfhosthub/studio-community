@@ -83,6 +83,6 @@ Loop is toggled **per field** using the ↺ button next to the field selector. O
 
 ## Exception: steps that combine instead of iterate
 
-A few steps — like **video render** — don't offer this toggle. They take your **whole list at once** and combine everything into **one result** (e.g. a list of scenes → one video). You build these with a **scene template**: one scene you design, repeated N times, all assembled into a single output.
+A few steps, like **video render**, don't offer this toggle. They take your **whole list at once** and combine everything into **one result** (e.g. a list of scenes → one video). You build these with a **scene template**: one scene you design, repeated N times, all assembled into a single output.
 
 The next step then receives a list of one, so it does **not** need "Run once per item" turned on.

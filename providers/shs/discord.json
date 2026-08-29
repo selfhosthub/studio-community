@@ -1,0 +1,135 @@
+{
+  "$schema": "https://raw.githubusercontent.com/selfhosthub/studio-community/main/schemas/provider.schema.json",
+  "slug": "shs/discord",
+  "version": "1.1.0",
+  "name": "Discord",
+  "description": "Send messages to Discord channels via webhooks",
+  "provider_type": "API",
+  "category": "communication",
+  "status": "ACTIVE",
+  "tier": "community",
+  "credential_schema": null,
+  "base_url": "https://discord.com/api/v10",
+  "icon_url": "/providers/discord.svg",
+  "auth": {
+    "type": "none"
+  },
+  "services": {
+    "discord_send_webhook": {
+      "display_name": "Send Webhook Message",
+      "description": "Send a message via Discord webhook (no bot required)",
+      "service_type": "COMMUNICATION",
+      "endpoint_url": "{{ parameters.webhook_url }}",
+      "method": "POST",
+      "requires_credentials": false,
+      "is_active": true,
+      "parameter_mapping": {
+        "body": [
+          "content",
+          "username",
+          "avatar_url",
+          "embeds"
+        ]
+      },
+      "parameter_schema": {
+        "type": "object",
+        "required": [
+          "webhook_url",
+          "content"
+        ],
+        "properties": {
+          "webhook_url": {
+            "type": "string",
+            "title": "Webhook URL",
+            "description": "Paste the URL from the Discord channel's Integrations > Webhooks page",
+            "format": "uri",
+            "ui": {
+              "section": "Main",
+              "order": 0
+            }
+          },
+          "content": {
+            "type": "string",
+            "title": "Message Content",
+            "description": "The message to send",
+            "ui": {
+              "section": "Main",
+              "order": 1
+            }
+          },
+          "username": {
+            "type": "string",
+            "title": "Username Override",
+            "description": "Override the webhook's default username",
+            "ui": {
+              "section": "Advanced",
+              "order": 1,
+              "collapsed": true
+            }
+          },
+          "avatar_url": {
+            "type": "string",
+            "title": "Avatar URL",
+            "description": "Override the webhook's default avatar",
+            "format": "uri",
+            "ui": {
+              "section": "Advanced",
+              "order": 2,
+              "collapsed": true
+            }
+          },
+          "embeds": {
+            "type": "array",
+            "title": "Embeds",
+            "description": "Rich embed objects",
+            "items": {
+              "type": "object"
+            },
+            "ui": {
+              "section": "Advanced",
+              "order": 3,
+              "collapsed": true
+            }
+          }
+        }
+      },
+      "result_schema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "success": {
+            "type": "boolean"
+          }
+        }
+      },
+      "output_view": {
+        "type": "key_value",
+        "fields": [
+          {
+            "key": "success",
+            "label": "Success"
+          },
+          {
+            "key": "id",
+            "label": "Message ID"
+          }
+        ]
+      },
+      "example_parameters": {
+        "webhook_url": "https://discord.com/api/webhooks/123456789/abcdef",
+        "content": "Hello from Studio workflow!",
+        "username": "Studio Bot"
+      },
+      "ui_hints": {
+        "color": "#5865F2",
+        "icon": "message-square",
+        "categories": [
+          "communication"
+        ]
+      }
+    }
+  },
+  "default_queue": "step_jobs"
+}

@@ -119,7 +119,7 @@ Step 1: SHS Video Create
     - duration: 5
     - zoom_start: 1.0
     - zoom_end: 1.1
-    - pan: random
+    - pan: right
   - Background audio: music.mp3
   - Quality: high
   ↓
@@ -177,19 +177,16 @@ Create educational content:
 2. **Generate Audio** - TTS for narration
 3. **Match Visuals** - Select/generate images per section
 4. **Compose Video** - SHS Video with all elements
-5. **Add Subtitles** - Whisper auto-generation
+5. **Add Subtitles** - `subtitles_source: auto` burns captions into the render
 6. **Deliver** - Upload to course platform
 
 ### Multi-Language Video Pipeline
 
 Localize videos efficiently:
 
-1. **Render Base Video** - Original language
-2. **Extract Audio** - Isolate narration track
-3. **Transcribe** - Whisper for accuracy
-4. **Translate** - AI translation of script
-5. **Generate Voices** - TTS per language
-6. **Render Variants** - Parallel processing
+1. **Translate Script** - AI translation of the source script
+2. **Generate Voices** - SHS Audio TTS per language
+3. **Render Variants** - One video step per language, same scenes, swapped audio
 
 ### Batch Video Processing
 

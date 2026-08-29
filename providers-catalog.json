@@ -24,7 +24,7 @@
     {
       "id": "shs/openai",
       "display_name": "OpenAI",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "tier": "community",
       "category": "ai",
       "description": "AI models for chat completion, embeddings, and image generation",
@@ -40,7 +40,7 @@
     {
       "id": "shs/leonardo",
       "display_name": "Leonardo",
-      "version": "1.0.0",
+      "version": "1.0.1",
       "tier": "community",
       "category": "ai",
       "description": "AI-powered image generation with Leonardo",
@@ -91,7 +91,7 @@
     {
       "id": "shs/comfyui",
       "display_name": "Self-Host Studio ComfyUI",
-      "version": "1.2.1",
+      "version": "1.2.2",
       "tier": "community",
       "category": "ai",
       "description": "Self-hosted AI image generation with ComfyUI (Flux.1 Schnell, Flux 2 Klein)",
@@ -151,6 +151,243 @@
       "requires_token": false,
       "path": "providers/shs/tiktok.json",
       "download_url": "https://raw.githubusercontent.com/selfhosthub/studio-community/main/providers/shs/tiktok.json"
+    },
+    {
+      "id": "shs/claude",
+      "display_name": "Claude",
+      "version": "1.1.0",
+      "tier": "community",
+      "category": "ai",
+      "description": "Anthropic's Claude AI models for chat, analysis, and tool use",
+      "services_preview": [
+        "Chat (Messages API)",
+        "Vision Analysis"
+      ],
+      "requires_token": false,
+      "path": "providers/shs/claude.json",
+      "download_url": "https://raw.githubusercontent.com/selfhosthub/studio-community/main/providers/shs/claude.json"
+    },
+    {
+      "id": "shs/gemini",
+      "display_name": "Gemini",
+      "version": "1.1.0",
+      "tier": "community",
+      "category": "ai",
+      "description": "Google's Gemini AI models for chat, multimodal understanding, and function calling",
+      "services_preview": [
+        "Generate Content",
+        "Multimodal (Vision)",
+        "Embeddings"
+      ],
+      "requires_token": false,
+      "path": "providers/shs/gemini.json",
+      "download_url": "https://raw.githubusercontent.com/selfhosthub/studio-community/main/providers/shs/gemini.json"
+    },
+    {
+      "id": "shs/perplexity",
+      "display_name": "Perplexity",
+      "version": "1.1.0",
+      "tier": "community",
+      "category": "ai",
+      "description": "Perplexity AI search-augmented language models with built-in web citations",
+      "services_preview": [
+        "Chat Completion (Sonar)"
+      ],
+      "requires_token": false,
+      "path": "providers/shs/perplexity.json",
+      "download_url": "https://raw.githubusercontent.com/selfhosthub/studio-community/main/providers/shs/perplexity.json"
+    },
+    {
+      "id": "shs/google",
+      "display_name": "Google",
+      "version": "1.1.0",
+      "tier": "community",
+      "category": "productivity",
+      "description": "Google Workspace integration for Sheets, Drive, and Gmail",
+      "services_preview": [
+        "Sheets: Read/Write",
+        "Drive: List/Upload",
+        "Gmail: Send/Read"
+      ],
+      "requires_token": false,
+      "path": "providers/shs/google.json",
+      "download_url": "https://raw.githubusercontent.com/selfhosthub/studio-community/main/providers/shs/google.json"
+    },
+    {
+      "id": "shs/notion",
+      "display_name": "Notion",
+      "version": "1.0.0",
+      "tier": "community",
+      "category": "productivity",
+      "description": "Connect to Notion workspaces for pages, databases, and knowledge management",
+      "services_preview": [
+        "Query Database",
+        "Create Page",
+        "Update Page",
+        "Get Page",
+        "Get Database",
+        "Search"
+      ],
+      "requires_token": false,
+      "path": "providers/shs/notion.json",
+      "download_url": "https://raw.githubusercontent.com/selfhosthub/studio-community/main/providers/shs/notion.json"
+    },
+    {
+      "id": "shs/trello",
+      "display_name": "Trello",
+      "version": "1.0.0",
+      "tier": "community",
+      "category": "productivity",
+      "description": "Project management with boards, lists, and cards",
+      "services_preview": [
+        "Get Board",
+        "List Cards",
+        "Create Card",
+        "Update Card",
+        "Get Lists"
+      ],
+      "requires_token": false,
+      "path": "providers/shs/trello.json",
+      "download_url": "https://raw.githubusercontent.com/selfhosthub/studio-community/main/providers/shs/trello.json"
+    },
+    {
+      "id": "shs/stripe",
+      "display_name": "Stripe",
+      "version": "1.0.0",
+      "tier": "community",
+      "category": "productivity",
+      "description": "Payment processing with customers, charges, and subscriptions",
+      "services_preview": [
+        "List Customers",
+        "Create Customer",
+        "Create Payment Intent",
+        "Create Checkout Session",
+        "List Charges"
+      ],
+      "requires_token": false,
+      "path": "providers/shs/stripe.json",
+      "download_url": "https://raw.githubusercontent.com/selfhosthub/studio-community/main/providers/shs/stripe.json"
+    },
+    {
+      "id": "shs/typeform",
+      "display_name": "Typeform",
+      "version": "1.0.0",
+      "tier": "community",
+      "category": "productivity",
+      "description": "Form responses and survey data from Typeform",
+      "services_preview": [
+        "Get Form",
+        "List Responses",
+        "Get Response",
+        "Create Webhook"
+      ],
+      "requires_token": false,
+      "path": "providers/shs/typeform.json",
+      "download_url": "https://raw.githubusercontent.com/selfhosthub/studio-community/main/providers/shs/typeform.json"
+    },
+    {
+      "id": "shs/slack",
+      "display_name": "Slack",
+      "version": "1.1.1",
+      "tier": "community",
+      "category": "communication",
+      "description": "Send messages to Slack channels",
+      "services_preview": [
+        "Send Message"
+      ],
+      "requires_token": false,
+      "path": "providers/shs/slack.json",
+      "download_url": "https://raw.githubusercontent.com/selfhosthub/studio-community/main/providers/shs/slack.json"
+    },
+    {
+      "id": "shs/discord",
+      "display_name": "Discord",
+      "version": "1.1.0",
+      "tier": "community",
+      "category": "communication",
+      "description": "Send messages to Discord channels via webhooks",
+      "services_preview": [
+        "Send Webhook Message"
+      ],
+      "requires_token": false,
+      "path": "providers/shs/discord.json",
+      "download_url": "https://raw.githubusercontent.com/selfhosthub/studio-community/main/providers/shs/discord.json"
+    },
+    {
+      "id": "shs/telegram",
+      "display_name": "Telegram",
+      "version": "1.0.0",
+      "tier": "community",
+      "category": "communication",
+      "description": "Messaging and bot automation for Telegram",
+      "services_preview": [
+        "Send Message",
+        "Send Photo",
+        "Send Document",
+        "Get Updates",
+        "Send Location"
+      ],
+      "requires_token": false,
+      "path": "providers/shs/telegram.json",
+      "download_url": "https://raw.githubusercontent.com/selfhosthub/studio-community/main/providers/shs/telegram.json"
+    },
+    {
+      "id": "shs/instagram",
+      "display_name": "Instagram",
+      "version": "1.0.0",
+      "tier": "community",
+      "category": "social_media",
+      "description": "Instagram integration for content publishing, insights, hashtags, and business discovery",
+      "services_preview": [
+        "Publish Image",
+        "Publish Video",
+        "Carousel",
+        "List Media",
+        "Insights",
+        "Comments",
+        "Reply",
+        "Hashtag Search",
+        "Business Discovery"
+      ],
+      "requires_token": false,
+      "path": "providers/shs/instagram.json",
+      "download_url": "https://raw.githubusercontent.com/selfhosthub/studio-community/main/providers/shs/instagram.json"
+    },
+    {
+      "id": "shs/twilio",
+      "display_name": "Twilio",
+      "version": "1.0.0",
+      "tier": "community",
+      "category": "communication",
+      "description": "SMS, WhatsApp, and voice call automation via Twilio",
+      "services_preview": [
+        "Send SMS",
+        "Send WhatsApp",
+        "Make Call",
+        "List Messages",
+        "Get Message"
+      ],
+      "requires_token": false,
+      "path": "providers/shs/twilio.json",
+      "download_url": "https://raw.githubusercontent.com/selfhosthub/studio-community/main/providers/shs/twilio.json"
+    },
+    {
+      "id": "shs/airtable",
+      "display_name": "Airtable",
+      "version": "1.0.0",
+      "tier": "community",
+      "category": "data",
+      "description": "Database and spreadsheet platform for managing structured data",
+      "services_preview": [
+        "List Records",
+        "Get Record",
+        "Create Record",
+        "Update Record",
+        "Delete Record"
+      ],
+      "requires_token": false,
+      "path": "providers/shs/airtable.json",
+      "download_url": "https://raw.githubusercontent.com/selfhosthub/studio-community/main/providers/shs/airtable.json"
     }
   ]
 }

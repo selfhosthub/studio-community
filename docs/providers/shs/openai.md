@@ -4,7 +4,7 @@ Connect to OpenAI's GPT models for chat completion, embeddings, and DALL-E image
 
 ## How It Works
 
-OpenAI's API provides access to powerful language models (GPT-4, GPT-4o) and image generation (DALL-E 3). Studio integrates these capabilities into your workflows:
+OpenAI's API provides access to powerful language models (GPT-5.5, GPT-4.1) and image generation (GPT Image 2). Studio integrates these capabilities into your workflows:
 
 - **Chat Completion** sends messages to GPT models and receives intelligent responses
 - **Embeddings** converts text into vector representations for semantic search
@@ -35,7 +35,7 @@ Generate conversational responses using GPT models.
 
 | Parameter | Description |
 |-----------|-------------|
-| **model** | GPT-4o (recommended), GPT-4o Mini, GPT-4 Turbo, GPT-4, GPT-3.5 Turbo |
+| **model** | `gpt-5.5` (default), `gpt-5.4`, `gpt-5.4-mini`, `gpt-5.4-nano`, `gpt-4.1`, `gpt-4.1-mini`, `gpt-4o-mini` |
 | **messages** | Conversation history with roles (system, user, assistant) |
 | **temperature** | Creativity (0 = focused, 2 = creative) |
 | **max_tokens** | Maximum response length |
@@ -64,21 +64,23 @@ Create images from text descriptions.
 | Parameter | Description |
 |-----------|-------------|
 | **prompt** | Description of the image to create |
-| **model** | DALL-E 3 (recommended) or DALL-E 2 |
-| **size** | 1024x1024, 1792x1024 (landscape), 1024x1792 (portrait) |
-| **quality** | standard or hd (DALL-E 3 only) |
+| **model** | GPT Image 2 (default) or DALL-E 3 |
+| **size** | 1024x1024, 1536x1024, 1024x1536, 1792x1024, 1024x1792 |
+| **quality** | auto, low, medium, high, standard, hd |
 | **style** | vivid or natural (DALL-E 3 only) |
 
 ## Available Models
 
 ### Chat Models
-| Model | Best For | Context |
-|-------|----------|---------|
-| **gpt-4o** | General tasks, fast and capable | 128K |
-| **gpt-4o-mini** | Cost-effective, high volume | 128K |
-| **gpt-4-turbo** | Complex reasoning | 128K |
-| **gpt-4** | Highest quality | 8K |
-| **gpt-3.5-turbo** | Simple tasks, lowest cost | 16K |
+| Model | Best For |
+|-------|----------|
+| **gpt-5.5** | Flagship, highest quality (default) |
+| **gpt-5.4** | Affordable frontier |
+| **gpt-5.4-mini** | Fast and cheap |
+| **gpt-5.4-nano** | Cheapest, high volume |
+| **gpt-4.1** | Complex tasks without reasoning |
+| **gpt-4.1-mini** | Fast, non-reasoning |
+| **gpt-4o-mini** | Legacy, cost-effective |
 
 ### Embedding Models
 | Model | Dimensions | Use Case |

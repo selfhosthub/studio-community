@@ -35,8 +35,6 @@ Generate speech audio from text using the full Chatterbox model.
 | **audio_prompt_path** | Reference audio clip for voice cloning (~10s, optional) |
 | **exaggeration** | Expressiveness: 0 = neutral, 1 = highly expressive (default 0.5) |
 | **cfg_weight** | Classifier-free guidance weight (default 0.5) |
-| **temperature** | Sampling temperature (default 0.8) |
-| **seed** | -1 for random, or specific seed for reproducibility |
 
 ### Text to Speech (Turbo)
 
@@ -48,8 +46,6 @@ Faster TTS with the 350M parameter turbo model. Supports paralinguistic tags for
 | **audio_prompt_path** | Reference audio for voice cloning (optional) |
 | **exaggeration** | Expressiveness level (default 0.5) |
 | **cfg_weight** | Guidance weight (default 0.5) |
-| **temperature** | Sampling temperature (default 0.8) |
-| **seed** | Random seed (-1 for random) |
 
 **Paralinguistic Tags (Turbo only):**
 - `[laugh]` - Laughter
@@ -148,4 +144,3 @@ Create full podcast episodes from text:
 3. **Turbo vs Standard** - Turbo is ~2x faster but slightly lower quality
 4. **Paralinguistic Tags** - Only work with the Turbo model
 5. **Long Text** - Split text into paragraph-sized chunks for best quality
-6. **Seed** - Use a fixed seed to reproduce the same output for A/B testing

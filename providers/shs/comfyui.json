@@ -1,7 +1,7 @@
 {
   "$schema": "https://raw.githubusercontent.com/selfhosthub/studio-community/main/schemas/provider.schema.json",
   "slug": "shs/comfyui",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "name": "Self-Host Studio ComfyUI",
   "description": "Self-hosted AI image generation with ComfyUI (Flux Schnell)",
   "provider_type": "INTERNAL",
@@ -608,7 +608,6 @@
       },
       "example_parameters": {
         "prompt": "A majestic mountain landscape at golden hour, with a crystal clear lake reflecting snow-capped peaks",
-        "model": "flux1-schnell-q4",
         "styles": [
           "sai-photographic"
         ],

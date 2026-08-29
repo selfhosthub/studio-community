@@ -5,7 +5,7 @@
     {
       "id": "shs/story-generator",
       "display_name": "Story Generator",
-      "version": "1.0.0",
+      "version": "1.0.1",
       "tier": "community",
       "category": "story_generation",
       "description": "Turns a news article into a narrated voice-over script with structured headline, opening, key facts, and closing.",
@@ -16,7 +16,7 @@
     {
       "id": "shs/scene-designer",
       "display_name": "Scene Content Designer",
-      "version": "1.0.0",
+      "version": "1.0.1",
       "tier": "community",
       "category": "story_generation",
       "description": "Decomposes a narrated story into structured scenes with narration text and AI image generation prompts, with configurable style constraints. Returns JSON.",
@@ -27,7 +27,7 @@
     {
       "id": "shs/youtube-metadata",
       "display_name": "Youtube Metadata",
-      "version": "1.0.0",
+      "version": "1.0.1",
       "tier": "community",
       "category": "classification",
       "description": "Generate optimized YouTube metadata (title, description, tags, category) from video story content. Enhances user-provided metadata or creates it from scratch when blank.",

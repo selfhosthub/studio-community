@@ -1,0 +1,1468 @@
+{
+  "$schema": "https://raw.githubusercontent.com/selfhosthub/studio-community/main/schemas/provider.schema.json",
+  "slug": "shs/stripe",
+  "version": "1.0.0",
+  "name": "Stripe",
+  "description": "Payment processing with customers, charges, and subscriptions",
+  "provider_type": "API",
+  "category": "productivity",
+  "status": "ACTIVE",
+  "tier": "community",
+  "credential_provider": null,
+  "requires": [],
+  "services_preview": [
+    "List Customers",
+    "Create Customer",
+    "Create Charge",
+    "List Subscriptions"
+  ],
+  "credential_schema": {
+    "type": "object",
+    "required": [
+      "secret_key"
+    ],
+    "properties": {
+      "secret_key": {
+        "type": "string",
+        "title": "Secret Key",
+        "description": "Stripe secret key (starts with sk_)",
+        "format": "password"
+      }
+    }
+  },
+  "base_url": "https://api.stripe.com/v1",
+  "auth": {
+    "type": "bearer",
+    "config": {
+      "token_field": "secret_key"
+    }
+  },
+  "default_headers": {
+    "Content-Type": "application/x-www-form-urlencoded"
+  },
+  "form_array_style": "brackets",
+  "services": {
+    "stripe_list_customers": {
+      "display_name": "List Customers",
+      "description": "Retrieve a list of customers. Supports filtering, pagination, and searching by email.",
+      "service_type": "PRODUCTIVITY",
+      "endpoint_url": "https://api.stripe.com/v1",
+      "path": "/customers",
+      "method": "GET",
+      "requires_credentials": true,
+      "parameter_mapping": {
+        "header": [
+          "secret_key"
+        ],
+        "query": [
+          "email",
+          "limit",
+          "starting_after",
+          "ending_before",
+          "created"
+        ]
+      },
+      "parameter_schema": {
+        "type": "object",
+        "required": [
+          "secret_key"
+        ],
+        "properties": {
+          "secret_key": {
+            "type": "string",
+            "title": "Secret Key",
+            "description": "Your Stripe secret API key (starts with sk_)",
+            "x-ui-hints": {
+              "format": "credential_field"
+            },
+            "ui": {
+              "section": "Main",
+              "order": 1
+            }
+          },
+          "email": {
+            "type": "string",
+            "title": "Email Filter",
+            "description": "Filter customers by email address",
+            "format": "email",
+            "ui": {
+              "section": "Main",
+              "order": 2
+            }
+          },
+          "limit": {
+            "type": "integer",
+            "title": "Limit",
+            "description": "Number of customers to return (1-100)",
+            "minimum": 1,
+            "maximum": 100,
+            "default": 10,
+            "ui": {
+              "section": "Main",
+              "order": 3
+            }
+          },
+          "starting_after": {
+            "type": "string",
+            "title": "Starting After",
+            "description": "Cursor for pagination - customer ID to start after",
+            "ui": {
+              "section": "Advanced",
+              "order": 1,
+              "collapsed": true
+            }
+          },
+          "ending_before": {
+            "type": "string",
+            "title": "Ending Before",
+            "description": "Cursor for pagination - customer ID to end before",
+            "ui": {
+              "section": "Advanced",
+              "order": 2,
+              "collapsed": true
+            }
+          },
+          "created": {
+            "type": "object",
+            "title": "Created Filter",
+            "description": "Filter by creation date (e.g., {\"gte\": 1609459200} for after Jan 1, 2021)",
+            "x-ui-hints": {
+              "format": "json-editor"
+            },
+            "ui": {
+              "section": "Advanced",
+              "order": 3,
+              "collapsed": true
+            }
+          }
+        }
+      },
+      "result_schema": {
+        "type": "object",
+        "properties": {
+          "object": {
+            "type": "string",
+            "enum": [
+              "list"
+            ]
+          },
+          "data": {
+            "type": "array",
+            "description": "Array of Customer objects",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "description": "Customer ID"
+                },
+                "email": {
+                  "type": "string",
+                  "description": "Customer email"
+                },
+                "name": {
+                  "type": "string",
+                  "description": "Customer name"
+                },
+                "created": {
+                  "type": "integer",
+                  "description": "Time created (Unix timestamp)"
+                }
+              }
+            }
+          },
+          "has_more": {
+            "type": "boolean",
+            "description": "Whether there are more results"
+          },
+          "url": {
+            "type": "string",
+            "description": "The URL for accessing this list"
+          }
+        }
+      },
+      "output_view": {
+        "type": "table",
+        "source": "data",
+        "columns": [
+          {
+            "key": "id",
+            "label": "Customer ID"
+          },
+          {
+            "key": "email",
+            "label": "Email"
+          },
+          {
+            "key": "name",
+            "label": "Name"
+          },
+          {
+            "key": "created",
+            "label": "Created"
+          }
+        ]
+      },
+      "example_parameters": {
+        "secret_key": "sk_test_abc123",
+        "limit": 10
+      },
+      "ui_hints": {
+        "categories": [
+          "productivity"
+        ]
+      }
+    },
+    "stripe_create_customer": {
+      "display_name": "Create Customer",
+      "description": "Create a new customer in Stripe. Store email, name, payment methods, and metadata for future charges.",
+      "service_type": "PRODUCTIVITY",
+      "endpoint_url": "https://api.stripe.com/v1",
+      "path": "/customers",
+      "method": "POST",
+      "requires_credentials": true,
+      "parameter_mapping": {
+        "header": [
+          "secret_key"
+        ],
+        "body": [
+          "email",
+          "name",
+          "description",
+          "phone",
+          "metadata",
+          "address",
+          "payment_method",
+          "invoice_settings"
+        ]
+      },
+      "parameter_schema": {
+        "type": "object",
+        "required": [
+          "secret_key"
+        ],
+        "properties": {
+          "secret_key": {
+            "type": "string",
+            "title": "Secret Key",
+            "description": "Your Stripe secret API key",
+            "x-ui-hints": {
+              "format": "credential_field"
+            },
+            "ui": {
+              "section": "Main",
+              "order": 1
+            }
+          },
+          "email": {
+            "type": "string",
+            "title": "Email",
+            "description": "Customer's email address",
+            "format": "email",
+            "ui": {
+              "section": "Main",
+              "order": 2
+            }
+          },
+          "name": {
+            "type": "string",
+            "title": "Name",
+            "description": "Customer's full name",
+            "ui": {
+              "section": "Main",
+              "order": 3
+            }
+          },
+          "description": {
+            "type": "string",
+            "title": "Description",
+            "description": "Arbitrary description for internal use",
+            "ui": {
+              "section": "Main",
+              "order": 4
+            }
+          },
+          "phone": {
+            "type": "string",
+            "title": "Phone",
+            "description": "Customer's phone number",
+            "ui": {
+              "section": "Advanced",
+              "order": 1,
+              "collapsed": true
+            }
+          },
+          "metadata": {
+            "type": "object",
+            "title": "Metadata",
+            "description": "Set of key-value pairs for custom data (e.g., {\"order_id\": \"12345\"})",
+            "x-ui-hints": {
+              "format": "json-editor"
+            },
+            "ui": {
+              "section": "Advanced",
+              "order": 2,
+              "collapsed": true
+            }
+          },
+          "address": {
+            "type": "object",
+            "title": "Address",
+            "description": "Customer's address",
+            "properties": {
+              "line1": {
+                "type": "string"
+              },
+              "line2": {
+                "type": "string"
+              },
+              "city": {
+                "type": "string"
+              },
+              "state": {
+                "type": "string"
+              },
+              "postal_code": {
+                "type": "string"
+              },
+              "country": {
+                "type": "string"
+              }
+            },
+            "x-ui-hints": {
+              "format": "json-editor"
+            },
+            "ui": {
+              "section": "Advanced",
+              "order": 3,
+              "collapsed": true
+            }
+          },
+          "payment_method": {
+            "type": "string",
+            "title": "Payment Method",
+            "description": "ID of payment method to attach to customer",
+            "ui": {
+              "section": "Advanced",
+              "order": 4,
+              "collapsed": true
+            }
+          },
+          "invoice_settings": {
+            "type": "object",
+            "title": "Invoice Settings",
+            "description": "Default invoice settings for this customer",
+            "x-ui-hints": {
+              "format": "json-editor"
+            },
+            "ui": {
+              "section": "Advanced",
+              "order": 5,
+              "collapsed": true
+            }
+          }
+        }
+      },
+      "result_schema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique identifier for the customer"
+          },
+          "object": {
+            "type": "string",
+            "enum": [
+              "customer"
+            ]
+          },
+          "email": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "created": {
+            "type": "integer",
+            "description": "Time created (Unix timestamp)"
+          },
+          "metadata": {
+            "type": "object"
+          }
+        }
+      },
+      "output_view": {
+        "type": "key_value",
+        "fields": [
+          {
+            "key": "id",
+            "label": "Customer ID"
+          },
+          {
+            "key": "email",
+            "label": "Email"
+          },
+          {
+            "key": "name",
+            "label": "Name"
+          },
+          {
+            "key": "created",
+            "label": "Created"
+          }
+        ]
+      },
+      "example_parameters": {
+        "secret_key": "sk_test_abc123",
+        "email": "jane@example.com",
+        "name": "Jane Doe"
+      },
+      "ui_hints": {
+        "categories": [
+          "productivity"
+        ]
+      }
+    },
+    "stripe_get_customer": {
+      "display_name": "Get Customer",
+      "description": "Retrieve a customer by ID. Returns all customer details including payment methods and metadata.",
+      "service_type": "PRODUCTIVITY",
+      "endpoint_url": "https://api.stripe.com/v1",
+      "path": "/customers/{customer_id}",
+      "method": "GET",
+      "requires_credentials": true,
+      "parameter_mapping": {
+        "header": [
+          "secret_key"
+        ],
+        "path": [
+          "customer_id"
+        ]
+      },
+      "parameter_schema": {
+        "type": "object",
+        "required": [
+          "secret_key",
+          "customer_id"
+        ],
+        "properties": {
+          "secret_key": {
+            "type": "string",
+            "title": "Secret Key",
+            "description": "Your Stripe secret API key",
+            "x-ui-hints": {
+              "format": "credential_field"
+            },
+            "ui": {
+              "section": "Main",
+              "order": 1
+            }
+          },
+          "customer_id": {
+            "type": "string",
+            "title": "Customer ID",
+            "description": "The ID of the customer to retrieve (starts with cus_)",
+            "examples": [
+              "cus_ABC123"
+            ],
+            "ui": {
+              "section": "Main",
+              "order": 2
+            }
+          }
+        }
+      },
+      "result_schema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "object": {
+            "type": "string",
+            "enum": [
+              "customer"
+            ]
+          },
+          "email": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "string"
+          },
+          "address": {
+            "type": "object"
+          },
+          "metadata": {
+            "type": "object"
+          },
+          "created": {
+            "type": "integer"
+          }
+        }
+      },
+      "output_view": {
+        "type": "key_value",
+        "fields": [
+          {
+            "key": "id",
+            "label": "Customer ID"
+          },
+          {
+            "key": "email",
+            "label": "Email"
+          },
+          {
+            "key": "name",
+            "label": "Name"
+          },
+          {
+            "key": "phone",
+            "label": "Phone"
+          },
+          {
+            "key": "created",
+            "label": "Created"
+          }
+        ]
+      },
+      "example_parameters": {
+        "secret_key": "sk_test_abc123",
+        "customer_id": "cus_ABC123"
+      },
+      "ui_hints": {
+        "categories": [
+          "productivity"
+        ]
+      }
+    },
+    "stripe_list_payment_intents": {
+      "display_name": "List Payment Intents",
+      "description": "Retrieve a list of payment intents. Track payment status, amounts, and customer associations.",
+      "service_type": "PRODUCTIVITY",
+      "endpoint_url": "https://api.stripe.com/v1",
+      "path": "/payment_intents",
+      "method": "GET",
+      "requires_credentials": true,
+      "parameter_mapping": {
+        "header": [
+          "secret_key"
+        ],
+        "query": [
+          "customer",
+          "limit",
+          "starting_after",
+          "ending_before",
+          "created"
+        ]
+      },
+      "parameter_schema": {
+        "type": "object",
+        "required": [
+          "secret_key"
+        ],
+        "properties": {
+          "secret_key": {
+            "type": "string",
+            "title": "Secret Key",
+            "description": "Your Stripe secret API key",
+            "x-ui-hints": {
+              "format": "credential_field"
+            },
+            "ui": {
+              "section": "Main",
+              "order": 1
+            }
+          },
+          "customer": {
+            "type": "string",
+            "title": "Customer ID",
+            "description": "Filter by customer ID",
+            "examples": [
+              "cus_ABC123"
+            ],
+            "ui": {
+              "section": "Main",
+              "order": 2
+            }
+          },
+          "limit": {
+            "type": "integer",
+            "title": "Limit",
+            "description": "Number of payment intents to return (1-100)",
+            "minimum": 1,
+            "maximum": 100,
+            "default": 10,
+            "ui": {
+              "section": "Main",
+              "order": 3
+            }
+          },
+          "starting_after": {
+            "type": "string",
+            "title": "Starting After",
+            "description": "Cursor for pagination",
+            "ui": {
+              "section": "Advanced",
+              "order": 1,
+              "collapsed": true
+            }
+          },
+          "ending_before": {
+            "type": "string",
+            "title": "Ending Before",
+            "description": "Cursor for pagination",
+            "ui": {
+              "section": "Advanced",
+              "order": 2,
+              "collapsed": true
+            }
+          },
+          "created": {
+            "type": "object",
+            "title": "Created Filter",
+            "description": "Filter by creation date",
+            "x-ui-hints": {
+              "format": "json-editor"
+            },
+            "ui": {
+              "section": "Advanced",
+              "order": 3,
+              "collapsed": true
+            }
+          }
+        }
+      },
+      "result_schema": {
+        "type": "object",
+        "properties": {
+          "object": {
+            "type": "string",
+            "enum": [
+              "list"
+            ]
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "amount": {
+                  "type": "integer",
+                  "description": "Amount in cents"
+                },
+                "currency": {
+                  "type": "string"
+                },
+                "status": {
+                  "type": "string",
+                  "enum": [
+                    "requires_payment_method",
+                    "requires_confirmation",
+                    "requires_action",
+                    "processing",
+                    "requires_capture",
+                    "canceled",
+                    "succeeded"
+                  ]
+                },
+                "customer": {
+                  "type": "string"
+                },
+                "created": {
+                  "type": "integer"
+                }
+              }
+            }
+          },
+          "has_more": {
+            "type": "boolean"
+          }
+        }
+      },
+      "output_view": {
+        "type": "table",
+        "source": "data",
+        "columns": [
+          {
+            "key": "id",
+            "label": "Payment Intent ID"
+          },
+          {
+            "key": "amount",
+            "label": "Amount (cents)"
+          },
+          {
+            "key": "currency",
+            "label": "Currency"
+          },
+          {
+            "key": "status",
+            "label": "Status"
+          },
+          {
+            "key": "customer",
+            "label": "Customer"
+          }
+        ]
+      },
+      "example_parameters": {
+        "secret_key": "sk_test_abc123",
+        "limit": 10
+      },
+      "ui_hints": {
+        "categories": [
+          "productivity"
+        ]
+      }
+    },
+    "stripe_create_payment_intent": {
+      "display_name": "Create Payment Intent",
+      "description": "Create a payment intent to collect payment from a customer. Supports one-time and recurring payments.",
+      "service_type": "PRODUCTIVITY",
+      "endpoint_url": "https://api.stripe.com/v1",
+      "path": "/payment_intents",
+      "method": "POST",
+      "requires_credentials": true,
+      "parameter_mapping": {
+        "header": [
+          "secret_key"
+        ],
+        "body": [
+          "amount",
+          "currency",
+          "customer",
+          "description",
+          "metadata",
+          "payment_method",
+          "confirm",
+          "return_url",
+          "automatic_payment_methods"
+        ]
+      },
+      "parameter_schema": {
+        "type": "object",
+        "required": [
+          "secret_key",
+          "amount",
+          "currency"
+        ],
+        "properties": {
+          "secret_key": {
+            "type": "string",
+            "title": "Secret Key",
+            "description": "Your Stripe secret API key",
+            "x-ui-hints": {
+              "format": "credential_field"
+            },
+            "ui": {
+              "section": "Main",
+              "order": 1
+            }
+          },
+          "amount": {
+            "type": "integer",
+            "title": "Amount",
+            "description": "Amount in cents (e.g., 2000 = $20.00)",
+            "minimum": 0,
+            "examples": [
+              2000,
+              5000,
+              10000
+            ],
+            "ui": {
+              "section": "Main",
+              "order": 2
+            }
+          },
+          "currency": {
+            "type": "string",
+            "title": "Currency",
+            "description": "Three-letter ISO currency code (lowercase)",
+            "enum": [
+              "usd",
+              "eur",
+              "gbp",
+              "cad",
+              "aud",
+              "jpy"
+            ],
+            "default": "usd",
+            "x-ui-hints": {
+              "format": "select"
+            },
+            "ui": {
+              "section": "Main",
+              "order": 3
+            }
+          },
+          "customer": {
+            "type": "string",
+            "title": "Customer ID",
+            "description": "ID of the customer for this payment",
+            "examples": [
+              "cus_ABC123"
+            ],
+            "ui": {
+              "section": "Main",
+              "order": 4
+            }
+          },
+          "description": {
+            "type": "string",
+            "title": "Description",
+            "description": "Arbitrary description for this payment intent",
+            "ui": {
+              "section": "Main",
+              "order": 5
+            }
+          },
+          "metadata": {
+            "type": "object",
+            "title": "Metadata",
+            "description": "Set of key-value pairs for custom data",
+            "x-ui-hints": {
+              "format": "json-editor"
+            },
+            "ui": {
+              "section": "Advanced",
+              "order": 1,
+              "collapsed": true
+            }
+          },
+          "payment_method": {
+            "type": "string",
+            "title": "Payment Method ID",
+            "description": "ID of payment method to use (if pre-saved)",
+            "ui": {
+              "section": "Advanced",
+              "order": 2,
+              "collapsed": true
+            }
+          },
+          "confirm": {
+            "type": "boolean",
+            "title": "Confirm Immediately",
+            "description": "Set to true to attempt to confirm this PaymentIntent immediately",
+            "default": false,
+            "ui": {
+              "section": "Advanced",
+              "order": 3,
+              "collapsed": true
+            }
+          },
+          "return_url": {
+            "type": "string",
+            "title": "Return URL",
+            "description": "URL to redirect customer after completing authentication",
+            "ui": {
+              "section": "Advanced",
+              "order": 4,
+              "collapsed": true
+            }
+          },
+          "automatic_payment_methods": {
+            "type": "object",
+            "title": "Automatic Payment Methods",
+            "description": "Enable automatic payment method collection (e.g., {\"enabled\": true})",
+            "x-ui-hints": {
+              "format": "json-editor"
+            },
+            "ui": {
+              "section": "Advanced",
+              "order": 5,
+              "collapsed": true
+            }
+          }
+        }
+      },
+      "result_schema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Payment Intent ID"
+          },
+          "object": {
+            "type": "string",
+            "enum": [
+              "payment_intent"
+            ]
+          },
+          "amount": {
+            "type": "integer"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "client_secret": {
+            "type": "string",
+            "description": "Secret for client-side confirmation"
+          },
+          "customer": {
+            "type": "string"
+          },
+          "created": {
+            "type": "integer"
+          }
+        }
+      },
+      "output_view": {
+        "type": "key_value",
+        "fields": [
+          {
+            "key": "id",
+            "label": "Payment Intent ID"
+          },
+          {
+            "key": "amount",
+            "label": "Amount (cents)"
+          },
+          {
+            "key": "currency",
+            "label": "Currency"
+          },
+          {
+            "key": "status",
+            "label": "Status"
+          },
+          {
+            "key": "client_secret",
+            "label": "Client Secret"
+          }
+        ]
+      },
+      "example_parameters": {
+        "secret_key": "sk_test_abc123",
+        "amount": 2000,
+        "currency": "usd",
+        "description": "Order #1234"
+      },
+      "ui_hints": {
+        "categories": [
+          "productivity"
+        ]
+      }
+    },
+    "stripe_create_checkout_session": {
+      "display_name": "Create Checkout Session",
+      "description": "Create a Stripe Checkout session for hosted payment page. Perfect for one-time purchases and subscriptions.",
+      "service_type": "PRODUCTIVITY",
+      "endpoint_url": "https://api.stripe.com/v1",
+      "path": "/checkout/sessions",
+      "method": "POST",
+      "requires_credentials": true,
+      "parameter_mapping": {
+        "header": [
+          "secret_key"
+        ],
+        "body": [
+          "success_url",
+          "cancel_url",
+          "line_items",
+          "mode",
+          "customer",
+          "customer_email",
+          "metadata",
+          "payment_method_types",
+          "expires_at"
+        ]
+      },
+      "parameter_schema": {
+        "type": "object",
+        "required": [
+          "secret_key",
+          "success_url",
+          "cancel_url",
+          "line_items",
+          "mode"
+        ],
+        "properties": {
+          "secret_key": {
+            "type": "string",
+            "title": "Secret Key",
+            "description": "Your Stripe secret API key",
+            "x-ui-hints": {
+              "format": "credential_field"
+            },
+            "ui": {
+              "section": "Main",
+              "order": 1
+            }
+          },
+          "success_url": {
+            "type": "string",
+            "title": "Success URL",
+            "description": "URL to redirect after successful payment",
+            "format": "uri",
+            "examples": [
+              "https://example.com/success?session_id={CHECKOUT_SESSION_ID}"
+            ],
+            "ui": {
+              "section": "Main",
+              "order": 2
+            }
+          },
+          "cancel_url": {
+            "type": "string",
+            "title": "Cancel URL",
+            "description": "URL to redirect if customer cancels",
+            "format": "uri",
+            "examples": [
+              "https://example.com/cancel"
+            ],
+            "ui": {
+              "section": "Main",
+              "order": 3
+            }
+          },
+          "line_items": {
+            "type": "array",
+            "title": "Line Items",
+            "description": "List of items the customer is purchasing",
+            "items": {
+              "type": "object",
+              "required": [
+                "price_data",
+                "quantity"
+              ],
+              "properties": {
+                "price_data": {
+                  "type": "object",
+                  "properties": {
+                    "currency": {
+                      "type": "string"
+                    },
+                    "product_data": {
+                      "type": "object",
+                      "properties": {
+                        "name": {
+                          "type": "string"
+                        },
+                        "description": {
+                          "type": "string"
+                        },
+                        "images": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    },
+                    "unit_amount": {
+                      "type": "integer",
+                      "description": "Price in cents"
+                    }
+                  }
+                },
+                "quantity": {
+                  "type": "integer"
+                }
+              }
+            },
+            "x-ui-hints": {
+              "format": "json-editor"
+            },
+            "examples": [
+              [
+                {
+                  "price_data": {
+                    "currency": "usd",
+                    "product_data": {
+                      "name": "Premium Plan"
+                    },
+                    "unit_amount": 2000
+                  },
+                  "quantity": 1
+                }
+              ]
+            ],
+            "ui": {
+              "section": "Main",
+              "order": 4
+            }
+          },
+          "mode": {
+            "type": "string",
+            "title": "Mode",
+            "description": "Mode for this checkout session",
+            "enum": [
+              "payment",
+              "subscription",
+              "setup"
+            ],
+            "default": "payment",
+            "x-ui-hints": {
+              "format": "select"
+            },
+            "ui": {
+              "section": "Main",
+              "order": 5
+            }
+          },
+          "customer": {
+            "type": "string",
+            "title": "Customer ID",
+            "description": "Existing customer ID",
+            "examples": [
+              "cus_ABC123"
+            ],
+            "ui": {
+              "section": "Advanced",
+              "order": 1,
+              "collapsed": true
+            }
+          },
+          "customer_email": {
+            "type": "string",
+            "title": "Customer Email",
+            "description": "Email for customer (creates new customer if not exists)",
+            "format": "email",
+            "ui": {
+              "section": "Advanced",
+              "order": 2,
+              "collapsed": true
+            }
+          },
+          "metadata": {
+            "type": "object",
+            "title": "Metadata",
+            "description": "Custom data for this checkout session",
+            "x-ui-hints": {
+              "format": "json-editor"
+            },
+            "ui": {
+              "section": "Advanced",
+              "order": 3,
+              "collapsed": true
+            }
+          },
+          "payment_method_types": {
+            "type": "array",
+            "title": "Payment Method Types",
+            "description": "Accepted payment methods",
+            "items": {
+              "type": "string",
+              "enum": [
+                "card",
+                "ideal",
+                "alipay",
+                "bancontact",
+                "giropay",
+                "sepa_debit"
+              ]
+            },
+            "default": [
+              "card"
+            ],
+            "x-ui-hints": {
+              "format": "multi-select"
+            },
+            "ui": {
+              "section": "Advanced",
+              "order": 4,
+              "collapsed": true
+            }
+          },
+          "expires_at": {
+            "type": "integer",
+            "title": "Expires At",
+            "description": "Unix timestamp when session expires (max 24 hours from creation)",
+            "ui": {
+              "section": "Advanced",
+              "order": 5,
+              "collapsed": true
+            }
+          }
+        }
+      },
+      "result_schema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Checkout session ID"
+          },
+          "object": {
+            "type": "string",
+            "enum": [
+              "checkout.session"
+            ]
+          },
+          "url": {
+            "type": "string",
+            "description": "URL to redirect customer to complete checkout"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "open",
+              "complete",
+              "expired"
+            ]
+          },
+          "customer": {
+            "type": "string"
+          },
+          "payment_status": {
+            "type": "string",
+            "enum": [
+              "paid",
+              "unpaid",
+              "no_payment_required"
+            ]
+          },
+          "amount_total": {
+            "type": "integer",
+            "description": "Total amount in cents"
+          },
+          "currency": {
+            "type": "string"
+          }
+        }
+      },
+      "output_view": {
+        "type": "key_value",
+        "fields": [
+          {
+            "key": "id",
+            "label": "Session ID"
+          },
+          {
+            "key": "url",
+            "label": "Checkout URL"
+          },
+          {
+            "key": "status",
+            "label": "Status"
+          },
+          {
+            "key": "payment_status",
+            "label": "Payment Status"
+          },
+          {
+            "key": "amount_total",
+            "label": "Total (cents)"
+          }
+        ]
+      },
+      "example_parameters": {
+        "secret_key": "sk_test_abc123",
+        "success_url": "https://example.com/success?session_id={CHECKOUT_SESSION_ID}",
+        "cancel_url": "https://example.com/cancel",
+        "mode": "payment",
+        "line_items": [
+          {
+            "price_data": {
+              "currency": "usd",
+              "product_data": {
+                "name": "Premium Plan"
+              },
+              "unit_amount": 2000
+            },
+            "quantity": 1
+          }
+        ]
+      },
+      "ui_hints": {
+        "categories": [
+          "productivity"
+        ]
+      }
+    },
+    "stripe_list_charges": {
+      "display_name": "List Charges",
+      "description": "Retrieve a list of charges. View completed payments, refunds, and payment history.",
+      "service_type": "PRODUCTIVITY",
+      "endpoint_url": "https://api.stripe.com/v1",
+      "path": "/charges",
+      "method": "GET",
+      "requires_credentials": true,
+      "parameter_mapping": {
+        "header": [
+          "secret_key"
+        ],
+        "query": [
+          "customer",
+          "payment_intent",
+          "limit",
+          "starting_after",
+          "ending_before",
+          "created"
+        ]
+      },
+      "parameter_schema": {
+        "type": "object",
+        "required": [
+          "secret_key"
+        ],
+        "properties": {
+          "secret_key": {
+            "type": "string",
+            "title": "Secret Key",
+            "x-ui-hints": {
+              "format": "credential_field"
+            },
+            "ui": {
+              "section": "Main",
+              "order": 1
+            }
+          },
+          "customer": {
+            "type": "string",
+            "title": "Customer ID",
+            "description": "Filter by customer ID",
+            "ui": {
+              "section": "Main",
+              "order": 2
+            }
+          },
+          "payment_intent": {
+            "type": "string",
+            "title": "Payment Intent ID",
+            "description": "Filter by payment intent ID",
+            "ui": {
+              "section": "Main",
+              "order": 3
+            }
+          },
+          "limit": {
+            "type": "integer",
+            "title": "Limit",
+            "minimum": 1,
+            "maximum": 100,
+            "default": 10,
+            "ui": {
+              "section": "Main",
+              "order": 4
+            }
+          },
+          "starting_after": {
+            "type": "string",
+            "title": "Starting After",
+            "ui": {
+              "section": "Advanced",
+              "order": 1,
+              "collapsed": true
+            }
+          },
+          "ending_before": {
+            "type": "string",
+            "title": "Ending Before",
+            "ui": {
+              "section": "Advanced",
+              "order": 2,
+              "collapsed": true
+            }
+          },
+          "created": {
+            "type": "object",
+            "title": "Created Filter",
+            "x-ui-hints": {
+              "format": "json-editor"
+            },
+            "ui": {
+              "section": "Advanced",
+              "order": 3,
+              "collapsed": true
+            }
+          }
+        }
+      },
+      "result_schema": {
+        "type": "object",
+        "properties": {
+          "object": {
+            "type": "string",
+            "enum": [
+              "list"
+            ]
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "amount": {
+                  "type": "integer"
+                },
+                "currency": {
+                  "type": "string"
+                },
+                "status": {
+                  "type": "string",
+                  "enum": [
+                    "succeeded",
+                    "pending",
+                    "failed"
+                  ]
+                },
+                "customer": {
+                  "type": "string"
+                },
+                "receipt_url": {
+                  "type": "string"
+                },
+                "created": {
+                  "type": "integer"
+                }
+              }
+            }
+          },
+          "has_more": {
+            "type": "boolean"
+          }
+        }
+      },
+      "output_view": {
+        "type": "table",
+        "source": "data",
+        "columns": [
+          {
+            "key": "id",
+            "label": "Charge ID"
+          },
+          {
+            "key": "amount",
+            "label": "Amount (cents)"
+          },
+          {
+            "key": "currency",
+            "label": "Currency"
+          },
+          {
+            "key": "status",
+            "label": "Status"
+          },
+          {
+            "key": "receipt_url",
+            "label": "Receipt"
+          }
+        ]
+      },
+      "example_parameters": {
+        "secret_key": "sk_test_abc123",
+        "limit": 10
+      },
+      "ui_hints": {
+        "categories": [
+          "productivity"
+        ]
+      }
+    }
+  },
+  "default_queue": "step_jobs"
+}

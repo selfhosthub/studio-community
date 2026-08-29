@@ -707,10 +707,10 @@ Useful endpoints (typical):
 
 Each registered worker reports its `storage_mode` on every heartbeat. The Workers tab renders it as a per-worker badge:
 
-* **local workspace** — the worker shares the API's `/workspace` mount. Result files are written directly to disk; only metadata transits HTTP. Faster, less network usage.
-* **remote upload** — the worker runs on a separate host or container without shared storage. Result files are streamed to the API over HTTP, then placed.
+* **local workspace**: the worker shares the API's `/workspace` mount. Result files are written directly to disk; only metadata transits HTTP. Faster, less network usage.
+* **remote upload**: the worker runs on a separate host or container without shared storage. Result files are streamed to the API over HTTP, then placed.
 
-Both modes are equally supported and produce identical results. If a worker's mode unexpectedly flips from `local` → `remote` mid-run, the shared network mount has likely gone away on that host — investigate but jobs will still complete via the HTTP fallback.
+Both modes are equally supported and produce identical results. If a worker's mode unexpectedly flips from `local` → `remote` mid-run, the shared network mount has likely gone away on that host; investigate but jobs will still complete via the HTTP fallback.
 
 Alert on:
 

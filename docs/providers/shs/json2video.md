@@ -314,14 +314,14 @@ Subtitles are configured as a movie-level element in the `elements` array (not p
 
 The Generate Video step supports two completion modes (set per step in the flow editor):
 
-- **Poll for result** (`get`) — Studio polls the render status until it's `done`, then returns the video. Synchronous; holds a worker for the render duration.
-- **Wait for provider callback** (`webhook`) — Studio mints a **unique callback URL per render**, injects it into the request automatically, and releases the worker. json2video posts the finished video back to that URL and Studio downloads it and continues.
+- **Poll for result** (`get`): Studio polls the render status until it's `done`, then returns the video. Synchronous; holds a worker for the render duration.
+- **Wait for provider callback** (`webhook`): Studio mints a **unique callback URL per render**, injects it into the request automatically, and releases the worker. json2video posts the finished video back to that URL and Studio downloads it and continues.
 
-Webhook mode needs no configuration on json2video and no callback key: the callback URL is generated per render (it carries an unguessable token that is the only auth, since json2video sends no signature), so concurrent runs and fan-out iterations all self-route. The deployment must have `API_BASE_URL` set to an absolute, publicly reachable URL — json2video calls it directly, so a relative URL won't work (Studio fails the step at enqueue if it's unset).
+Webhook mode needs no configuration on json2video and no callback key: the callback URL is generated per render (it carries an unguessable token that is the only auth, since json2video sends no signature), so concurrent runs and fan-out iterations all self-route. The deployment must have `API_BASE_URL` set to an absolute, publicly reachable URL, because json2video calls it directly, so a relative URL won't work (Studio fails the step at enqueue if it's unset).
 
 The inbound callback body is **flat** (not nested under `movie` like the GET status response): success carries `$.url` (the MP4); a failed render fires with the url empty.
 
-In webhook mode the step also exposes a **Check Status** button (manual poll fallback via the GET status endpoint) in case a callback is delayed or lost. In poll mode no button is needed — Studio polls automatically.
+In webhook mode the step also exposes a **Check Status** button (manual poll fallback via the GET status endpoint) in case a callback is delayed or lost. In poll mode no button is needed, because Studio polls automatically.
 
 ## Export Destinations
 
@@ -331,9 +331,9 @@ Destinations are nested under `exports[].destinations[]` and use json2video's na
 
 How outputs interact with completion mode:
 
-- **Webhook URL left blank** (webhook output row) — Studio auto-generates the endpoint. In **webhook completion mode** this is the same callback Studio already injects, so an empty webhook row is redundant; you don't need to add one.
-- **Webhook URL filled in** — json2video also POSTs to your endpoint. In **webhook completion mode** the render then has *two* webhook destinations (yours + Studio's auto callback) and **both fire** — the intended "notify a second listener" (e.g. monitoring) case, not a duplicate bug.
-- **Poll completion mode + your own webhook output** — Studio doesn't inject a callback (it polls for completion), so json2video delivers only to your endpoint. Output and completion are independent; both work.
+- **Webhook URL left blank** (webhook output row): Studio auto-generates the endpoint. In **webhook completion mode** this is the same callback Studio already injects, so an empty webhook row is redundant; you don't need to add one.
+- **Webhook URL filled in**: json2video also POSTs to your endpoint. In **webhook completion mode** the render then has *two* webhook destinations (yours + Studio's auto callback) and **both fire**, the intended "notify a second listener" (e.g. monitoring) case, not a duplicate bug.
+- **Poll completion mode + your own webhook output**: Studio doesn't inject a callback (it polls for completion), so json2video delivers only to your endpoint. Output and completion are independent; both work.
 
 ### Webhook Callback
 
@@ -382,7 +382,7 @@ How outputs interact with completion mode:
 }
 ```
 
-json2video's email destination has no `from` field — the sender is fixed by your json2video account.
+json2video's email destination has no `from` field; the sender is fixed by your json2video account.
 
 ## Troubleshooting
 
